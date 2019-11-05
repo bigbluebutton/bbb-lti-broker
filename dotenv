@@ -1,0 +1,11 @@
+# App configuration
+RELATIVE_URL_ROOT=lti
+
+# LTI tools configuration
+DEFAULT_LTI_TOOL=rooms
+
+# Consumer key
+CONSUMER_KEY=consumer_key
+
+# Consumer Secret
+CONSUMER_SECRET=consumer_secret
