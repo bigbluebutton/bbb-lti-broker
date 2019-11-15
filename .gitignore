@@ -12,6 +12,8 @@
 */tmp/*
 !/log/.keep
 !/tmp/.keep
+tmp/
+log/
 
 # Ignore Byebug command history file.
 .byebug_history
@@ -23,3 +25,5 @@ db/*.sqlite3
 
 config/secrets.yml
 config/lti_settings.yml
+
+/.ssh

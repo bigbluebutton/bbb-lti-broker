@@ -21,6 +21,10 @@
 
 en:
   ui:
+    goback:        "Go Back"
+    submit:        "Submit"
+    new:           "New"
+    options:       "Options"
     lti1:          "LTI 1 Provider"
     lti1config:    "Configure LTI 1 Provider"
     lti2:          "LTI 2 Config"
@@ -35,3 +39,13 @@ en:
     greenlight:
       title:       "Greenlight"
       description: "Rooms allows the creation and use of BigBlueButton Rooms through LTI"
+  registration:
+    goback:         "Go Back"
+    issuer:         "Issuer"
+    clientid:       "Client ID"
+    keyseturl:      "Key set URL"
+    authtokenurl:   "Auth token URL"
+    toolprivkey:    "Tool private key"
+    editreg:        "Edit Registration"
+    newreg:         "New Registration"
+    list:           "Registrations"

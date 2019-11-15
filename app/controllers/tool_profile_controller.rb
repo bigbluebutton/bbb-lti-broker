@@ -1,9 +1,12 @@
 require 'canvas_extensions'
 
 class ToolProfileController < ApplicationController
-    include ApplicationHelper
+    include ExceptionHandler
+    include Converter
+    include RoomsValidator
 
-    before_action :lti_authorized_application
+    before_action :lti_authorized_application, except: :json_config
+    skip_before_action :verify_authenticity_token
 
     rescue_from CustomError do |ex|
         @error = 'Authorization failed with: ' + case ex.error
@@ -20,6 +23,35 @@ class ToolProfileController < ApplicationController
     # show xml builder for customization in tool consumer url
     def xml_builder
       @placements = CanvasExtensions::PLACEMENTS
+    end
+
+    def json_config
+      # json_hash = JSON.parse(File.read(Rails.root.join('app', 'views', 'tool_profile', 'json_config.json')))
+      # test_json_hash = JSON.parse(File.read(Rails.root.join('app', 'views', 'tool_profile', 'template_json_config.json')))
+
+      # json_hash[:oidc_redirect_url] = openid_launch_url
+      # json_hash[:oidc_initiation_url] = openid_login_url
+
+      # pub = File.read(Rails.root.join('.ssh', 'id_rsa.pub'))
+      # pub_key = OpenSSL::PKey::RSA.new(pub)
+      # jwk = JWT::JWK.new(pub_key)
+      
+      # json_hash[:public_jwk] = jwk.export
+
+      # json_hash['extensions'][0][:domain] = request.base_url
+      # json_hash['extensions'][0][:tool_id] = Digest::MD5.hexdigest request.base_url
+      # json_hash['extensions'][0]['settings'][:icon_url] = 'http://rooms.amy.blindside-dev.com:3401/apps/rooms/rooms/assets/icon.svg'
+
+      @easy_config = {
+        :tool_url => openid_launch_url,
+        :public_key => File.read(Rails.root.join('.ssh', 'id_rsa.pub')),
+        :initiate_login_url => openid_login_url,
+        :redirection_uri => openid_launch_url
+      }
+
+      puts @easy_config[:public_key]
+      # render json: JSON.pretty_generate(@easy_config)
+      render json: JSON.pretty_generate(@easy_config)
     end
 
     def xml_config

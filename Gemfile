@@ -32,8 +32,9 @@ gem 'jbuilder', '~> 2.5'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'ims-lti'
+gem 'ims-lti', path: '../ims-lti'
 gem 'oauth'
+gem 'jwt'
 
 gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
 gem 'rails_lti2_provider', path: '../rails_lti2_provider'

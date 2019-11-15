@@ -1,0 +1,29 @@
+{
+    "title": "Rooms",
+    "scopes": [
+        "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
+        "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly",
+        "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
+        "https://purl.imsglobal.org/spec/lti-ags/scope/score",
+        "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly"
+    ],
+    "extensions": [
+        {
+            "platform": "canvas.instructure.com",
+            "settings": {
+                "placements": [
+                    {
+                        "text": "Rooms",
+                        "placement": "course_navigation",
+                        "message_type": "LtiResourceLinkRequest",
+                        "target_link_uri": "http://broker.amy.blindside-dev.com:3000/lti/rooms/messages/oblti"
+                    }
+                ]
+            }
+        }
+    ],
+    "description": "Launch into rooms.",
+    "custom_fields": {},
+    "target_link_uri": "http://broker.amy.blindside-dev.com:3000/lti/rooms/messages/oblti",
+    "oidc_initiation_url": "https://broker.amy.blindside-dev.com:3000/lti/rooms/auth/login"
+}
