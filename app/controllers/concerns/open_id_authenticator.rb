@@ -1,4 +1,4 @@
-module OpenIdHandler
+module OpenIdAuthenticator
     include ActiveSupport::Concern
 
     def verify_openid_launch

@@ -36,7 +36,8 @@ gem 'ims-lti', path: '../ims-lti'
 gem 'oauth'
 gem 'jwt'
 
-gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
+# gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
+gem 'doorkeeper', '~> 5.2.2'
 gem 'rails_lti2_provider', path: '../rails_lti2_provider'
 
 gem 'react-rails'

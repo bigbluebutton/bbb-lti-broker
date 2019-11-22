@@ -8,6 +8,11 @@ namespace :db do
                 STDOUT.puts "What is the issuer?"
                 issuer = STDIN.gets.strip
 
+                unless issuer.present?
+                    abort("The issuer must be valid.")
+                    return
+                end
+
                 STDOUT.puts "What is the client id?"
                 client_id = STDIN.gets.strip
 
@@ -20,26 +25,37 @@ namespace :db do
                 STDOUT.puts "What is the auth login url?"
                 auth_login_url = STDIN.gets.strip
 
-                STDOUT.puts "What is the private key?"
-                tool_private_key = STDIN.gets
+                private_key = OpenSSL::PKey::RSA.generate 4096
+                public_key = private_key.public_key
+                key_dir = Digest::MD5.hexdigest issuer
+                Dir.mkdir('.ssh/' + key_dir) unless Dir.exist?('.ssh/' + key_dir)
 
-                tool_proxy = {
-                    lti_version: 'LTI-1p3',
+                File.open(File.join(Rails.root, '.ssh', key_dir, "priv_key"), "w") do |f|
+                    f.puts private_key.to_s
+                end
+    
+                File.open(File.join(Rails.root, '.ssh', key_dir, "pub_key"), "w") do |f|
+                    f.puts public_key.to_s
+                end
+
+                reg = {
                     issuer: issuer,
                     client_id: client_id,
                     key_set_url: key_set_url,
                     auth_token_url: auth_token_url,
                     auth_login_url: auth_login_url,
-                    tool_private_key: tool_private_key
+                    tool_private_key: "#{Rails.root}/.ssh/#{key_dir}/priv_key"
                 }
-                OpenidRegistration.create!(
-                    issuer: issuer,
-                    client_id: client_id,
-                    key_set_url: key_set_url,
-                    auth_token_url: auth_token_url,
-                    auth_login_url: auth_login_url,
-                    tool_private_key: tool_private_key
-                );
+
+                RailsLti2Provider::Tool.create(
+                    uuid: issuer,
+                    shared_secret: "secret", # this isn't used in lti 1.3 - doesn't matter as long as it has a value
+                    tool_settings: reg.to_json,
+                    lti_version: '1.3.0'
+                )
+
+                puts public_key.to_s
+
             rescue => exception
                 puts exception.backtrace
                 exit 1

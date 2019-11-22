@@ -5,6 +5,7 @@ class Api::V1::SsoController < Api::V1::BaseController
     response = {token: params[:token], valid: token_valid?}
     response[:message] = @message if @message
     response[:error] = @error if @error
+    response[:grades] = @grades if @grades
     render json: response.to_json
   end
 
@@ -21,7 +22,16 @@ class Api::V1::SsoController < Api::V1::BaseController
         return false
       end
       @message = launch[:message]
+      @lti_launch_nonce = launch[:lti_launch_nonce]
+      @grades = {
+        send_grades_url: send_grades_url(grades_token)
+      }
       true
     end
 
+    def grades_token
+      token = SecureRandom.hex
+      Rails.cache.write(token, {lti_launch_nonce: @lti_launch_nonce, timestamp: Time.now.to_i})
+      token
+    end
 end

@@ -6,7 +6,7 @@ require 'oauth/request_proxy/action_controller_request'
 class MessageController < ApplicationController
   include RailsLti2Provider::ControllerHelpers
   include ExceptionHandler
-  include OpenIdHandler
+  include OpenIdAuthenticator
   include RoomsValidator
   include PlatformValidator
 
@@ -14,8 +14,9 @@ class MessageController < ApplicationController
   skip_before_action :verify_authenticity_token
   # verify that the application belongs to us before doing anything with it
   before_action :lti_authorized_application
+
   # validates message with oauth in rails lti2 provider gem
-  before_action :lti_authentication, except: %i[signed_content_item_request, openid_launch_request]
+  before_action :lti_authentication, except: [:signed_content_item_request, :openid_launch_request]
 
   before_action :verify_blti_launch, only: :openid_launch_request
 
@@ -47,7 +48,7 @@ class MessageController < ApplicationController
     unless params[:app] == 'default'
       nonce = @jwt_body['nonce']
       # Redirect to external application if configured
-      Rails.cache.write(nonce, {message: @message, oauth: {timestamp: @jwt_body['exp']}})
+      Rails.cache.write(nonce, {message: @message, oauth: {timestamp: @jwt_body['exp']} , lti_launch_nonce: @lti_launch.nonce})
       session[:user_id] = @current_user.id
       tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
       redirect_to lti_apps_path(params[:app], sso: api_v1_sso_launch_url(nonce), handler: resource_handler(tc_instance_guid, params))
@@ -67,8 +68,20 @@ class MessageController < ApplicationController
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request
+  # shows select content on tool configuration page in platform
   def content_item_selection
     process_message
+    @oauth_consumer_key = params[:oauth_consumer_key]
+  end
+
+  # submit content item selection
+  def signed_content_item_request
+    launch_url = params.delete('return_url')
+    tool = RailsLti2Provider::Tool.where(uuid: request.request_parameters[:oauth_consumer_key]).last
+    message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
+    message.launch_url = launch_url
+    @launch_params = { launch_url: message.launch_url, signed_params: message.signed_post_params(tool.shared_secret) }
+    render 'message/signed_content_item_form'
   end
 
   private
@@ -85,7 +98,6 @@ class MessageController < ApplicationController
     def verify_blti_launch
       @jwt_body = verify_openid_launch
       check_launch
-
       @message = IMS::LTI::Models::Messages::Message.generate(params)
       tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
       @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
@@ -95,7 +107,7 @@ class MessageController < ApplicationController
     def check_launch
       tool = lti_registration(@jwt_body['iss'])
       tool.lti_launches.where('created_at > ?', 1.day.ago).delete_all
-      tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body)
+      @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body)
     end
 end
   

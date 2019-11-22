@@ -10,9 +10,12 @@ Rails.application.routes.draw do
       end
     end
 
+    # grades
+    get 'grades/:grades_token', to: 'grades#send_grades', as: :send_grades
+    
     # registration (platform -> tool)
     get 'registration/list', to: 'registration#list', as: :registration_list
-    get 'registration/new', to: 'registration#new', as: :new_registration
+    get 'registration/new', to: 'registration#new', as: :new_registration if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     get 'registration/edit', to: 'registration#edit', as: :edit_registration
     post 'registration/submit', to: 'registration#submit', as: :submit_registration
     get 'registration/delete', to: 'registration#delete', as: :delete_registration
@@ -29,13 +32,14 @@ Rails.application.routes.draw do
     # lti 1.3 authenticate user through login
     post ':app/auth/login', to: 'auth#login', as: 'openid_login'
     post ':app/messages/oblti', to: 'message#openid_launch_request', as: 'openid_launch'
-    
+
     # requests from tool consumer go through this path
     post ':app/messages/blti', to: 'message#basic_lti_launch_request', as: 'blti_launch'
 
     # requests from xml_config go through these paths
     post ':app/messages/content-item', to: 'message#content_item_selection', as: 'content_item_request_launch'
     post ':app/messages/content-item', to: 'message#basic_lti_launch_request', as: 'content_item_launch'
+    post ':app/messages/signed_content_item_request', to: 'message#signed_content_item_request'
 
     # LTI LAUNCH URL (responds to get and post)
     get  ':app/launch', to: 'application#launch', as: :lti_apps

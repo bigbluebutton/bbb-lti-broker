@@ -37,6 +37,11 @@ module RoomsValidator
         app = Doorkeeper::Application.where(name: name).first
         app.attributes.select { |key, value| ['name', 'uid', 'secret', 'redirect_uri'].include?(key) }
     end
+
+    # names of all lti apps
+    def lti_apps
+        Doorkeeper::Application.all.pluck(:name)
+    end
     
     def lti_icon(app_name)
         unless app_name == 'default'

@@ -49,8 +49,6 @@ class ToolProfileController < ApplicationController
         :redirection_uri => openid_launch_url
       }
 
-      puts @easy_config[:public_key]
-      # render json: JSON.pretty_generate(@easy_config)
       render json: JSON.pretty_generate(@easy_config)
     end
 

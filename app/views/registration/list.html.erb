@@ -1,5 +1,5 @@
 <div>
-  <h3><%= t('registration.list') %></h3> <%= button_to t('ui.new'), new_registration_path, :method => "get" %>
+  <h3><%= t('registration.list') %></h3> <%= button_to t('ui.new'), new_registration_path, :method => "get" if defined? new_registration_path %>
   <table id="bbb-registration-table">
     <thead>
         <tr>

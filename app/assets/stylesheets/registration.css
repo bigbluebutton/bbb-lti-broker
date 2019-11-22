@@ -47,6 +47,7 @@ input[type="submit"] {
 input[value="Go Back"] {
     background-color: #575f58;
 }
-input[readonly] {
+input[readonly],
+textarea[readonly] {
     background-color: #e8e8e8;
 }
