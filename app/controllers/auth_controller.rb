@@ -13,7 +13,7 @@ class AuthController < ApplicationController
   def login
     state = "state" << SecureRandom.hex
 
-    cookies[:bbb_lti_state] = {
+    cookies[state] = {
         :value => state,
         :expires => 1.year.from_now
     }
@@ -27,7 +27,7 @@ class AuthController < ApplicationController
         :response_mode => 'form_post',
         :prompt => 'none',
         :client_id => @registration['client_id'],
-        :redirect_uri => openid_launch_url,
+        :redirect_uri => params[:target_link_uri],
         :state => state,
         :nonce => nonce,
         :login_hint => params[:login_hint]

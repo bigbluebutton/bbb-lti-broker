@@ -5,7 +5,10 @@
     <br>
     <%= form_tag(submit_registration_path) do %>
         <%= content_tag :div, class: "form-group row" do %>
-            <%= label_tag(:iss, t('registration.issuer') + ':', class: "col-sm-2 col-form-label") %>
+            <%= label_tag(:iss, class: "col-sm-2 col-form-label") do %>
+                <%= t('registration.issuer') %>
+                <%= label_tag(:required, "(#{t('registration.required')})", class: "form-required-txt") %>:
+                <% end %>
             <%= content_tag :div, class: "col-sm-10 col" do %>
                 <%= text_field_tag(:iss, "", size: 70) %>
             <% end %>

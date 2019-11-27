@@ -11,7 +11,8 @@ Rails.application.routes.draw do
     end
 
     # grades
-    get 'grades/:grades_token', to: 'grades#send_grades', as: :send_grades
+    get 'grades/:grades_token/list', to: 'grades#grades_list', as: :grades_list
+    post 'grades/:grades_token/change', to: 'grades#send_grades', as: :send_grades
     
     # registration (platform -> tool)
     get 'registration/list', to: 'registration#list', as: :registration_list
@@ -39,6 +40,7 @@ Rails.application.routes.draw do
     # requests from xml_config go through these paths
     post ':app/messages/content-item', to: 'message#content_item_selection', as: 'content_item_request_launch'
     post ':app/messages/content-item', to: 'message#basic_lti_launch_request', as: 'content_item_launch'
+    post ':app/messages/deep-link', to: 'message#deep_link', as: 'deep_link_request_launch'
     post ':app/messages/signed_content_item_request', to: 'message#signed_content_item_request'
 
     # LTI LAUNCH URL (responds to get and post)

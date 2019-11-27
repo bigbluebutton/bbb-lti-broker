@@ -22,15 +22,26 @@ class Api::V1::SsoController < Api::V1::BaseController
         return false
       end
       @message = launch[:message]
-      @lti_launch_nonce = launch[:lti_launch_nonce]
-      @grades = {
-        send_grades_url: send_grades_url(grades_token)
-      }
+
+      if supported_grade_versions.include? @message.lti_version
+        @lti_launch_nonce = launch[:lti_launch_nonce]
+        @grades = {
+          send_grades_url: grades_list_url(grades_token)
+        }
+      end
+
       true
+    end
+
+    def supported_grade_versions
+      ['1.3.0']
     end
 
     def grades_token
       token = SecureRandom.hex
+      puts "--------------------- set launch nonce --------------------------"
+      puts @lti_launch_nonce
+      puts "-----------------------------------------------------------------"
       Rails.cache.write(token, {lti_launch_nonce: @lti_launch_nonce, timestamp: Time.now.to_i})
       token
     end

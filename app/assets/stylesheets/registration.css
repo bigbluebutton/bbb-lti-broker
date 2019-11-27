@@ -51,3 +51,7 @@ input[readonly],
 textarea[readonly] {
     background-color: #e8e8e8;
 }
+
+.form-required-txt {
+    color: #d21d1d;
+}

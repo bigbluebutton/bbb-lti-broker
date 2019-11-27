@@ -55,3 +55,8 @@ en:
     publickey:      "Public key"
     initloginurl:   "Initiate login URL"
     redirurl:       "Redirection URI(s)"
+    required:       "Required"
+  grade:
+    userid:         "User ID"
+    resultscore:    "Result Score"
+    resultmaximum:  "Maximum Score"
