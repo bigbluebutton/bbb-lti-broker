@@ -1,16 +1,7 @@
-PATH
-  remote: ../ims-lti
-  specs:
-    ims-lti (2.3.0)
-      addressable (~> 2.5, >= 2.5.1)
-      builder (~> 3.2)
-      faraday (~> 0.8)
-      faraday_middleware (~> 0.8)
-      json-jwt (~> 1.7)
-      simple_oauth (~> 0.3.1)
-
-PATH
-  remote: ../rails_lti2_provider
+GIT
+  remote: https://github.com/yfngdu/rails_lti2_provider.git
+  revision: 47f594609d6b36def801c344521aade652073a80
+  branch: gatekeeper-updated-rails
   specs:
     rails_lti2_provider (0.0.2)
       ims-lti (~> 2.3.0)
@@ -103,7 +94,7 @@ GEM
       railties (>= 3.2, < 6.1)
     erubi (1.9.0)
     execjs (2.7.0)
-    faraday (0.17.0)
+    faraday (0.17.1)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.13.1)
       faraday (>= 0.7.4, < 1.0)
@@ -112,6 +103,13 @@ GEM
       activesupport (>= 4.2.0)
     i18n (1.7.0)
       concurrent-ruby (~> 1.0)
+    ims-lti (2.3.0)
+      addressable (~> 2.5, >= 2.5.1)
+      builder (~> 3.2)
+      faraday (~> 0.8)
+      faraday_middleware (~> 0.8)
+      json-jwt (~> 1.7)
+      simple_oauth (~> 0.3.1)
     jbuilder (2.9.1)
       activesupport (>= 4.2.0)
     jquery-rails (4.3.5)
@@ -142,12 +140,12 @@ GEM
     minitest (5.13.0)
     multipart-post (2.1.1)
     nio4r (2.5.2)
-    nokogiri (1.10.5)
+    nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
     oauth (0.5.4)
     pg (1.1.4)
     public_suffix (4.0.1)
-    puma (4.3.0)
+    puma (4.3.1)
       nio4r (~> 2.0)
     rack (2.0.7)
     rack-test (1.1.0)
@@ -229,7 +227,7 @@ GEM
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.4)
-    zeitwerk (2.2.1)
+    zeitwerk (2.2.2)
 
 PLATFORMS
   ruby
@@ -239,7 +237,7 @@ DEPENDENCIES
   coffee-rails (~> 5.0)
   doorkeeper (~> 5.2.2)
   dotenv-rails
-  ims-lti!
+  ims-lti
   jbuilder (~> 2.5)
   jquery-rails
   jwt
@@ -247,7 +245,7 @@ DEPENDENCIES
   lodash-rails
   oauth
   pg (>= 0.4.4)
-  puma (~> 4.2)
+  puma (>= 4.3.1)
   rails (~> 6.0.0)
   rails_lti2_provider!
   react-rails

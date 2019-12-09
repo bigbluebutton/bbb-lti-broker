@@ -11,7 +11,7 @@ gem 'rails', '~> 6.0.0'
 # Use sqlite3 as the database for Active Record
 gem 'pg', '>= 0.4.4'
 # Use Puma as the app server
-gem 'puma', '~> 4.2'
+gem 'puma', '>= 4.3.1'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -32,18 +32,18 @@ gem 'jbuilder', '~> 2.5'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'ims-lti', path: '../ims-lti'
+gem 'ims-lti' #, path: '../ims-lti'
 gem 'oauth'
 gem 'jwt'
 
 # gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
 gem 'doorkeeper', '~> 5.2.2'
-gem 'rails_lti2_provider', path: '../rails_lti2_provider'
 
 gem 'react-rails'
 gem 'lodash-rails'
 
-# gem 'rails_lti2_provider', git: 'https://github.com/yfngdu/rails_lti2_provider.git', :branch => "gatekeeper-updated-rails"
+# gem 'rails_lti2_provider', path: '../rails_lti2_provider'
+gem 'rails_lti2_provider', git: 'https://github.com/yfngdu/rails_lti2_provider.git', :branch => "gatekeeper-updated-rails"
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
