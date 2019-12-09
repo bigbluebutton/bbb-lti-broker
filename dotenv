@@ -12,10 +12,10 @@ CONSUMER_SECRET=secret
 
 # DEVELOPER_MODE_ENABLED=true
 
-WHITELIST_HOST=broker.amy.blindside-dev.com
+# WHITELIST_HOST= broker.example.com
 
-DB_ADAPTER=postgresql
-DB_HOST=localhost
-DB_NAME=bbb_demo_production
-DB_USERNAME=bbb_demo
-DB_PASSWORD=
+# DB_ADAPTER=postgresql
+# DB_HOST=localhost
+# DB_NAME=bbb_demo_production
+# DB_USERNAME=bbb_demo
+# DB_PASSWORD=
