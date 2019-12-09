@@ -53,6 +53,7 @@ en:
     startmeoff:     "Start me off"
     toolurl:        "Tool URL"
     publickey:      "Public key"
+    jwk:            "JWK"
     initloginurl:   "Initiate login URL"
     redirurl:       "Redirection URI(s)"
     required:       "Required"

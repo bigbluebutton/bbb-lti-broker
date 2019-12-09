@@ -49,7 +49,7 @@ namespace :db do
 
                 RailsLti2Provider::Tool.create(
                     uuid: issuer,
-                    shared_secret: "secret", # this isn't used in lti 1.3 - doesn't matter as long as it has a value
+                    shared_secret: client_id,
                     tool_settings: reg.to_json,
                     lti_version: '1.3.0'
                 )

@@ -99,3 +99,13 @@ For changing the seeded data or adding keys and apps manually, there are some ra
   rake db:apps:update[rooms,https://newexample.com/apps]
 ```
 Use rake --tasks for seeing all the options available
+
+To set the default room settings, use the custom parameters:
+
+```
+record=true
+wait_moderator=true
+all_moderators=true
+```
+
+They correspond to turn recording on, wait for moderator to start the meeting, and allow all users to join as a moderator.

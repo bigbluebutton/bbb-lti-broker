@@ -13,10 +13,6 @@ module DeepLinkService
         }
     end
 
-    def deep_link_response_form
-
-    end
-
     def deep_link_jwt_response(registration, jwt_header, jwt_body, resources)
         message = {
             'iss' => registration['client_id'],

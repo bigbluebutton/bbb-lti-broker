@@ -58,14 +58,14 @@ class RegistrationController < ApplicationController
         if params.has_key?('reg_id')
             if lti_registration_exists?(params[:reg_id])
                 registration = lti_registration(params[:reg_id])
-                registration.update(tool_settings: reg.to_json)
+                registration.update(tool_settings: reg.to_json, shared_secret: params[:client_id])
                 registration.save
             end
         # elsif ! lti_registration_exists?(params[:iss])
         else
             RailsLti2Provider::Tool.create!(
                 uuid: params[:iss],
-                shared_secret: "secret", # this isn't used in lti 1.3 - doesn't matter as long as it has a value
+                shared_secret: params[:client_id],
                 tool_settings: reg.to_json,
                 lti_version: '1.3.0'
             )
@@ -90,6 +90,11 @@ class RegistrationController < ApplicationController
 
     def set_temp_keys
         private_key = OpenSSL::PKey::RSA.generate 4096
+        @jwk = JWT::JWK.new(private_key).export
+        @jwk["alg"] = "RS256" unless @jwk.has_key? "alg"
+        @jwk["use"] = "sig" unless @jwk.has_key? "use"
+        @jwk = @jwk.to_json
+
         @public_key = private_key.public_key
         
         # keep temp files in scope so they are not deleted

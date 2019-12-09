@@ -125,6 +125,11 @@ module OpenIdAuthenticator
             :lti_version => jwt_body['https://purl.imsglobal.org/spec/lti/claim/version'],
             :roles => extract_old_roles(jwt_body)
         }
+        if jwt_body.has_key?('https://purl.imsglobal.org/spec/lti/claim/custom')
+            jwt_body['https://purl.imsglobal.org/spec/lti/claim/custom'].each do |key, value|
+                p[:"custom_#{key}"] = value
+            end
+        end
         p[:lti_message_type] = 'basic-lti-launch-request' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiResourceLinkRequest'
         p[:lti_message_type] = 'ContentItemSelectionRequest' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiDeepLinkingRequest'
         p
