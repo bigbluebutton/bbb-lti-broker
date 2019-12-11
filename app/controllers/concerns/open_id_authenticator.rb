@@ -51,7 +51,7 @@ module OpenIdAuthenticator
     def validate_jwt_signature(reg, jwt_header)
         public_key_set = JSON.parse(open(reg['key_set_url']).string)
         jwk_json = public_key_set["keys"].find do |key|
-            key['kid'] == jwt_header['kid'] && key['alg'] == jwt_header['alg']
+            key['kid'] == jwt_header['kid']
         end
         jwt = JSON::JWK.new(jwk_json)
 
@@ -73,6 +73,8 @@ module OpenIdAuthenticator
             p = old_content_type_format(jwt_body)
         else
             # get old message format
+            puts '------------------------- jwt body ------------------------'
+            puts jwt_body.inspect
             p = old_message_format(jwt_body)
         end
         
@@ -99,9 +101,6 @@ module OpenIdAuthenticator
             :tool_consumer_instance_guid => jwt_body['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['guid'],
 
             :user_id => jwt_body['https://purl.imsglobal.org/spec/lti/claim/context']['id'],
-            :ext_user_username => jwt_body['https://purl.imsglobal.org/spec/lti/claim/ext']['user_username'],
-            :ext_lms => jwt_body['https://purl.imsglobal.org/spec/lti/claim/ext']['lms'],
-            :lis_person_sourcedid => jwt_body['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'],
             # :lis_result_sourcedid => jwt_body['https://purl.imsglobal.org/spec/lti-bos/claim/basicoutcomesservice']['lis_result_sourcedid'],
             # :lis_outcome_service_url => jwt_body['https://purl.imsglobal.org/spec/lti-bos/claim/basicoutcomesservice']['lis_outcome_service_url'],
             
@@ -125,6 +124,16 @@ module OpenIdAuthenticator
             :lti_version => jwt_body['https://purl.imsglobal.org/spec/lti/claim/version'],
             :roles => extract_old_roles(jwt_body)
         }
+
+        if jwt_body.has_key?('https://purl.imsglobal.org/spec/lti/claim/ext')
+            p[:ext_user_username] = jwt_body['https://purl.imsglobal.org/spec/lti/claim/ext']['user_username']
+            p[:ext_lms] = jwt_body['https://purl.imsglobal.org/spec/lti/claim/ext']['lms']
+        end
+
+        if jwt_body.has_key?('https://purl.imsglobal.org/spec/lti/claim/lis')
+            p[:lis_person_sourcedid] = jwt_body['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
+        end
+
         if jwt_body.has_key?('https://purl.imsglobal.org/spec/lti/claim/custom')
             jwt_body['https://purl.imsglobal.org/spec/lti/claim/custom'].each do |key, value|
                 p[:"custom_#{key}"] = value

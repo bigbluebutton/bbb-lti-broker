@@ -10,7 +10,7 @@ class GradesController < ApplicationController
     # for testing to see if grades made it through
     def grades_list
         send_grades
-        if validate_grades_token?
+        if validate_grades_token? && verify_permissions?
             @grades = grades(@registration, @jwt_body['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'])
             render 'grades/list'
         else
@@ -21,24 +21,20 @@ class GradesController < ApplicationController
     # rooms component should call this to set grades
     # temporarily hardcoded grades for every student
     def send_grades
-        if validate_grades_token?
+        if validate_grades_token? && verify_permissions?
             token = access_token(@registration, @jwt_body['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['scope'])
             # can view members and send grades back
-            if verify_permissions?
-                score_url = platform_score_url(@jwt_body)
-                platform_members(@registration, @jwt_body).each do |member|
-                    response = send_grade_to_platform(
-                        @registration, 
-                        @jwt_body['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['scope'], 
-                        score_url, 
-                        platform_grade(member, 81, 100), 
-                        token
-                    )
-                end
-                # render 'grades/success'
-            else
-                # render json: @error.to_json
-                # render 'grades/failure'
+            score_url = platform_score_url(@jwt_body)
+            platform_members(@registration, @jwt_body).each do |member|
+                response = send_grade_to_platform(
+                    @registration, 
+                    @jwt_body['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['scope'], 
+                    score_url, 
+                    platform_grade(member, 81, 100), 
+                    token
+                )
+
+            # render 'grades/success'
             end
         else
             # render json: @error.to_json

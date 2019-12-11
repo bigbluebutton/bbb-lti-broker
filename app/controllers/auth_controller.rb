@@ -46,7 +46,11 @@ class AuthController < ApplicationController
   def validate_oidc_login
     raise CustomError.new(:could_not_find_issuer) unless params.has_key?('iss')
     raise CustomError.new(:could_not_find_login_hint) unless params.has_key?('login_hint')
-    raise CustomError.new(:not_registered) unless lti_registration_exists?(params[:iss])
-    @registration = lti_registration_params(params[:iss])
+
+    options = {}
+    options['client_id'] = params[:client_id] if params.has_key?('client_id')
+
+    raise CustomError.new(:not_registered) unless lti_registration_exists?(params[:iss], options)
+    @registration = lti_registration_params(params[:iss], options)
   end
 end

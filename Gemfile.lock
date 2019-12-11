@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/yfngdu/rails_lti2_provider.git
-  revision: 47f594609d6b36def801c344521aade652073a80
+  revision: aa161aed230e82f7d1387202c8ef9128e0cf60a1
   branch: gatekeeper-updated-rails
   specs:
     rails_lti2_provider (0.0.2)
@@ -74,7 +74,7 @@ GEM
       execjs (~> 2.0)
     bindata (2.4.4)
     bindex (0.8.1)
-    builder (3.2.3)
+    builder (3.2.4)
     byebug (11.0.1)
     coffee-rails (5.0.0)
       coffee-script (>= 2.2.0)
@@ -124,7 +124,7 @@ GEM
     listen (3.0.8)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
-    lodash-rails (4.17.14)
+    lodash-rails (4.17.15)
       railties (>= 3.1)
     loofah (2.4.0)
       crass (~> 1.0.2)
