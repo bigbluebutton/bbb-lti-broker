@@ -7,7 +7,7 @@ include BbbLtiBroker::Helpers
 namespace :db do
   namespace :apps do
     desc 'Add a new blti app'
-    task :add, :name, :hostname, :uid, :secret, :root do |t, args|
+    task :add, :name, :hostname, :uid, :secret, :root do |_t, args|
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
@@ -25,21 +25,21 @@ namespace :db do
           exit 1
         end
         puts "Adding '#{args.to_hash}'"
-        uid = args.[](:uid) ? args[:uid] : SecureRandom.hex(32)
-        secret = args.[](:secret) ? args[:secret] : SecureRandom.hex(32)
+        uid = args.[](:uid) || SecureRandom.hex(32)
+        secret = args.[](:secret) || SecureRandom.hex(32)
         # The redirect_url has to be in the form http://example.com/apps/rooms/auth/bbbltibroker/callback
         redirect_uri = "#{args[:hostname]}/#{args[:name]}/auth/bbbltibroker/callback"
         app = Doorkeeper::Application.create!(name: args[:name], uid: uid, secret: secret, redirect_uri: redirect_uri)
-        app1 = app.attributes.select { |key, value| ['name', 'uid', 'secret', 'redirect_uri'].include?(key) }
+        app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
         puts "Added '#{app1.to_json}'"
-      rescue => exception
-        puts exception.backtrace
+      rescue StandardError => e
+        puts e.backtrace
         exit 1
       end
     end
 
     desc 'Update an existent blti app if exists'
-    task :update, :name, :hostname, :uid, :secret do |t, args|
+    task :update, :name, :hostname, :uid, :secret do |_t, args|
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
@@ -58,16 +58,16 @@ namespace :db do
         ## The redirect_url has to be in the form http://example.com/apps/rooms/auth/bbbltibroker/callback
         redirect_uri = "#{args[:hostname]}/#{args[:name]}/auth/bbbltibroker/callback"
         app.update!(redirect_uri: redirect_uri) if args.[](:hostname)
-        app1 = app.attributes.select { |key, value| ['name', 'uid', 'secret', 'redirect_uri'].include?(key) }
+        app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
         puts "Updated '#{app1.to_json}'"
-      rescue => exception
-        puts exception.backtrace
+      rescue StandardError => e
+        puts e.backtrace
         exit 1
       end
     end
 
     desc 'Delete an existent blti app if exists'
-    task :delete, :name do |t, args|
+    task :delete, :name do |_t, args|
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
@@ -84,14 +84,14 @@ namespace :db do
           app.delete
           puts "App '#{args[:name]}' was deleted"
         end
-      rescue => exception
-        puts exception.backtrace
+      rescue StandardError => e
+        puts e.backtrace
         exit 1
       end
     end
 
     desc 'Show an existent blti app if exists'
-    task :show, :name do |t, args|
+    task :show, :name do |_t, args|
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
@@ -105,11 +105,11 @@ namespace :db do
           exit 1
         end
         apps.each do |app|
-          app1 = app.attributes.select { |key, value| ['name', 'uid', 'secret', 'redirect_uri'].include?(key) }
+          app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
           puts app1.to_json
         end
-      rescue => exception
-        puts exception.backtrace
+      rescue StandardError => e
+        puts e.backtrace
         exit 1
       end
     end
@@ -119,10 +119,10 @@ namespace :db do
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
-        Doorkeeper::Application.delete_all()
+        Doorkeeper::Application.delete_all
         puts 'All the registered apps were deleted'
-      rescue => exception
-        puts exception.backtrace
+      rescue StandardError => e
+        puts e.backtrace
         exit 1
       end
     end
@@ -134,11 +134,11 @@ namespace :db do
         ActiveRecord::Base.connection
         apps = Doorkeeper::Application.all
         apps.each do |app|
-          app1 = app.attributes.select { |key, value| ['name', 'uid', 'secret', 'redirect_uri'].include?(key) }
+          app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
           puts app1.to_json
         end
-      rescue => exception
-        puts exception.backtrace
+      rescue StandardError => e
+        puts e.backtrace
         exit 1
       end
     end

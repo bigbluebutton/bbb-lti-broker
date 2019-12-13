@@ -1,7 +1,5 @@
-GIT
-  remote: https://github.com/yfngdu/rails_lti2_provider.git
-  revision: aa161aed230e82f7d1387202c8ef9128e0cf60a1
-  branch: gatekeeper-updated-rails
+PATH
+  remote: ../rails_lti2_provider
   specs:
     rails_lti2_provider (0.0.2)
       ims-lti (~> 2.3.0)
@@ -86,7 +84,7 @@ GEM
     concurrent-ruby (1.1.5)
     connection_pool (2.2.2)
     crass (1.0.5)
-    doorkeeper (5.2.2)
+    doorkeeper (5.2.3)
       railties (>= 5)
     dotenv (2.7.5)
     dotenv-rails (2.7.5)

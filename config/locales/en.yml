@@ -52,12 +52,25 @@ en:
     list:           "Registrations"
     startmeoff:     "Start me off"
     toolurl:        "Tool URL"
+    deeplinkurl:    "Deep Link URL"
     publickey:      "Public key"
     jwk:            "JWK"
     initloginurl:   "Initiate login URL"
     redirurl:       "Redirection URI(s)"
+    jsonconfigurl:  "JSON Configuration URL"
     required:       "Required"
+    showme:         "Show me"
+    nokeymessage:   "Your key does not exist. Go to new registration to generate a key first."
+    expkeymessage:  "Your key has expired. Go to new registration to generate a new key."
   grade:
     userid:         "User ID"
     resultscore:    "Result Score"
     resultmaximum:  "Maximum Score"
+  permission:
+    nonrps:         "The tool does not have permission to send grades or access student list."
+  error:
+    invalid:
+      token:       "The token does not exist."
+    expired:
+      token:   "The token has expired."
+      request: "The request has expired."

@@ -22,8 +22,8 @@
                 <th><%= reg['auth_login_url'] %></th>
                 <th><%= reg['tool_private_key'] %></th>
                 <th>
-                    <%= link_to '<i class="fa fa-edit"></i>'.html_safe, url_for( edit_registration_path + '?' + { :reg_id => reg['issuer'] }.to_query )%>
-                    <%= link_to '<i class="fa fa-trash"></i>'.html_safe, url_for( delete_registration_path + '?' + { :reg_id => reg['issuer'] }.to_query ) %>
+                    <%= link_to '<i class="fa fa-edit"></i>'.html_safe, url_for( edit_registration_path + '?' + { :reg_id => reg['issuer'], :client_id => reg['client_id'] }.to_query )%>
+                    <%= link_to '<i class="fa fa-trash"></i>'.html_safe, url_for( delete_registration_path + '?' + { :reg_id => reg['issuer'], :client_id => reg['client_id'] }.to_query ) %>
                 </th>
             </tr>
         <% end %>

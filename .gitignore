@@ -28,3 +28,7 @@ config/lti_settings.yml
 
 /.ssh
 .env
+
+# used to fake https for testing
+localhost.crt
+localhost.key

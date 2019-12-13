@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   scope ENV['RELATIVE_URL_ROOT'] || '/' do
-
     # rooms calls this api to validate launch from broker
     namespace :api do
       namespace :v1 do
@@ -13,7 +12,7 @@ Rails.application.routes.draw do
     # grades
     get 'grades/:grades_token/list', to: 'grades#grades_list', as: :grades_list
     post 'grades/:grades_token/change', to: 'grades#send_grades', as: :send_grades
-    
+
     # registration (platform -> tool)
     get 'registration/list', to: 'registration#list', as: :registration_list
     get 'registration/new', to: 'registration#new', as: :new_registration if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
@@ -27,7 +26,7 @@ Rails.application.routes.draw do
       #   [http://example.com/lti/oauth/applications]
       skip_controllers :applications unless ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     end
-    
+
     root to: 'application#index', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
 
     # lti 1.3 authenticate user through login
@@ -47,7 +46,7 @@ Rails.application.routes.draw do
     get  ':app/launch', to: 'application#launch', as: :lti_apps
     # match 'launch' => 'application#launch', via: [:get, :post], as: :lti_launch
 
-    match ':app/json_config', to: 'tool_profile#json_config', via: [:get, :post] #, :defaults => {:format => 'json'}
+    match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 
     # xml config and builder for lti 1.0/1.1
     get ':app/xml_config', to: 'tool_profile#xml_config', as: :xml_config, app: ENV['DEFAULT_LTI_TOOL'] || 'default'

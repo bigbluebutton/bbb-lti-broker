@@ -17,9 +17,9 @@ class MessageController < ApplicationController
   before_action :lti_authorized_application
 
   # validates message with oauth in rails lti2 provider gem
-  before_action :lti_authentication, except: [:signed_content_item_request, :openid_launch_request, :deep_link]
+  before_action :lti_authentication, except: %i[signed_content_item_request openid_launch_request deep_link]
 
-  before_action :verify_blti_launch, only: [:openid_launch_request, :deep_link]
+  before_action :verify_blti_launch, only: %i[openid_launch_request deep_link]
 
   # fails lti_authentication in rails lti2 provider gem
   rescue_from RailsLti2Provider::LtiLaunch::Unauthorized do |ex|
@@ -49,7 +49,7 @@ class MessageController < ApplicationController
     unless params[:app] == 'default'
       nonce = @jwt_body['nonce']
       # Redirect to external application if configured
-      Rails.cache.write(nonce, {message: @message, oauth: {timestamp: @jwt_body['exp']} , lti_launch_nonce: @lti_launch.nonce})
+      Rails.cache.write(nonce, message: @message, oauth: { timestamp: @jwt_body['exp'] }, lti_launch_nonce: @lti_launch.nonce)
       session[:user_id] = @current_user.id
       tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
       redirect_to lti_apps_path(params[:app], sso: api_v1_sso_launch_url(nonce), handler: resource_handler(tc_instance_guid, params))
@@ -61,7 +61,7 @@ class MessageController < ApplicationController
     process_message
     unless params[:app] == 'default'
       # Redirect to external application if configured
-      Rails.cache.write(params[:oauth_nonce], {message: @message, oauth: {consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp]}})
+      Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
       session[:user_id] = @current_user.id
       tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
       redirect_to lti_apps_path(params[:app], sso: api_v1_sso_launch_url(params[:oauth_nonce]), handler: resource_handler(tc_instance_guid, params))
@@ -88,40 +88,40 @@ class MessageController < ApplicationController
   end
 
   def deep_link
-    resource = deep_link_resource(openid_launch_url, {'What\'s black and white and red all over?': 'A sunburnt panda'}, 'My room')
+    resource = deep_link_resource(openid_launch_url, { 'What\'s black and white and red all over?': 'A sunburnt panda' }, 'My room')
     @deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss']), @jwt_header, @jwt_body, [resource])
     @deep_link_return_url = @jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['deep_link_return_url']
   end
 
   private
-    # called by all requests to process the message first
-    def process_message
-      # TODO: should we create the lti_launch with all of the oauth params as well?
-      @message = (@lti_launch && @lti_launch.message) || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
 
-      puts request.request_parameters
-      puts @message.inspect
-      tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
-      @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key, consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
-      @current_user = User.find_by(context: tc_instance_guid, uid: params['user_id']) || User.create(user_params(tc_instance_guid, params))
-    end
+  # called by all requests to process the message first
+  def process_message
+    # TODO: should we create the lti_launch with all of the oauth params as well?
+    @message = (@lti_launch&.message) || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
 
-    # verify lti 1.3 launch
-    def verify_blti_launch
-      jwt = verify_openid_launch
-      @jwt_body = jwt[:body]
-      @jwt_header = jwt[:header]
-      check_launch
-      @message = IMS::LTI::Models::Messages::Message.generate(params)
-      tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
-      @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
-      @current_user = User.find_by(context: tc_instance_guid, uid: params[:user_id]) || User.create(user_params(tc_instance_guid, params))
-    end
+    puts request.request_parameters
+    puts @message.inspect
+    tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
+    @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key, consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
+    @current_user = User.find_by(context: tc_instance_guid, uid: params['user_id']) || User.create(user_params(tc_instance_guid, params))
+  end
 
-    def check_launch
-      tool = lti_registration(@jwt_body['iss'])
-      tool.lti_launches.where('created_at > ?', 1.day.ago).delete_all
-      @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header) )
-    end
+  # verify lti 1.3 launch
+  def verify_blti_launch
+    jwt = verify_openid_launch
+    @jwt_body = jwt[:body]
+    @jwt_header = jwt[:header]
+    check_launch
+    @message = IMS::LTI::Models::Messages::Message.generate(params)
+    tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
+    @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
+    @current_user = User.find_by(context: tc_instance_guid, uid: params[:user_id]) || User.create(user_params(tc_instance_guid, params))
+  end
+
+  def check_launch
+    tool = lti_registration(@jwt_body['iss'])
+    tool.lti_launches.where('created_at > ?', 1.day.ago).delete_all
+    @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header))
+  end
 end
-  
