@@ -18,13 +18,7 @@ log/
 # Ignore Byebug command history file.
 .byebug_history
 
-lti_settings.yml
-secrets.yml
-
 db/*.sqlite3
-
-config/secrets.yml
-config/lti_settings.yml
 
 /.ssh
 .env

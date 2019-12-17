@@ -13,14 +13,14 @@ Rails.application.routes.draw do
     get 'grades/:grades_token/list', to: 'grades#grades_list', as: :grades_list
     post 'grades/:grades_token/change', to: 'grades#send_grades', as: :send_grades
 
-    # registration (platform -> tool)
+    # registration (LMS -> broker)
     get 'registration/list', to: 'registration#list', as: :registration_list
     get 'registration/new', to: 'registration#new', as: :new_registration if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     get 'registration/edit', to: 'registration#edit', as: :edit_registration
     post 'registration/submit', to: 'registration#submit', as: :submit_registration
     get 'registration/delete', to: 'registration#delete', as: :delete_registration
 
-    # registration (tool -> rooms)
+    # registration (broker -> rooms)
     use_doorkeeper do
       # Including 'skip_controllers :application' disables the controller for managing external applications
       #   [http://example.com/lti/oauth/applications]

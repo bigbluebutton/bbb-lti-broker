@@ -13,13 +13,8 @@ module PlatformValidator
   end
 
   def lti_registration_params(iss, options = {})
-    puts iss
     reg = lti_registration(iss, options)
-    puts "------------ OUR TOOL -----------------------"
-    puts reg.inspect
-    puts "---------------------------------------------"
     JSON.parse(reg.tool_settings) 
-    # JSON.parse(lti_registration(iss, options).tool_settings)
   end
 
   def lti_registration(iss, options = {})

@@ -60,6 +60,12 @@ for making use of the brokerage capability the external Application(s) must be d
   # DEFAULT_LTI_TOOL=<default|rooms>
 ```
 
+Whitelist the URL that the broker is on
+
+```
+  # DEVELOPER_MODE_ENABLED=broker.example.com
+```
+
 There are some functions that can be enabled when setting the server into developer mode.
 This includes:
   - A LTI App can be used by default for testing purposes.
@@ -98,6 +104,17 @@ For changing the seeded data or adding keys and apps manually, there are some ra
   rake db:apps:showall
   rake db:apps:update[rooms,https://newexample.com/apps]
 ```
+
+For adding an LTI 1.3 registration, there are some rake commands (for production) and a web UI for development mode.
+
+```
+  http://broker.example.com/lti/registration/list
+```
+```
+  rake db:registration:new[key]
+  rake db:registration:keygen[key]
+```
+
 Use rake --tasks for seeing all the options available
 
 To set the default room settings, use the custom parameters:

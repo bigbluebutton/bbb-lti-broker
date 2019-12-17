@@ -12,7 +12,7 @@ CONSUMER_SECRET=secret
 
 # DEVELOPER_MODE_ENABLED=true
 
-# WHITELIST_HOST= broker.example.com
+# WHITELIST_HOST=broker.example.com
 
 # DB_ADAPTER=postgresql
 # DB_HOST=localhost
