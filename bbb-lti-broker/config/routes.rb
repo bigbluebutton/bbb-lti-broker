@@ -31,12 +31,9 @@ Rails.application.routes.draw do
 
     # lti 1.3 authenticate user through login
     post ':app/auth/login', to: 'auth#login', as: 'openid_login'
-    match ':app/auth/login', to: 'auth#login', via: [:get, :post], as: 'openid_get_login'
     post ':app/messages/oblti', to: 'message#openid_launch_request', as: 'openid_launch'
-    match ':app/messages/oblti', to: 'message#openid_launch_request', via: [:get, :post], as: 'openid_get_launch'
     # requests from tool consumer go through this path
     post ':app/messages/blti', to: 'message#basic_lti_launch_request', as: 'blti_launch'
-    match ':app/messages/blti', to: 'message#basic_lti_launch_request', via: [:get, :post], as: 'blti_get_launch'
 
     # requests from xml_config go through these paths
     post ':app/messages/content-item', to: 'message#content_item_selection', as: 'content_item_request_launch'

@@ -69,7 +69,6 @@ class MessageController < ApplicationController
       session[:user_id] = @current_user.id
       tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
       #redirect_to lti_apps_path(params[:app], sso: api_v1_sso_launch_url(params[:oauth_nonce]), handler: resource_handler(tc_instance_guid, params))
-      
       redirect_to lti_apps_path(params.to_unsafe_h)
     end
   end
@@ -107,8 +106,6 @@ class MessageController < ApplicationController
     # TODO: should we create the lti_launch with all of the oauth params as well?
     @message = (@lti_launch&.message) || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
 
-    puts request.request_parameters
-    puts @message.inspect
     tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key, consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
     @current_user = User.find_by(context: tc_instance_guid, uid: params['user_id']) || User.create(user_params(tc_instance_guid, params))
@@ -119,6 +116,7 @@ class MessageController < ApplicationController
     puts "MessageController: verify_blti_launch"
     jwt = verify_openid_launch
     @jwt_body = jwt[:body]
+    puts "JWT Body: " + @jwt_body.to_s
     @jwt_header = jwt[:header]
     check_launch
     @message = IMS::LTI::Models::Messages::Message.generate(params)
