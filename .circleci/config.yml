@@ -8,10 +8,8 @@ jobs:
       - run: docker-compose run app rake db:create
       - run: docker-compose run app rake db:migrate
       - run: docker-compose run app rake db:seed
-      - run:
-          command: |
-            docker-compose up
-            docker-compose down
+      - run: docker-compose up -d
+      - run: docker-compose down
 workflows:
   version: 2
   build_and_test:
