@@ -5,9 +5,9 @@ jobs:
     steps:
       - checkout
       - run: docker-compose build 
-      - run: docker-compose exec rake db:create
-      - run: docker-compose exec rake db:migrate
-      - run: docker-compose exec rake db:seed
+      - run: docker-compose run app rake db:create
+      - run: docker-compose run app rake db:migrate
+      - run: docker-compose run app rake db:seed
       - run: docker-compose up
 workflows:
   version: 2
