@@ -5,7 +5,6 @@ jobs:
     steps:
       - checkout
       - run: docker-compose build 
-      - run: docker-compose run bundle install
       - run: docker-compose exec rake db:create
       - run: docker-compose exec rake db:migrate
       - run: docker-compose exec rake db:seed
