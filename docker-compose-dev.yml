@@ -1,9 +1,11 @@
-# This docker-compose is for production. It pulls the image from dockerhub
+# This Docker-Compose file builds the LTI Broker image directly
+# This should be used for development
 version: '2'
 
 services:
   app:
-    image: $DOCKER_USERNAME/bbb-lti-broker
+    build: ./bbb-lti-broker
+    image: petermarshall/bbb-lti-broker
     env_file: 
       - ./app-environment.env
     command: rails server -p 3000 -b '0.0.0.0'
