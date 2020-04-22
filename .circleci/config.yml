@@ -5,7 +5,7 @@ jobs:
     steps:
       - checkout
       - run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-      - run: docker-compose -f docker-compose-dev.yml build -t bbb-lti-broker ./
+      - run: docker-compose build -f docker-compose-dev.yml -t bbb-lti-broker ./
       - run: docker images
       - run: docker tag bbb-lti-broker $DOCKER_USERNAME/bbb-lti-broker
       - run: docker push $DOCKER_USERNAME/bbb-lti-broker
