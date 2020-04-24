@@ -7,8 +7,8 @@ jobs:
       - run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       - run: docker build -t bbb-lti-broker ./bbb-lti-broker
       - run: docker images
-      - run: docker tag bbb-lti-broker $DOCKER_USERNAME/bbb-lti-broker
-      - run: docker push $DOCKER_USERNAME/bbb-lti-broker
+      - run: docker tag bbb-lti-broker $DOCKER_REPO/bbb-lti-broker
+      - run: docker push $DOCKER_REPO/bbb-lti-broker
 
   test:
     machine: true
