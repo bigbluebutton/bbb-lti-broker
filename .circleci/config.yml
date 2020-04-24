@@ -56,6 +56,8 @@ workflows:
     jobs:
       - bundle-install
       - docker-build
+          requires:
+            - bundle-install
 #      - test:
 #          requires:
 #            - bundle-install
