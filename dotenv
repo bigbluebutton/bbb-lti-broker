@@ -10,12 +10,12 @@ CONSUMER_KEY=key
 # Consumer Secret
 CONSUMER_SECRET=secret
 
-DEVELOPER_MODE_ENABLED=true
+#DEVELOPER_MODE_ENABLED=true
 
-WHITELIST_HOST=broker.peter.blindside-dev.com
+#WHITELIST_HOST=broker.example.com
 
 DB_ADAPTER=postgresql
 #DB_HOST=localhost
 #DB_NAME=bbb_demo_production
-DB_USERNAME=postgres
-DB_PASSWORD=
+#DB_USERNAME=postgres
+#DB_PASSWORD=

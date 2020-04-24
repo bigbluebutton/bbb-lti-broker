@@ -13,7 +13,7 @@ Pull the ```docker-compose.yml``` and ```dotenv``` files from the repository. Th
   docker-compose run app rake db:seed
   docker-compose up
 ```
-To customize its behaviour copy the file dotenv as .env (for development only) and uncomment the environment variables as required.
+To customize its behaviour copy the file dotenv as app.env (for development only) and uncomment the environment variables as required.
 
 The database by default is sqlite3, even for production. Change the adapter for using postgresql and set up the rest of the parameters.
 
@@ -134,8 +134,8 @@ Public Key => ```A_JWT_KEY```
 Initiate Login URL => ```http://broker.example.com/lti/TOOL_NAME/auth/login```
 Redirection URI(s) => 
 ```
-http://broker.peter.example.com/lti/TOOL_NAME/messages/oblti
-http://broker.peter.example.com/lti/TOOL_NAME/messages/deep-link
+http://broker.example.com/lti/TOOL_NAME/messages/oblti
+http://broker.example.com/lti/TOOL_NAME/messages/deep-link
 ```
 
 All of these fields and values are visible and provided in the web UI.
@@ -143,3 +143,6 @@ The other empty fields in the web UI are the following: Key Set URL, Auth Token 
 
 These values will be provided by your LMS after you have registered the tool provider.
 
+
+## Developer Notes
+Must set DOCKER_USERNAME and DOCKER_PASSWORD in CircleCI config in order to have new images automatically pushed to dockerhub.
