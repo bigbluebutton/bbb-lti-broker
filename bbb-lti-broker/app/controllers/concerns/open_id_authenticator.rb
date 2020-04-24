@@ -7,7 +7,9 @@ module OpenIdAuthenticator
     jwt_parts = validate_jwt_format
     jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
     jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
-
+    
+    puts jwt_header    
+    puts jwt_body
     validate_nonce(jwt_body)
 
     # validate registration (deployment)
@@ -17,7 +19,7 @@ module OpenIdAuthenticator
 
     clean_up_openid_launch
     params.merge! extract_old_param_format(jwt_body)
-
+    
     # token is too big to store in cookie for rooms and we've already decoded it
     params.delete :id_token
 
@@ -206,6 +208,5 @@ module OpenIdAuthenticator
     }
     p[:lti_message_type] = 'basic-lti-launch-request' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiResourceLinkRequest'
     p[:lti_message_type] = 'ContentItemSelectionRequest' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiDeepLinkingRequest'
-    p
   end
 end

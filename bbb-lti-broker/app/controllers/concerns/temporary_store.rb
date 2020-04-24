@@ -14,7 +14,11 @@ module TemporaryStore
   end
 
   def read_temp_file(file_path, delete = true)
-    file = File.open(file_path, 'r')
+    begin
+      file = File.open(file_path, 'r')
+    rescue
+      return nil
+    end
     contents = file.read
     file.close
     File.delete(file_path) if delete
