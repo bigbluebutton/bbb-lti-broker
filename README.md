@@ -62,6 +62,11 @@ The seed will set up data by default that should be changed for production. This
     :secret => 'secret'
   }
 ```
+
+## Ports
+The LTI Broker uses port 3000 by default, but this can be changed by editing the docker-compose file.
+Under the 'app' service the 'ports' configuration can be modified from 3000:3000 to DESIRED_PORT:3000
+
 ## Add a Tool to the LTI Broker
 In order to add an LTI Tool Provider or edit an existing tool, rake commands are used.
 A name for the tool, the hostname, as well as the provided UID and secret from the tool are required.
@@ -73,28 +78,28 @@ Rake commands should be run using the following syntax:
 docker-compose run app rake "RAKE_COMMAND"
 ```
 The following are some useful and relevant rake commands for the LTI Broker:
-rake db:apps:add[name,hostname,uid,secret,root]  # Add a new blti app
-rake db:apps:delete[name]                        # Delete an existent blti app if exists
-rake db:apps:deleteall                           # Delete all existent blti apps
-rake db:apps:show[name]                          # Show an existent blti app if exists
-rake db:apps:showall                             # Show all existent blti apps
-rake db:apps:update[name,hostname,uid,secret]    # Update an existent blti app if exists
-rake db:create                                   # Creates the database from DATABASE_URL or config/database.yml for the curre...
-rake db:drop                                     # Drops the database from DATABASE_URL or config/database.yml for the current...
-rake db:environment:set                          # Set the environment value for the database
-rake db:exists                                   # Checks to see if the database exists
-rake db:fixtures:load                            # Loads fixtures into the current environment's database
-rake db:keys:add[keys]                           # Add a new blti keypair (e.g
-rake db:keys:delete[keys]                        # Delete an existent blti keypair if exists (e.g
-rake db:keys:deleteall                           # Delete all existent blti keypairs
-rake db:keys:show                                # Show all existent blti keypairs
-rake db:keys:update[keys]                        # Update an existent blti keypair if exists (e.g
-rake db:migrate                                  # Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)
-rake db:migrate:status                           # Display status of migrations
-rake db:prepare                                  # Runs setup if database does not exist, or runs migrations if it does
-rake db:registration:delete                      # Delete existing Tool configuration
-rake db:registration:keygen[type]                # Generate new key pair for existing Tool configuration [key, jwk]
-rake db:registration:new[type]                   # Add new Tool configuration [key, jwk]
+* rake db:apps:add[name,hostname,uid,secret,root]  # Add a new blti app
+* rake db:apps:delete[name]                        # Delete an existent blti app if exists
+* rake db:apps:deleteall                           # Delete all existent blti apps
+* rake db:apps:show[name]                          # Show an existent blti app if exists
+* rake db:apps:showall                             # Show all existent blti apps
+* rake db:apps:update[name,hostname,uid,secret]    # Update an existent blti app if exists
+* rake db:create                                   # Creates the database from DATABASE_URL or config/database.yml for the curre...
+* rake db:drop                                     # Drops the database from DATABASE_URL or config/database.yml for the current...
+* rake db:environment:set                          # Set the environment value for the database
+* rake db:exists                                   # Checks to see if the database exists
+* rake db:fixtures:load                            # Loads fixtures into the current environment's database
+* rake db:keys:add[keys]                           # Add a new blti keypair (e.g
+* rake db:keys:delete[keys]                        # Delete an existent blti keypair if exists (e.g
+* rake db:keys:deleteall                           # Delete all existent blti keypairs
+* rake db:keys:show                                # Show all existent blti keypairs
+* rake db:keys:update[keys]                        # Update an existent blti keypair if exists (e.g
+* rake db:migrate                                  # Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)
+* rake db:migrate:status                           # Display status of migrations
+* rake db:prepare                                  # Runs setup if database does not exist, or runs migrations if it does
+* rake db:registration:delete                      # Delete existing Tool configuration
+* rake db:registration:keygen[type]                # Generate new key pair for existing Tool configuration [key, jwk]
+* rake db:registration:new[type]                   # Add new Tool configuration [key, jwk]
 
 
 ## Link the LTI Broker to LMS
@@ -131,3 +136,10 @@ Redirection URI(s) =>
 ```
 http://broker.peter.example.com/lti/TOOL_NAME/messages/oblti
 http://broker.peter.example.com/lti/TOOL_NAME/messages/deep-link
+```
+
+All of these fields and values are visible and provided in the web UI.
+The other empty fields in the web UI are the following: Key Set URL, Auth Token URL, and Auth Login URL
+
+These values will be provided by your LMS after you have registered the tool provider.
+
