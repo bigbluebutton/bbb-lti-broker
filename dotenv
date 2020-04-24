@@ -19,3 +19,5 @@ DB_ADAPTER=postgresql
 #DB_NAME=bbb_demo_production
 #DB_USERNAME=postgres
 #DB_PASSWORD=
+
+#DOCKER_REPO=bigbluebutton
