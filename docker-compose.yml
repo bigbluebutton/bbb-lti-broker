@@ -1,7 +1,9 @@
+# This docker-compose is for production. It pulls the image from dockerhub
 version: '2'
 
 services:
   app:
+
     image: bigbluebutton/bbb-lti-broker
     env_file: 
       - ./app-environment.env

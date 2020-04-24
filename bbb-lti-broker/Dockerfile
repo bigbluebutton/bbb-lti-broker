@@ -1,13 +1,12 @@
-FROM ruby:2.7.0
+FROM ruby:2.7.0-alpine
 
 USER root
 
-RUN apt-get update && apt-get install -y \
-    postgresql-client \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-RUN apt install -y nodejs
+RUN apk update \
+&& apk upgrade \
+&& apk add --update --no-cache \
+build-base curl-dev git postgresql-dev \
+yaml-dev zlib-dev nodejs yarn
 
 ENV APP_HOME /usr/src/app
 RUN mkdir -p $APP_HOME
