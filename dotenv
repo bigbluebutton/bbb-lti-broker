@@ -14,10 +14,11 @@ CONSUMER_SECRET=secret
 
 #WHITELIST_HOST=broker.example.com
 
-DB_ADAPTER=postgresql
-#DB_HOST=localhost
-#DB_NAME=bbb_demo_production
-#DB_USERNAME=postgres
-#DB_PASSWORD=
+## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
+## DATABASE_URL="postgres://myuser:mypass@localhost/somedatabase"
 
-#DOCKER_REPO=bigbluebutton
+# Only needed for Docker Compose.
+## Change DOCKER_REPO when using a repo other than bigbluebutton
+## DOCKER_REPO=my-repo
+## Change DOCKER_TAG when using a tag other than latest
+## DOCKER_TAG=my-tag

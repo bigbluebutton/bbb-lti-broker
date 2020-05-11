@@ -1,70 +1,46 @@
-version: 2.1
-
+---
+version: 2
 jobs:
-  bundle-install:
-    working_directory: ~/repo
+  build:
+    working_directory: ~/bbb-lti-broker
     docker:
-      - image: circleci/ruby:2.5.1-node-browsers
+      - image: circleci/ruby:2.5.1
         environment:
-          BUNDLE_JOBS: 4
-          BUNDLE_RETRY: 3
-          BUNDLE_PATH: vendor/bundle
-          DATABASE_URL: "postgresql://root@localhost/bbb_lti_broker_test?pool=5"
+          PGHOST: localhost
+          PGUSER: bbb-lti-broker
+          RAILS_ENV: test
+          DATABASE_URL: "postgresql://postgres:password@localhost/bbb_lti_broker_test?pool=5"
+      - image: postgres:11.5
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: password
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/repo
-      - restore_cache:
-          keys:
-          - bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
-          # We add "arch" as a key since some gems compile native code, like
-          # nokogiri. If for whatever reason CircleCI runs the job on a machine
-          # with a different architecture, the cache would be invalid.
-      - run: bundle install
-      - save_cache:
-          paths:
-            - ./vendor/bundle
-          key: bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
-      - persist_to_workspace:
-          root: .
-          paths:
-            - vendor/bundle
 
-  docker-build:
-    machine: true
-    steps:
-      - checkout
-      - run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-      - run: docker build -t bbb-lti-broker ./bbb-lti-broker
-      - run: docker images
-      - run: docker tag bbb-lti-broker $DOCKER_REPO/bbb-lti-broker
-      - run: docker push $DOCKER_REPO/bbb-lti-broker
+      # Restore Cached Dependencies
+      - type: cache-restore
+        name: Restore bundle cache
+        key: bbb-lti-broker-{{ checksum "Gemfile.lock" }}
 
-  test:
-    machine: true
-    steps:
-      - run: docker-compose pull
-      - run: docker-compose run app rake db:create
-      - run: docker-compose run app rake db:migrate
-      - run: docker-compose run app rake db:seed
-      - run: docker-compose up -d
-      - run: docker-compose down
+      # Bundle install dependencies
+      - run: bundle install --path vendor/bundle
 
-workflows:
-  version: 2
-  build-test-deploy:
-    jobs:
-      - bundle-install
-      - docker-build
-          requires:
-            - bundle-install
-#      - test:
-#          requires:
-#            - bundle-install
-#            - docker-build
-#      - deploy-integration:
-#          requires:
-#            - test
-#          filters:
-#            branches:
-#              only: master
+      # Cache Dependencies
+      - type: cache-save
+        name: Store bundle cache
+        key: bbb-lti-broker-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      # Wait for DB
+      - run: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      # Setup the environment
+      - run: cp dotenv .env
+
+      # Setup the database
+      - run: bundle exec rake db:setup
+
+      # Run the tests
+      - run: bundle exec rake
