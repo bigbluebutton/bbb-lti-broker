@@ -36,7 +36,7 @@ gem 'jwt'
 gem 'oauth'
 
 # gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
-gem 'doorkeeper', '~> 5.2.2'
+gem 'doorkeeper', '~> 5.2.5'
 
 gem 'lodash-rails'
 gem 'react-rails'
