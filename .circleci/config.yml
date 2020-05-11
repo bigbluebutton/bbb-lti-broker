@@ -10,7 +10,7 @@ jobs:
           PGUSER: bbb-lti-broker
           RAILS_ENV: test
           DATABASE_URL: "postgresql://postgres:password@localhost"
-      - image: postgres:9
+      - image: postgres:11
         environment:
           POSTGRES_PASSWORD: password
     steps:
