@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'pathname'
 
@@ -55,6 +57,7 @@ class RegistrationController < ApplicationController
         f.puts priv_key
       end
 
+      Rails.root.join('path/to')
       File.open(File.join(Rails.root, '.ssh', key_dir, 'pub_key'), 'w') do |f|
         f.puts pub_key
       end

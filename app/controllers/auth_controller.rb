@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ims/lti'
 require 'securerandom'
 
@@ -12,7 +14,7 @@ class AuthController < ApplicationController
   # ensures platform is registered
   def login
     puts "AuthController: login"
-    
+
     state = 'state' + SecureRandom.hex
 
     cookies[state] = {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   scope ENV['RELATIVE_URL_ROOT'] || '/' do
     # rooms calls this api to validate launch from broker
