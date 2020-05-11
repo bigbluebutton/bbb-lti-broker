@@ -29,6 +29,7 @@ log/
 # Ignore circleci extrafiles
 /.circleci/*
 !/.circleci/config.yml
+process.yml
 
 # used to fake https for testing
 localhost.crt
