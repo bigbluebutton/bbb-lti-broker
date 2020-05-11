@@ -281,7 +281,7 @@ DEPENDENCIES
   bundler (>= 2.1.2)
   byebug
   coffee-rails (~> 5.0)
-  doorkeeper (~> 5.2.2)
+  doorkeeper (~> 5.2.5)
   dotenv-rails
   faraday
   http
