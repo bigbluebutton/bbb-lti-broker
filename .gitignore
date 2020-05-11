@@ -20,8 +20,8 @@ log/
 .byebug_history
 
 /db/*.sqlite3
-/db/production
-/db/production-postgres
+/db/production/*
+/data/*
 
 /.ssh
 .env

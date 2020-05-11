@@ -17,10 +17,8 @@ services:
   postgres:
     image: postgres:11-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
       POSTGRES_PASSWORD: password
     volumes:
-      - ./db/production-postgres:/var/lib/postgresql/data
+      - ./data/postgres/:/var/lib/postgresql/data
     ports:
       - "5432:5432"
