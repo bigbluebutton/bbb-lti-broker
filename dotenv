@@ -19,9 +19,11 @@ CONSUMER_KEY=key
 # Consumer Secret
 CONSUMER_SECRET=secret
 
-#DEVELOPER_MODE_ENABLED=true
+# DEVELOPER_MODE_ENABLED=true
 
-#WHITELIST_HOST=broker.example.com
+# WHITELIST_HOST=broker.example.com
+
+# HOST_URL=broker.example.com
 
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
 ## DATABASE_URL=postgres://myuser:mypass@localhost

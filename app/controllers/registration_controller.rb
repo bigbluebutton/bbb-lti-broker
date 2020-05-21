@@ -6,7 +6,7 @@ require 'pathname'
 class RegistrationController < ApplicationController
   skip_before_action :verify_authenticity_token
   include PlatformValidator
-  include RoomsValidator
+  include AppsValidator
   include TemporaryStore
 
   def list

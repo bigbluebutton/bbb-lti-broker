@@ -4,7 +4,7 @@ jobs:
   build:
     working_directory: ~/bbb-lti-broker
     docker:
-      - image: circleci/ruby:2.5.1-node-browsers
+      - image: circleci/ruby:2.6.3-node-browsers
         environment:
           PGHOST: localhost
           PGUSER: bbb-lti-broker

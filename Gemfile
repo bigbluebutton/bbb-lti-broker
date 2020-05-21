@@ -49,8 +49,7 @@ gem 'doorkeeper', '~> 5.2.5'
 gem 'lodash-rails'
 gem 'react-rails'
 
-# gem 'rails_lti2_provider', path: '../rails_lti2_provider'
-gem 'rails_lti2_provider', git: 'https://github.com/yfngdu/rails_lti2_provider.git', branch: 'gatekeeper-updated-rails'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', branch: 'gatekeeper-updated-rails'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

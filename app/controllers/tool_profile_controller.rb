@@ -5,10 +5,10 @@ require 'canvas_extensions'
 class ToolProfileController < ApplicationController
   include ExceptionHandler
   include Converter
-  include RoomsValidator
+  include AppsValidator
   include TemporaryStore
 
-  before_action :lti_authorized_application, except: :json_config
+  before_action :lti_authorized_application, only: :xml_builder
   skip_before_action :verify_authenticity_token
 
   rescue_from CustomError do |ex|

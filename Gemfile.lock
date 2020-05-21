@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/yfngdu/rails_lti2_provider.git
-  revision: cdbdb9ca22e80e42a1fb2d9d7dc74116e1f3e00b
+  remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
+  revision: 575ec295fe7cf5ecf1fd77841594fcd90194888b
   branch: gatekeeper-updated-rails
   specs:
     rails_lti2_provider (0.0.2)
@@ -307,4 +307,3 @@ DEPENDENCIES
   tzinfo-data
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
-

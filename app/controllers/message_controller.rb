@@ -9,7 +9,7 @@ class MessageController < ApplicationController
   include RailsLti2Provider::ControllerHelpers
   include ExceptionHandler
   include OpenIdAuthenticator
-  include RoomsValidator
+  include AppsValidator
   include PlatformValidator
   include DeepLinkService
 

@@ -11,7 +11,7 @@ require 'addressable/uri'
 require 'oauth/request_proxy/action_controller_request'
 
 class ApplicationController < ActionController::Base
-  include RoomsValidator
+  include AppsValidator
 
   before_action :verify_auth
 
@@ -67,35 +67,41 @@ class ApplicationController < ActionController::Base
   end
 
   def verify_auth
-    lti_version = params['lti_version']
-    if(lti_version == 'LTI-1p0')
+    if params['lti_version'] == 'LTI-1p0'
       # Verify OAuth 1.0 signature for LTI 1.0 request
       # According to OAuth spec RFC 5849 https://tools.ietf.org/html/rfc5849
       puts "Verify OAuth 1.0 signature for LTI 1.0 request"
 
-      broker_key = ENV['CONSUMER_KEY']
-      broker_secret = ENV['CONSUMER_SECRET']
-      puts "secret: " + broker_secret
-      app = lti_app(params[:app])
-      tool_name = app['name']
+      tools = RailsLti2Provider::Tool.all
+      tools.each do |tool|
 
-      parameters = params.to_unsafe_h
-      parameters.delete('action')
-      parameters.delete('app')
-      parameters.delete('controller')
+        broker_key = tool.uuid
+        broker_secret = tool.shared_secret
 
-      request = OAuth::RequestProxy::MockRequest.new(
-        'method' => 'POST',
-        'uri' => "http://broker.peter.blindside-dev.com/lti/#{tool_name}/messages/blti",
-        'parameters' => parameters
-      )
+        puts "secret: " + broker_secret
+        app = lti_app(params[:app])
+        tool_name = app['name']
 
-      if OAuth::Signature::HMAC::SHA1.new(request, :consumer_secret => broker_secret).verify
-        puts "OAuth OK"
-      else
-        puts "OAuth FAIL"
-        render :launch_error
+        parameters = params.to_unsafe_h
+        parameters.delete('action')
+        parameters.delete('app')
+        parameters.delete('controller')
+
+        uri = "#{request.scheme}://#{request.host_with_port}/lti/#{tool_name}/messages/blti"
+        request = OAuth::RequestProxy::MockRequest.new(
+          'method' => 'POST',
+          'uri' => uri,
+          'parameters' => parameters
+        )
+
+        if OAuth::Signature::HMAC::SHA1.new(request, :consumer_secret => broker_secret).verify
+          puts "OAuth OK"
+          return
+        end
+
       end
+      puts "OAuth FAIL"
+      render :launch_error
     end
   end
 end
