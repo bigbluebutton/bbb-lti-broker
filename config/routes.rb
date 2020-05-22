@@ -45,7 +45,7 @@ Rails.application.routes.draw do
 
     # LTI LAUNCH URL (responds to get and post)
     get  ':app/launch', to: 'application#launch', as: :lti_apps
-    # match 'launch' => 'application#launch', via: [:get, :post], as: :lti_launch
+    # match ':app/launch' => 'application#launch', via: [:get, :post], as: :lti_launch
 
     match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 

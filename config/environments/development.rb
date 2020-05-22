@@ -56,6 +56,8 @@ Rails.application.configure do
 
   config.hosts = nil
 
+  config.web_console.whiny_requests = false
+
   config.react.variant = :development
 
   # Raises error for missing translations

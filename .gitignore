@@ -36,4 +36,4 @@ process.yml
 localhost.crt
 localhost.key
 
-public
+/public/assets
