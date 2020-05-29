@@ -27,9 +27,9 @@ namespace :db do
         puts "Adding '#{args.to_hash}'"
         uid = args.[](:uid) || SecureRandom.hex(32)
         secret = args.[](:secret) || SecureRandom.hex(32)
-        
-        redirect_uri = "#{args[:hostname]}/#{args[:name]}"
-        app = Doorkeeper::Application.create!(name: args[:name], uid: uid, secret: secret, redirect_uri: redirect_uri)
+
+        redirect_uri = "#{args[:hostname]}"
+        app = Doorkeeper::Application.create!(name: args[:name], uid: uid, secret: secret, redirect_uri: redirect_uri, scopes: 'api')
         app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
         puts "Added '#{app1.to_json}'"
       rescue StandardError => e
@@ -55,8 +55,8 @@ namespace :db do
         puts "Updating '#{args.to_hash}'"
         app.update!(uid: args[:uid]) if args.[](:uid)
         app.update!(secret: args[:secret]) if args.[](:secret)
-        
-        redirect_uri = "#{args[:hostname]}/#{args[:name]}"
+
+        redirect_uri = "#{args[:hostname]}"
         app.update!(redirect_uri: redirect_uri) if args.[](:hostname)
         app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
         puts "Updated '#{app1.to_json}'"

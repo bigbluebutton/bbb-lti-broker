@@ -17,10 +17,9 @@ class MessageController < ApplicationController
   skip_before_action :verify_authenticity_token
   # verify that the application belongs to us before doing anything with it
   before_action :lti_authorized_application
-
   # validates message with oauth in rails lti2 provider gem
   before_action :lti_authentication, except: %i[signed_content_item_request openid_launch_request deep_link]
-
+  # validates message corresponds to a LTI launch
   before_action :verify_blti_launch, only: %i[openid_launch_request deep_link]
 
   # fails lti_authentication in rails lti2 provider gem
@@ -54,7 +53,7 @@ class MessageController < ApplicationController
     # Redirect to external application if configured
     Rails.cache.write(nonce, message: @message, oauth: { timestamp: @jwt_body['exp'] }, lti_launch_nonce: @lti_launch.nonce)
     session[:user_id] = @current_user.id
-    redirect_to(lti_apps_path(params.to_unsafe_h))
+    redirect_to(app_launch_path(params.to_unsafe_h))
   end
 
   # first touch point from tool consumer (moodle, canvas, etc)
@@ -64,8 +63,10 @@ class MessageController < ApplicationController
 
     # Redirect to external application if configured
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
+    logger.debug("---- user: #{session[:user_id]}")
     session[:user_id] = @current_user.id
-    redirect_to(lti_apps_path(params.to_unsafe_h))
+    app_url = app_launch_path(params.to_unsafe_h)
+    redirect_to(app_url)
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request

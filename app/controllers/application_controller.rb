@@ -13,95 +13,21 @@ require 'oauth/request_proxy/action_controller_request'
 class ApplicationController < ActionController::Base
   include AppsValidator
 
-  before_action :verify_auth
-
   protect_from_forgery with: :exception
   # CSRF stuff ^
 
   # verified oauth, etc
-  # launch into bigbluebutton
-  def launch
-    puts "ApplicationController: launch"
+  # launch into lti application
+  def app_launch
+    # Make launch request to LTI-APP
+    # A simplified version should be  doing the redirect whiout parameters, but stroing the launching request_parameters
+    # so they can be returned on the session validation in the callback phase
+    #redirect_to "#{lti_app_url(params[:app])}"
 
-    # Make launch request to BBB-LTI
-    app = lti_app(params[:app])
-    puts app.to_s
-    @tool_uri = app['redirect_uri']
-    @method = 'POST'
-    @consumer_key = app['uid']
-    @consumer_secret = app['secret']
-
+    # For the moment pass all the parameters ro the app
     parameters = params.to_unsafe_h
-    parameters.delete('action')
-    parameters.delete('app')
-    parameters.delete('oauth_signature')
-    parameters['request_method'] = 'POST'
-    parameters['format'] = 'null'
-    parameters['oauth_consumer_key'] = @consumer_key
-
-    request = OAuth::RequestProxy::MockRequest.new(
-      'method' => @method,
-      'uri' => @tool_uri,
-      'parameters' => parameters
-    )
-
-    signature = OAuth::Signature::HMAC::SHA1.new(request, :consumer_secret => @consumer_secret).signature
-
-    puts "BBB Sig: " + signature.to_s
-    parameters['oauth_signature'] = signature
-
-    uri = Addressable::URI.parse(@tool_uri)
-    uri.query_values = parameters
-    puts "BBB uri: " + uri
-
-    req = Net::HTTP::Post.new(uri)
-
-    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request(req)
-    end
-
-    puts "Response" + res.inspect
-
-    # Redirect to tool server
-    redirect_to res['location']
+    @tool_uri = "#{lti_app_url(params[:app])}?#{parameters.except(:app, :controller, :action).to_query}"
+    redirect_to @tool_uri
   end
 
-  def verify_auth
-    if params['lti_version'] == 'LTI-1p0'
-      # Verify OAuth 1.0 signature for LTI 1.0 request
-      # According to OAuth spec RFC 5849 https://tools.ietf.org/html/rfc5849
-      puts "Verify OAuth 1.0 signature for LTI 1.0 request"
-
-      tools = RailsLti2Provider::Tool.all
-      tools.each do |tool|
-
-        broker_key = tool.uuid
-        broker_secret = tool.shared_secret
-
-        puts "secret: " + broker_secret
-        app = lti_app(params[:app])
-        tool_name = app['name']
-
-        parameters = params.to_unsafe_h
-        parameters.delete('action')
-        parameters.delete('app')
-        parameters.delete('controller')
-
-        uri = "#{request.scheme}://#{request.host_with_port}/lti/#{tool_name}/messages/blti"
-        request = OAuth::RequestProxy::MockRequest.new(
-          'method' => 'POST',
-          'uri' => uri,
-          'parameters' => parameters
-        )
-
-        if OAuth::Signature::HMAC::SHA1.new(request, :consumer_secret => broker_secret).verify
-          puts "OAuth OK"
-          return
-        end
-
-      end
-      puts "OAuth FAIL"
-      render :launch_error
-    end
-  end
 end

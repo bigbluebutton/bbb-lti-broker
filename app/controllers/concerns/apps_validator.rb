@@ -3,10 +3,6 @@
 module AppsValidator
   include ActiveSupport::Concern
 
-  def resource_handler(tc_instance_guid, params)
-    Digest::SHA1.hexdigest(params[:app] + tc_instance_guid + params['resource_link_id'])
-  end
-
   def user_params(tc_instance_guid, params)
     {
       context: tc_instance_guid,
@@ -43,6 +39,18 @@ module AppsValidator
   # names of all lti apps
   def lti_apps
     Doorkeeper::Application.all.pluck(:name)
+  end
+
+  def lti_app_url(name)
+    # The launch target is always in the form [schema://hostname/app_prefix/launch]. Since the callback endpoint
+    # registered for the app in Doorkeeper is as [schema://hostname/app_prefix/auth/bbbltibroker/callback],
+    # it is safe to remove the last 2 segments from the path.
+    app = Doorkeeper::Application.where(name: name).first
+    uri = URI.parse(app.redirect_uri)
+    path = uri.path.split('/')
+    path.delete_at(0)
+    path = path.first path.size - 3
+    "#{URI.join(uri, '/')}#{path.join('/')}/launch"
   end
 
   def lti_icon(app_name)

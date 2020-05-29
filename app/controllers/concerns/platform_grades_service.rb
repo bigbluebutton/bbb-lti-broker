@@ -44,7 +44,7 @@ module PlatformGradesService
 
   def resource_lineitem(registration, jwt)
     unless jwt['scope'].include? 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem'
-      puts 'Missing scope for grades services'
+      logger.info('Missing scope for grades services')
       return nil
     end
     response = make_service_request(

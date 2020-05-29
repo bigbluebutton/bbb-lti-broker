@@ -3,10 +3,6 @@
 module RoomsValidator
   include ActiveSupport::Concern
 
-  def resource_handler(tc_instance_guid, params)
-    Digest::SHA1.hexdigest(params[:app] + tc_instance_guid + params['resource_link_id'])
-  end
-
   def user_params(tc_instance_guid, params)
     {
       context: tc_instance_guid,
