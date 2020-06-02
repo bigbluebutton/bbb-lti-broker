@@ -39,7 +39,6 @@ gem 'ims-lti' # , path: '../ims-lti'
 gem 'jwt'
 gem 'oauth', '~> 0.5.1'
 
-# gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
 gem 'doorkeeper', '~> 5.2.5'
 
 gem 'lodash-rails'

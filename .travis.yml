@@ -1,0 +1,57 @@
+sudo: required
+language: ruby
+rvm:
+  - 2.7.1
+cache:
+  bundler: true
+  directories:
+    - tmp/cache/assets/test/sprockets
+services:
+#  - postgresql
+  - docker
+env:
+  global:
+  - COMMIT_SHORT_SHA=${TRAVIS_COMMIT::8}
+  - BUILD_NUMBER="${TRAVIS_TAG:-${TRAVIS_BRANCH}-${COMMIT_SHORT_SHA}}"
+jobs:
+  include:
+  - stage: test
+    name: rubocop
+    script:
+      - echo "bundle exec rubocop"
+    if: env(IGNORE_TEST) IS NOT present
+  - stage: test
+    name: test
+    before_script:
+      - bundle install
+    script:
+      - echo "rails test"
+    if: env(IGNORE_TEST) IS NOT present
+  - stage: build
+    name: build branch
+    script:
+      - export
+      - docker build -t $DOCKER_REPO:$TRAVIS_BRANCH .
+    after_success:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
+      - docker push $DOCKER_REPO
+    if: env(IGNORE_BUILD) IS NOT present AND branch IS master
+  - stage: build
+    name: build branch
+    script:
+      - export
+      - docker build -t $DOCKER_REPO:$TRAVIS_BRANCH .
+    after_success:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
+      - docker push $DOCKER_REPO
+    if: env(IGNORE_BUILD) IS NOT present AND tag IS blank AND env(BUILD_ALL) IS present
+  - stage: build
+    name: build release
+    script:
+      - export
+      - docker build -t $DOCKER_REPO:$TRAVIS_TAG .
+    after_success:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
+      - docker tag $DOCKER_REPO:$TRAVIS_TAG $DOCKER_REPO:latest
+      - docker push $DOCKER_REPO
+    if: env(IGNORE_BUILD) IS NOT present AND tag IS NOT blank
