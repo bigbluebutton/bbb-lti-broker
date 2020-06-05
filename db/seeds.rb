@@ -10,7 +10,8 @@ when "development"
          :name => 'default',
          :uid => 'key',
          :secret => 'secret',
-         :redirect_uri => 'http://localhost:3000/apps/default/auth/bbbltibroker/callback'
+         :redirect_uri => 'http://localhost:3000/apps/default/auth/bbbltibroker/callback',
+         :scopes => 'api'
        }
    ]
 

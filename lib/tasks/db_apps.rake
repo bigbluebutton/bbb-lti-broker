@@ -7,7 +7,7 @@ include BbbLtiBroker::Helpers
 namespace :db do
   namespace :apps do
     desc 'Add a new blti app'
-    task :add, :name, :hostname, :uid, :secret, :root do |_t, args|
+    task :add, :name, :redirect_uri, :uid, :secret do |_t, args|
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
@@ -20,17 +20,17 @@ namespace :db do
           puts "App '#{args[:name]}' already exists, it can not be added"
           exit 1
         end
-        unless args[:hostname]
-          puts "Parameters hostname is required, app '#{args[:name]}' can not be added"
+        unless args[:redirect_uri]
+          puts "Parameters redirect_uri is required, app '#{args[:name]}' can not be added"
           exit 1
         end
         puts "Adding '#{args.to_hash}'"
         uid = args.[](:uid) || SecureRandom.hex(32)
         secret = args.[](:secret) || SecureRandom.hex(32)
 
-        redirect_uri = "#{args[:hostname]}"
+        redirect_uri = "#{args[:redirect_uri]}"
         app = Doorkeeper::Application.create!(name: args[:name], uid: uid, secret: secret, redirect_uri: redirect_uri, scopes: 'api')
-        app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
+        app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri scopes].include?(key) }
         puts "Added '#{app1.to_json}'"
       rescue StandardError => e
         puts e.backtrace
@@ -39,7 +39,7 @@ namespace :db do
     end
 
     desc 'Update an existent blti app if exists'
-    task :update, :name, :hostname, :uid, :secret do |_t, args|
+    task :update, :name, :redirect_uri, :uid, :secret do |_t, args|
       begin
         Rake::Task['environment'].invoke
         ActiveRecord::Base.connection
@@ -56,8 +56,8 @@ namespace :db do
         app.update!(uid: args[:uid]) if args.[](:uid)
         app.update!(secret: args[:secret]) if args.[](:secret)
 
-        redirect_uri = "#{args[:hostname]}"
-        app.update!(redirect_uri: redirect_uri) if args.[](:hostname)
+        redirect_uri = "#{args[:redirect_uri]}"
+        app.update!(redirect_uri: redirect_uri) if args.[](:redirect_uri)
         app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
         puts "Updated '#{app1.to_json}'"
       rescue StandardError => e
@@ -105,7 +105,7 @@ namespace :db do
           exit 1
         end
         apps.each do |app|
-          app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
+          app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri scopes].include?(key) }
           puts app1.to_json
         end
       rescue StandardError => e
