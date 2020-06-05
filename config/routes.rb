@@ -45,7 +45,7 @@ Rails.application.routes.draw do
     post ':app/messages/signed_content_item_request', to: 'message#signed_content_item_request'
 
     # LTI LAUNCH URL (responds to get and post)
-    get  ':app/launch', to: 'application#app_launch', as: :app_launch
+    get  ':app/launch', to: 'apps#launch', as: :app_launch
     #match 'launch' => 'application#launch', via: [:get, :post], as: :lti_launch
 
     match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
