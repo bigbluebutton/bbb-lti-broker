@@ -10,7 +10,8 @@ class AppsController < ApplicationController
 
     # For the moment pass all the parameters ro the app
     parameters = params.to_unsafe_h
-    @tool_uri = "#{lti_app_url(params[:app])}?#{{:nonce => app_launch.nonce}.to_query}"
+    @tool_uri = "#{lti_app_url(params[:app])}?#{{:launch_nonce => app_launch.nonce}.to_query}"
+    puts ">>>>>>>>>> Launch to the app " + @tool_uri
     #@tool_uri = "#{lti_app_url(params[:app])}?#{parameters.except(:app, :controller, :action).to_query}"
     redirect_to @tool_uri
   end

@@ -5,9 +5,10 @@ class Api::V1::SessionsController < Api::V1::BaseController
 
   def show
     puts ">>>>>>>>>>> respond with info for authentication during calback phase"
-    app_launch = AppLaunch.find_by_nonce(params[:nonce])
+    puts params.inspect
+    app_launch = AppLaunch.find_by_nonce(params[:launch_nonce])
     puts session[:user_id]
-    puts params[:nonce]
+    puts params[:launch_nonce]
     puts params['redirect_uri']
 
     user = if params[:id]
