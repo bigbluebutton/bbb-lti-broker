@@ -9,6 +9,6 @@ class Api::V1::SessionsController < Api::V1::BaseController
            else
              current_user
            end
-    render json: user.as_json
+    render(json: user.as_json)
   end
 end

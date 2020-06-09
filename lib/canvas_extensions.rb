@@ -24,6 +24,6 @@ module CanvasExtensions
     { key: :similarity_detection, name: 'Similarity Detection', message: [:basic_lti_request] },
     { key: :tool_configuration, name: 'Tool Configuration' },
     { key: :user_navigation, name: 'User Navigation' },
-    { key: :wiki_page_menu, name: 'Wiki Page Menu', message: %i[content_item_selection basic_lti_request] }
+    { key: :wiki_page_menu, name: 'Wiki Page Menu', message: %i[content_item_selection basic_lti_request] },
   ].freeze
 end

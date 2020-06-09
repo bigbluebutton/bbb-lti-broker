@@ -18,7 +18,7 @@ Rails.application.routes.draw do
 
     # registration (LMS -> broker)
     get 'registration/list', to: 'registration#list', as: :registration_list
-    get 'registration/new', to: 'registration#new', as: :new_registration #if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+    get 'registration/new', to: 'registration#new', as: :new_registration # if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     get 'registration/edit', to: 'registration#edit', as: :edit_registration
     post 'registration/submit', to: 'registration#submit', as: :submit_registration
     get 'registration/delete', to: 'registration#delete', as: :delete_registration
@@ -46,13 +46,13 @@ Rails.application.routes.draw do
 
     # LTI LAUNCH URL (responds to get and post)
     get  ':app/launch', to: 'application#app_launch', as: :app_launch
-    #match 'launch' => 'application#launch', via: [:get, :post], as: :lti_launch
+    # match 'launch' => 'application#launch', via: [:get, :post], as: :lti_launch
 
     match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 
     # xml config and builder for lti 1.0/1.1
     get ':app/xml_config', to: 'tool_profile#xml_config', as: :xml_config, app: ENV['DEFAULT_LTI_TOOL'] || 'default'
-    get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder #if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+    get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder # if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
     mount RailsLti2Provider::Engine => '/rails_lti2_provider'

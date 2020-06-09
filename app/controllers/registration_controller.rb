@@ -12,7 +12,7 @@ class RegistrationController < ApplicationController
   def list
     @registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0').pluck(:tool_settings)
     @registrations.map! do |reg|
-      JSON.parse reg
+      JSON.parse(reg)
     end
   end
 
@@ -26,10 +26,10 @@ class RegistrationController < ApplicationController
   end
 
   def edit
-    redirect_to registration_list_path unless params.key?('reg_id') && params.key?('client_id')
+    redirect_to(registration_list_path) unless params.key?('reg_id') && params.key?('client_id')
     options = {}
     options['client_id'] = params[:client_id] if params.key?('client_id')
-    redirect_to registration_list_path unless lti_registration_exists?(params[:reg_id], options)
+    redirect_to(registration_list_path) unless lti_registration_exists?(params[:reg_id], options)
 
     @registration = lti_registration_params(params[:reg_id], options)
   end
@@ -42,27 +42,27 @@ class RegistrationController < ApplicationController
       client_id: params[:client_id],
       key_set_url: params[:key_set_url],
       auth_token_url: params[:auth_token_url],
-      auth_login_url: params[:auth_login_url]
+      auth_login_url: params[:auth_login_url],
     }
 
     if params.key?('private_key_path') && params.key?('public_key_path')
-      key_dir = Digest::MD5.hexdigest params[:iss] + params[:client_id]
-      Dir.mkdir('.ssh/') unless Dir.exists?('.ssh/')
-      Dir.mkdir('.ssh/' + key_dir) unless Dir.exists?('.ssh/' + key_dir)
+      key_dir = Digest::MD5.hexdigest(params[:iss] + params[:client_id])
+      Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
+      Dir.mkdir('.ssh/' + key_dir) unless Dir.exist?('.ssh/' + key_dir)
 
       priv_key = read_temp_file(params[:private_key_path])
       pub_key = read_temp_file(params[:public_key_path])
 
-      File.open(File.join(Rails.root, '.ssh', key_dir, 'priv_key'), 'w') do |f|
-        f.puts priv_key
+      File.open(Rails.root.join(".ssh/#{key_dir}/priv_key"), 'w') do |f|
+        f.puts(priv_key)
       end
 
       Rails.root.join('path/to')
-      File.open(File.join(Rails.root, '.ssh', key_dir, 'pub_key'), 'w') do |f|
-        f.puts pub_key
+      File.open(Rails.root.join(".ssh/#{key_dir}/pub_key"), 'w') do |f|
+        f.puts(pub_key)
       end
 
-      reg[:tool_private_key] = "#{Rails.root}/.ssh/#{key_dir}/priv_key"
+      reg[:tool_private_key] = Rails.root.join(".ssh/#{key_dir}/priv_key") # "#{Rails.root}/.ssh/#{key_dir}/priv_key"
     end
 
     options = {}
@@ -85,7 +85,7 @@ class RegistrationController < ApplicationController
       )
     end
 
-    redirect_to registration_list_path
+    redirect_to(registration_list_path)
   end
 
   def delete
@@ -95,20 +95,20 @@ class RegistrationController < ApplicationController
       reg = lti_registration(params[:reg_id], options)
       if lti_registration_params(params[:reg_id], options)['tool_private_key'].present?
         key_dir = Pathname.new(lti_registration_params(params[:reg_id])['tool_private_key']).parent.to_s
-        FileUtils.remove_dir(key_dir, true) if Dir.exist? key_dir
+        FileUtils.remove_dir(key_dir, true) if Dir.exist?(key_dir)
       end
       reg.delete
     end
-    redirect_to registration_list_path
+    redirect_to(registration_list_path)
   end
 
   private
 
   def set_temp_keys
-    private_key = OpenSSL::PKey::RSA.generate 4096
+    private_key = OpenSSL::PKey::RSA.generate(4096)
     @jwk = JWT::JWK.new(private_key).export
-    @jwk['alg'] = 'RS256' unless @jwk.key? 'alg'
-    @jwk['use'] = 'sig' unless @jwk.key? 'use'
+    @jwk['alg'] = 'RS256' unless @jwk.key?('alg')
+    @jwk['use'] = 'sig' unless @jwk.key?('use')
     @jwk = @jwk.to_json
 
     @public_key = private_key.public_key

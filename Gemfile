@@ -21,9 +21,9 @@ gem 'coffee-rails', '~> 5.0'
 # gem 'therubyracer', platforms: :ruby
 gem 'http'
 
+gem 'addressable', '~> 2.7'
 gem 'faraday'
 gem 'oauthenticator'
-gem 'addressable', '~> 2.7'
 
 gem 'bundler', '>=2.1.4'
 # Use jquery as the JavaScript library

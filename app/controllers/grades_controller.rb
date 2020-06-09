@@ -14,33 +14,34 @@ class GradesController < ApplicationController
     send_grades
     if validate_grades_token? && verify_permissions?
       @grades = grades(@registration, grades_claim_endpoint)
-      render 'grades/list'
+      render('grades/list')
     else
-      render 'grades/failure'
+      render('grades/failure')
     end
   end
 
   # Send grades to the LMS
   # Temporarily hardcoded grades for every student
   def send_grades
-    if validate_grades_token? && verify_permissions?
-      token = access_token(@registration, grades_claim_endpoint['scope'])
-      # can view members and send grades back
-      score_url = platform_score_url(@jwt_body)
-      platform_members(@registration, @jwt_body).each do |member|
-        response = send_grade_to_platform(
-          @registration,
-          grades_claim_endpoint['scope'],
-          score_url,
-          platform_grade(member, 81, 100),
-          token
-        )
-        # render 'grades/success'
-      end
-    else
-      # render json: @error.to_json
-      # render 'grades/failure'
+    return unless validate_grades_token? && verify_permissions?
+
+    token = access_token(@registration, grades_claim_endpoint['scope'])
+    # can view members and send grades back
+    score_url = platform_score_url(@jwt_body)
+    platform_members(@registration, @jwt_body).each do |member|
+      send_grade_to_platform(
+        @registration,
+        grades_claim_endpoint['scope'],
+        score_url,
+        platform_grade(member, 81, 100),
+        token
+      )
+      # render 'grades/success'
     end
+    # else
+    # render json: @error.to_json
+    # render 'grades/failure'
+    # end
   end
 
   private
@@ -66,7 +67,7 @@ class GradesController < ApplicationController
       @error_message = t('error.invalid.token')
       return false
     end
-    if launch[:timestamp].to_i < 1.days.ago.to_i
+    if launch[:timestamp].to_i < 1.day.ago.to_i
       @error = { key: 'token_expired', message: t('error.expired.token') }
       @error_message = t('error.expired.token')
       return false
@@ -75,7 +76,7 @@ class GradesController < ApplicationController
 
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: lti_launch_nonce)
 
-    unless lti_launch.present?
+    if lti_launch.blank?
       @error_message = t('error.expired.request')
       return false
     end

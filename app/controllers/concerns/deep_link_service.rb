@@ -9,10 +9,11 @@ module DeepLinkService
       'title' => title,
       'url' => url,
       'presentation' => {
-        'documentTarget' => 'window'
+        'documentTarget' => 'window',
       },
-      'custom' => custom_params
+      'custom' => custom_params,
     }
+    resource
   end
 
   def deep_link_jwt_response(registration, jwt_header, jwt_body, resources)
@@ -26,7 +27,7 @@ module DeepLinkService
       'https://purl.imsglobal.org/spec/lti/claim/message_type' => 'LtiDeepLinkingResponse',
       'https://purl.imsglobal.org/spec/lti/claim/version' => '1.3.0',
       'https://purl.imsglobal.org/spec/lti-dl/claim/content_items' => resources,
-      'https://purl.imsglobal.org/spec/lti-dl/claim/data' => jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['data']
+      'https://purl.imsglobal.org/spec/lti-dl/claim/data' => jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['data'],
     }
 
     message.each do |key, value|
@@ -36,6 +37,6 @@ module DeepLinkService
     priv = File.read(registration['tool_private_key'])
     priv_key = OpenSSL::PKey::RSA.new(priv)
 
-    JWT.encode message, priv_key, 'RS256', kid: jwt_header['kid']
+    JWT.encode(message, priv_key, 'RS256', kid: jwt_header['kid'])
   end
 end

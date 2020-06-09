@@ -37,7 +37,8 @@ class MessageController < ApplicationController
                                                 'Unknown Error'
                                               end
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
-    @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key, consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
+    @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
+                                                                                consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
     if request.request_parameters.key?('launch_presentation_return_url')
       launch_presentation_return_url = request.request_parameters['launch_presentation_return_url'] + '&lti_errormsg=' + @error
       redirect_to(launch_presentation_return_url)
@@ -99,10 +100,11 @@ class MessageController < ApplicationController
   # called by all requests to process the message first
   def process_message
     # TODO: should we create the lti_launch with all of the oauth params as well?
-    @message = (@lti_launch&.message) || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
+    @message = @lti_launch&.message || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
 
-    tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
-    @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key, consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
+    tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
+    @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
+                                                                                consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
     @current_user = User.find_by(context: tc_instance_guid, uid: params['user_id']) || User.create(user_params(tc_instance_guid, params))
   end
 
@@ -110,11 +112,11 @@ class MessageController < ApplicationController
   def verify_blti_launch
     jwt = verify_openid_launch
     @jwt_body = jwt[:body]
-    logger.info("JWT Body: " + @jwt_body.to_s)
+    logger.info('JWT Body: ' + @jwt_body.to_s)
     @jwt_header = jwt[:header]
     check_launch
     @message = IMS::LTI::Models::Messages::Message.generate(params)
-    tc_instance_guid = tool_consumer_instance_guid(request.referrer, params)
+    tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
     @current_user = User.find_by(context: tc_instance_guid, uid: params[:user_id]) || User.create(user_params(tc_instance_guid, params))
   end
