@@ -66,7 +66,7 @@ class MessageController < ApplicationController
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h)
-    redirect_to redirector and return
+    redirect_to(redirector) and return
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request
@@ -120,7 +120,7 @@ class MessageController < ApplicationController
     @current_user = User.find_or_create_by(context: tc_instance_guid, uid: params['user_id']) do |user|
       user.update(user_params(tc_instance_guid, params))
     end
-    @current_user.update(last_accessed_at: Time.now)
+    @current_user.update(last_accessed_at: Time.current)
   end
 
   def check_launch
