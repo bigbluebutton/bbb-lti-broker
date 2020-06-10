@@ -21,14 +21,14 @@ module OpenIdAuthenticator
     validate_openid_message(jwt_body)
 
     clean_up_openid_launch
-    params.merge! extract_old_param_format(jwt_body)
+    params.merge!(extract_old_param_format(jwt_body))
 
     # token is too big to store in cookie for rooms and we've already decoded it
-    params.delete :id_token
+    params.delete(:id_token)
 
     {
       header: jwt_header,
-      body: jwt_body
+      body: jwt_body,
     }
   end
 
@@ -56,14 +56,14 @@ module OpenIdAuthenticator
   end
 
   def validate_jwt_signature(reg, jwt_header)
-    public_key_set = JSON.parse(open(reg['key_set_url']).string)
+    public_key_set = JSON.parse(File.open(reg['key_set_url']).string)
     jwk_json = public_key_set['keys'].find do |key|
       key['kid'] == jwt_header['kid']
     end
     jwt = JSON::JWK.new(jwk_json)
 
     # throws error if jwt is not valid
-    JWT.decode params[:id_token], jwt.to_key, true, algorithm: 'RS256'
+    JWT.decode(params[:id_token], jwt.to_key, true, algorithm: 'RS256')
   end
 
   def validate_openid_message(jwt_body)
@@ -75,13 +75,13 @@ module OpenIdAuthenticator
   end
 
   def extract_old_param_format(jwt_body)
-    if jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings'].present?
-      # get deep link information
-      p = old_content_type_format(jwt_body)
-    else
-      # get old message format
-      p = old_message_format(jwt_body)
-    end
+    p = if jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings'].present?
+          # get deep link information
+          old_content_type_format(jwt_body)
+        else
+          # get old message format
+          old_message_format(jwt_body)
+        end
 
     p.each do |key, value|
       p[:"#{key}"] = '' if value.nil?
@@ -91,10 +91,10 @@ module OpenIdAuthenticator
 
   def extract_old_roles(jwt_body)
     roles = ''
-    if jwt_body.key? 'https://purl.imsglobal.org/spec/lti/claim/roles'
+    if jwt_body.key?('https://purl.imsglobal.org/spec/lti/claim/roles')
       jwt_body['https://purl.imsglobal.org/spec/lti/claim/roles'].each do |r|
-        roles + r.split('#', -1)[-1]
-        roles + ',' unless r == jwt_body['https://purl.imsglobal.org/spec/lti/claim/roles'].last
+        roles += r.split('#', -1)[-1]
+        roles += ',' unless r == jwt_body['https://purl.imsglobal.org/spec/lti/claim/roles'].last
       end
     end
     roles
@@ -107,56 +107,42 @@ module OpenIdAuthenticator
       lis_person_lis_person_name_family: jwt_body['family_name'],
       lis_person_contact_email_primary: jwt_body['email'],
       lti_version: jwt_body['https://purl.imsglobal.org/spec/lti/claim/version'],
-      roles: extract_old_roles(jwt_body)
+      roles: extract_old_roles(jwt_body),
     }
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/resource_link',
-        {
-            'resource_link_id': 'id',
-            'resource_link_title': 'title',
-            'resource_link_description': 'description'
-        })
+                      'resource_link_id': 'id',
+                      'resource_link_title': 'title',
+                      'resource_link_description': 'description')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/launch_presentation',
-        {
-            'launch_presentation_return_url': 'return_url',
-            'launch_presentation_locale': 'locale',
-            'launch_presentation_document_target': 'document_target'
-        })
+                      'launch_presentation_return_url': 'return_url',
+                      'launch_presentation_locale': 'locale',
+                      'launch_presentation_document_target': 'document_target')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/tool_platform',
-        {
-            'tool_consumer_instance_guid': 'guid',
-            'tool_consumer_info_product_family_code': 'family_code',
-            'tool_consumer_info_version': 'version',
-            'tool_consumer_instance_name': 'name',
-            'tool_consumer_instance_description': 'description'
-        })
+                      'tool_consumer_instance_guid': 'guid',
+                      'tool_consumer_info_product_family_code': 'family_code',
+                      'tool_consumer_info_version': 'version',
+                      'tool_consumer_instance_name': 'name',
+                      'tool_consumer_instance_description': 'description')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/context',
-        {
-            'context_id': 'id',
-            'context_label': 'label',
-            'context_title': 'title',
-            'user_id': 'id'
-        })
+                      'context_id': 'id',
+                      'context_label': 'label',
+                      'context_title': 'title',
+                      'user_id': 'id')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti-bos/claim/basicoutcomesservice',
-        {
-            'lis_result_sourcedid': 'lis_result_sourcedid',
-            'lis_outcome_service_url': 'lis_outcome_service_url',
-        })
+                      'lis_result_sourcedid': 'lis_result_sourcedid',
+                      'lis_outcome_service_url': 'lis_outcome_service_url')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/ext',
-        {
-            'ext_user_username': 'user_username',
-            'ext_lms': 'lms',
-        })
+                      'ext_user_username': 'user_username',
+                      'ext_lms': 'lms')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/lis',
-        {
-            'lis_person_sourcedid': 'person_sourcedid'
-        })
+                      'lis_person_sourcedid': 'person_sourcedid')
 
     if jwt_body.key?('https://purl.imsglobal.org/spec/lti/claim/custom')
       jwt_body['https://purl.imsglobal.org/spec/lti/claim/custom'].each do |key, value|
@@ -172,13 +158,13 @@ module OpenIdAuthenticator
     p
   end
 
-  def extract_param(p, jwt_body, key, pairs)
-    if jwt_body.key? (key)
-        pairs.each do |old_param, new_param|
-            p[:"#{old_param}"] = jwt_body[key][new_param]
-        end
+  def extract_param(par, jwt_body, key, pairs)
+    if jwt_body.key?(key)
+      pairs.each do |old_param, new_param|
+        par[:"#{old_param}"] = jwt_body[key][new_param]
+      end
     end
-    p
+    par
   end
 
   def old_content_type_format(jwt_body)
@@ -207,7 +193,7 @@ module OpenIdAuthenticator
       can_confirm: jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['can_confirm'],
       content_item_return_url: jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['deep_link_return_url'],
       title: jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['title'],
-      text: jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['text']
+      text: jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['text'],
     }
     p[:lti_message_type] = 'basic-lti-launch-request' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiResourceLinkRequest'
     p[:lti_message_type] = 'ContentItemSelectionRequest' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiDeepLinkingRequest'

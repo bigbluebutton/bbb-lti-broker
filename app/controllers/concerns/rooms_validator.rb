@@ -10,7 +10,7 @@ module RoomsValidator
       full_name: params['custom_lis_person_name_full'] || params['lis_person_name_full'],
       first_name: params['custom_lis_person_name_given'] || params['lis_person_name_given'],
       last_name: params['custom_lis_person_name_family'] || params['lis_person_name_family'],
-      last_accessed_at: DateTime.now
+      last_accessed_at: DateTime.now,
     }
   end
 
@@ -50,6 +50,8 @@ module RoomsValidator
         path = uri.path.split('/')
         path_base = (path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '') + '/'
       rescue StandardError
+        # TODO: handle exception
+        return
       end
     end
     "#{site}#{path_base + app_name + '/rooms/assets/icon.svg'}"

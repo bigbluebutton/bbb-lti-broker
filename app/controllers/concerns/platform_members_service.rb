@@ -5,7 +5,8 @@ module PlatformMembersService
 
   # check if platforms offers names and roles
   def platform_has_nrps?(jwt_body)
-    jwt_body['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice'].present? && jwt_body['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice']['context_memberships_url'].present?
+    jwt_body['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice'].present? &&
+      jwt_body['https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice']['context_memberships_url'].present?
   end
 
   # get list of members enrolled in the course this room is in
@@ -35,9 +36,7 @@ module PlatformMembersService
 
       next_page = false
       response.each_header do |key, value|
-        if key.capitalize.match(/Link/) && value.match(/rel=next/)
-          next_page = value
-        end
+        next_page = value if key.capitalize.match(/Link/) && value.match(/rel=next/)
       end
     end
     external_members

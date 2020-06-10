@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "uri"
-require "net/http"
-require "ims/lti"
-require "securerandom"
-require "faraday"
+require 'uri'
+require 'net/http'
+require 'ims/lti'
+require 'securerandom'
+require 'faraday'
 require 'oauthenticator'
 require 'oauth'
 require 'addressable/uri'

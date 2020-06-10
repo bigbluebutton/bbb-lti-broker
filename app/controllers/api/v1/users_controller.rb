@@ -9,6 +9,6 @@ class Api::V1::UsersController < Api::V1::BaseController
            else
              current_user
            end
-    render json: user.as_json(except: :password_digest)
+    render(json: user.as_json(except: :password_digest))
   end
 end
