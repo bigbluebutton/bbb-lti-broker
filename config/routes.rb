@@ -7,8 +7,7 @@ Rails.application.routes.draw do
       namespace :v1 do
         get 'users/:id', to: 'users#show', as: :users
         get 'user', to: 'users#show', as: :user
-        get 'sessions/:id', to: 'sessions#show', as: :sessions
-        get 'session', to: 'sessions#show', as: :session
+        get 'sessions/:token', to: 'sessions#validate_launch', as: :sessions
       end
     end
 

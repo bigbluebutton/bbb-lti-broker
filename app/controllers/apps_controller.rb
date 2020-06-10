@@ -9,11 +9,11 @@ class AppsController < ApplicationController
     #redirect_to "#{lti_app_url(params[:app])}"
 
     # For the moment pass all the parameters ro the app
-    parameters = params.to_unsafe_h
-    @tool_uri = "#{lti_app_url(params[:app])}?#{{:launch_nonce => app_launch.nonce}.to_query}"
-    puts ">>>>>>>>>> Launch to the app " + @tool_uri
-    #@tool_uri = "#{lti_app_url(params[:app])}?#{parameters.except(:app, :controller, :action).to_query}"
-    redirect_to @tool_uri
+    # parameters = params.to_unsafe_h
+    # redirector = "#{lti_app_url(params[:app])}?#{parameters.except(:app, :controller, :action).to_query}"
+    redirector = "#{lti_app_url(params[:app])}?#{{:launch_nonce => app_launch.nonce}.to_query}"
+    puts ">>>>> redirects to #{redirector}"
+    redirect_to redirector
   end
 
   private
@@ -22,7 +22,7 @@ class AppsController < ApplicationController
     tool = RailsLti2Provider::Tool.where(uuid: params[:oauth_consumer_key]).last
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])
     AppLaunch.find_or_create_by(nonce: lti_launch.nonce) do |launch|
-      launch.update_attributes(:tool_id => tool.id, :message => lti_launch.message.to_json)
+      launch.update(tool_id: tool.id, message: lti_launch.message.to_json)
     end
   end
 

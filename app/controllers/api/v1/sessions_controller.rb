@@ -3,19 +3,14 @@
 class Api::V1::SessionsController < Api::V1::BaseController
   before_action :doorkeeper_authorize!
 
-  def show
-    puts ">>>>>>>>>>> respond with info for authentication during calback phase"
+  def validate_launch
+    puts ">>>>>>>>>> Api::V1::SsoController:validate_launch"
     puts params.inspect
-    app_launch = AppLaunch.find_by_nonce(params[:launch_nonce])
-    puts session[:user_id]
-    puts params[:launch_nonce]
-    puts params['redirect_uri']
+    app_launch = AppLaunch.find_by_nonce(params[:token])
+    puts app_launch.to_json
 
-    user = if params[:id]
-             find_user
-           else
-             current_user
-           end
-    render json: user.as_json
+    response = { token: params[:token], valid: true, message: JSON.parse(app_launch.message) }
+    render json: response.to_json
   end
+
 end
