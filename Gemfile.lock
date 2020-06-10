@@ -1,14 +1,13 @@
 GIT
   remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
-  revision: 6f4b6512f19fedf76ebf9f4e6e21970a03e8404f
-  branch: gatekeeper-updated-rails
+  revision: 5df268a1b5a43029229797e905286d6e76dbe75a
+  tag: 0.0.3
   specs:
-    rails_lti2_provider (0.0.2)
+    rails_lti2_provider (0.0.3)
       ims-lti (~> 2.3.0)
       rails (~> 6.0.3)
 
 GEM
-  remote: https://rubygems.org/
   remote: http://rubygems.org/
   specs:
     actioncable (6.0.3.1)

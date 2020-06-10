@@ -1,5 +1,5 @@
 ## BigBlueButton LTI Broker
-The BBB LTI Broker is a Web Application that acts as a LTI Broker for connecting tool consumers with BigBlueButton Apps. 
+The BBB LTI Broker is a Web Application that acts as a LTI Broker for connecting Tool Consumers with BigBlueButton Tools. The most basic deployment required the collaboration of two applications, the bbb-lti-broker itself and bbb-app-rooms. Being the flow:
 
 ## Getting Started
 #### Use Docker
@@ -105,7 +105,7 @@ The following are some useful and relevant rake commands for the LTI Broker:
 ## Link the LTI Broker to LMS
 
 ### Using LTI 1.0/1.1
-There is no need to register an LTI 1.0/1.1 tool with the broker. All that the the LTI Tool Consumer needs is the Broker Key and Secret. These can be set as environment variables. 
+There is no need to register an LTI 1.0/1.1 tool with the broker. All that the the LTI Tool Consumer needs is the Broker Key and Secret. These can be set as environment variables.
 There are certain fields the tool consumer will require. These fields (and example values) are:
 Tool URL => ```http://broker.example.com/lti/TOOL_NAME/messages/blti```
 Consumer Key => ```BROKER_KEY```
@@ -115,7 +115,7 @@ Shared Secret => ```BROKER_SECRET```
 #### Add an LTI 1.3 Registration
 To register an LTI 1.3 tool with the Broker, there are some rake commands (for production) and a web UI for development mode.
 The Web UI is found at ```http://broker.example.com/lti/registration/list```
-The rake tasks to register are: 
+The rake tasks to register are:
 ```
 rake db:registration:new[key]
 rake db:registration:keygen[key]
@@ -132,7 +132,7 @@ Tool URL => ```http://broker.example.com/lti/TOOL_NAME/messages/oblti```
 Client ID => ```Gh4Bj81cK290d```
 Public Key => ```A_JWT_KEY```
 Initiate Login URL => ```http://broker.example.com/lti/TOOL_NAME/auth/login```
-Redirection URI(s) => 
+Redirection URI(s) =>
 ```
 http://broker.example.com/lti/TOOL_NAME/messages/oblti
 http://broker.example.com/lti/TOOL_NAME/messages/deep-link

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-source 'https://rubygems.org'
-
 source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -41,13 +39,12 @@ gem 'ims-lti' # , path: '../ims-lti'
 gem 'jwt'
 gem 'oauth', '~> 0.5.1'
 
-# gem 'doorkeeper', '~> 4.2', '>= 4.2.6'
 gem 'doorkeeper', '~> 5.2.5'
 
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', branch: 'gatekeeper-updated-rails'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.3'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
