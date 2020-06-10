@@ -65,7 +65,6 @@ class MessageController < ApplicationController
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h)
-    puts ">>>>> redirects to #{redirector}"
     redirect_to redirector and return
   end
 

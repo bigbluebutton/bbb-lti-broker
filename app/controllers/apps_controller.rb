@@ -12,7 +12,6 @@ class AppsController < ApplicationController
     # parameters = params.to_unsafe_h
     # redirector = "#{lti_app_url(params[:app])}?#{parameters.except(:app, :controller, :action).to_query}"
     redirector = "#{lti_app_url(params[:app])}?#{{:launch_nonce => app_launch.nonce}.to_query}"
-    puts ">>>>> redirects to #{redirector}"
     redirect_to redirector
   end
 
