@@ -66,7 +66,7 @@ class MessageController < ApplicationController
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h)
-    redirect_to(redirector) and return
+    redirect_to(redirector)
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request
