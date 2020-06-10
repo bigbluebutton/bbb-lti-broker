@@ -7,8 +7,7 @@ Rails.application.routes.draw do
       namespace :v1 do
         get 'users/:id', to: 'users#show', as: :users
         get 'user', to: 'users#show', as: :user
-        get 'sessions/:id', to: 'sessions#show', as: :sessions
-        get 'session', to: 'sessions#show', as: :session
+        get 'sessions/:token', to: 'sessions#validate_launch', as: :sessions
       end
     end
 
@@ -45,8 +44,7 @@ Rails.application.routes.draw do
     post ':app/messages/signed_content_item_request', to: 'message#signed_content_item_request'
 
     # LTI LAUNCH URL (responds to get and post)
-    get  ':app/launch', to: 'application#app_launch', as: :app_launch
-    # match 'launch' => 'application#launch', via: [:get, :post], as: :lti_launch
+    get  ':app/launch', to: 'apps#launch', as: :app_launch
 
     match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 

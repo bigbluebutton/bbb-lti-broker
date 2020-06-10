@@ -64,10 +64,9 @@ class MessageController < ApplicationController
 
     # Redirect to external application if configured
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
-    logger.debug("---- user: #{session[:user_id]}")
     session[:user_id] = @current_user.id
-    app_url = app_launch_path(params.to_unsafe_h)
-    redirect_to(app_url)
+    redirector = app_launch_path(params.to_unsafe_h)
+    redirect_to redirector and return
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request
@@ -118,7 +117,10 @@ class MessageController < ApplicationController
     @message = IMS::LTI::Models::Messages::Message.generate(params)
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
-    @current_user = User.find_by(context: tc_instance_guid, uid: params[:user_id]) || User.create(user_params(tc_instance_guid, params))
+    @current_user = User.find_or_create_by(context: tc_instance_guid, uid: params['user_id']) do |user|
+      user.update(user_params(tc_instance_guid, params))
+    end
+    @current_user.update(last_accessed_at: Time.now)
   end
 
   def check_launch
