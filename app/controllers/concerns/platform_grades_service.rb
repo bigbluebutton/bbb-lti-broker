@@ -16,7 +16,7 @@ module PlatformGradesService
       activityProgress: activity_progress,
       gradingProgress: grading_progress,
       timestamp: DateTime.now.iso8601,
-      userId: member['user_id']
+      userId: member['user_id'],
     }.to_json
   end
 
@@ -24,7 +24,7 @@ module PlatformGradesService
   def platform_score_url(jwt)
     score_url = jwt['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem']
     uri = URI.parse(score_url)
-    uri.path + '/scores'
+    uri.path += '/scores'
     uri.to_s
   end
 
@@ -43,7 +43,7 @@ module PlatformGradesService
   end
 
   def resource_lineitem(registration, jwt)
-    unless jwt['scope'].include? 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem'
+    unless jwt['scope'].include?('https://purl.imsglobal.org/spec/lti-ags/scope/lineitem')
       logger.info('Missing scope for grades services')
       return nil
     end
@@ -68,7 +68,7 @@ module PlatformGradesService
   def grades(registration, jwt)
     line_item = resource_lineitem(registration, jwt)
 
-    return {} unless line_item.present?
+    return {} if line_item.blank?
 
     response = make_service_request(
       registration,
@@ -84,7 +84,7 @@ module PlatformGradesService
 
   def grade_results_url(results_url)
     uri = URI.parse(results_url)
-    uri.path + '/results'
+    uri.path += '/results'
     uri.to_s
   end
 end

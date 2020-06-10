@@ -13,20 +13,20 @@ module PlatformServiceConnector
       aud: auth_url,
       iat: Time.new.to_i - 5,
       exp: Time.new.to_i + 60,
-      jti: 'lti-service-token' + SecureRandom.hex
+      jti: 'lti-service-token' + SecureRandom.hex,
     }
 
     priv = File.read(registration['tool_private_key'])
     priv_key = OpenSSL::PKey::RSA.new(priv)
 
-    jwt = JWT.encode jwt_claim, priv_key, 'RS256'
+    jwt = JWT.encode(jwt_claim, priv_key, 'RS256')
     scopes.sort!
 
     auth_request = {
       grant_type: 'client_credentials',
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       client_assertion: jwt,
-      scope: scopes.map(&:inspect).join(' ').gsub('"', '')
+      scope: scopes.map(&:inspect).join(' ').gsub('"', ''),
     }
 
     uri = URI.parse(auth_url)
@@ -53,7 +53,7 @@ module PlatformServiceConnector
       request = Net::HTTP::Get.new(uri.request_uri)
     end
 
-    request.add_field 'Authorization', 'Bearer ' + token
+    request.add_field('Authorization', 'Bearer ' + token)
     request['Accept'] = accept
     # request.add_field 'Accept', accept
 

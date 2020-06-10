@@ -19,8 +19,8 @@ class ToolProfileController < ApplicationController
                                                'The App is not registered'
                                              else
                                                'Unknown Error'
-                                              end
-    logger.info @error
+                                             end
+    logger.info(@error)
   end
 
   # show xml builder for customization in tool consumer url
@@ -37,20 +37,20 @@ class ToolProfileController < ApplicationController
     elsif @keys[:timestamp].to_i < 12.hours.ago.to_i
       @json_config = { error: t('registration.expkeymessage') }
     else
-      @json_config = JSON.parse(File.read(Rails.root.join('app', 'views', 'tool_profile', 'json_config.json')))
+      @json_config = JSON.parse(File.read(Rails.root.join('app/views/tool_profile/json_config.json')))
 
       @json_config['target_link_uri'] = openid_launch_url
       @json_config['oidc_initiation_url'] = openid_login_url
 
       jwk = OpenSSL::PKey::RSA.new(read_temp_file(@keys[:public_key_path], false)).to_jwk
-      jwk['alg'] = 'RS256' unless jwk.key? 'alg'
-      jwk['use'] = 'sig' unless jwk.key? 'use'
+      jwk['alg'] = 'RS256' unless jwk.key?('alg')
+      jwk['use'] = 'sig' unless jwk.key?('use')
       jwk = jwk
 
       @json_config['public_jwk'] = jwk
 
       @json_config['extensions'][0]['settings']['domain'] = request.base_url
-      @json_config['extensions'][0]['settings']['tool_id'] = Digest::MD5.hexdigest request.base_url
+      @json_config['extensions'][0]['settings']['tool_id'] = Digest::MD5.hexdigest(request.base_url)
       @json_config['extensions'][0]['settings']['icon_url'] = lti_icon(params[:app])
 
       @json_config['extensions'][0]['settings']['placements'].each do |placement|
@@ -58,7 +58,7 @@ class ToolProfileController < ApplicationController
         placement['icon_url'] = lti_icon(params[:app])
       end
     end
-    render json: JSON.pretty_generate(@json_config)
+    render(json: JSON.pretty_generate(@json_config))
   end
 
   def xml_config
@@ -68,7 +68,7 @@ class ToolProfileController < ApplicationController
     tc.secure_icon = secure_url(tc.icon)
     tc.description = t("apps.#{params[:app]}.description")
 
-    if query_params = request.query_parameters
+    if query_params == request.query_parameters
       platform = CanvasExtensions::PLATFORM
       tc.set_ext_param(platform, :selection_width, query_params[:selection_width])
       tc.set_ext_param(platform, :selection_height, query_params[:selection_height])
@@ -80,7 +80,7 @@ class ToolProfileController < ApplicationController
       query_params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
       query_params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
     end
-    render xml: tc.to_xml(indent: 2)
+    render(xml: tc.to_xml(indent: 2))
   end
 
   private

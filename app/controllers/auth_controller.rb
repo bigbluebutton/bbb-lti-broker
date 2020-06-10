@@ -13,13 +13,13 @@ class AuthController < ApplicationController
   # first touch point for lti 1.3
   # ensures platform is registered
   def login
-    logger.info("AuthController: login")
+    logger.info('AuthController: login')
 
     state = 'state' + SecureRandom.hex
 
     cookies[state] = {
       value: state,
-      expires: 1.year.from_now
+      expires: 1.year.from_now,
     }
 
     nonce = 'nonce' + SecureRandom.hex
@@ -34,15 +34,13 @@ class AuthController < ApplicationController
       redirect_uri: params[:target_link_uri],
       state: state,
       nonce: nonce,
-      login_hint: params[:login_hint]
+      login_hint: params[:login_hint],
     }
 
-    if params.key?(:lti_message_hint)
-      auth_params[:lti_message_hint] = params[:lti_message_hint]
-    end
+    auth_params[:lti_message_hint] = params[:lti_message_hint] if params.key?(:lti_message_hint)
 
     aparams = URI.encode_www_form(auth_params)
-    redirect_to @registration['auth_login_url'] + '?' + aparams
+    redirect_to(@registration['auth_login_url'] + '?' + aparams)
   end
 
   private

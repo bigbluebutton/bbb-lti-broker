@@ -18,7 +18,7 @@ module TemporaryStore
   def read_temp_file(file_path, delete = true)
     begin
       file = File.open(file_path, 'r')
-    rescue
+    rescue StandardError
       return nil
     end
     contents = file.read
@@ -30,11 +30,11 @@ module TemporaryStore
   private
 
   def temp_file_folder
-    Rails.root.join('tmp', 'bbb-lti')
+    Rails.root.join('tmp/bbb-lti')
   end
 
   def temp_file_path(name)
-    Rails.root.join('tmp', 'bbb-lti', name)
+    Rails.root.join("tmp/bbb-lti/#{name}")
   end
 
   # delete temp files older than a day
@@ -46,6 +46,6 @@ module TemporaryStore
 
   # create temp directory if it doesn't exist
   def init_temp_file_storage
-    FileUtils.mkdir_p(temp_file_folder) unless Dir.exist? temp_file_folder
+    FileUtils.mkdir_p(temp_file_folder) unless Dir.exist?(temp_file_folder)
   end
 end

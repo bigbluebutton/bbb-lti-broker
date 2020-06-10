@@ -19,7 +19,7 @@ Layout/HashAlignment:
   EnforcedHashRocketStyle: [ key, table ]
   EnforcedColonStyle: [ key, table ]
 Layout/LineLength:
-  Max: 128
+  Max: 200
 Metrics:
   Enabled: false
 Naming/AccessorMethodName:
@@ -28,6 +28,8 @@ Naming/AccessorMethodName:
 Naming/PredicateName:
   Exclude:
     - app/controllers/bigbluebutton_api_controller.rb
+Naming/MethodParameterName:
+  MinNameLength: 2
 Rails:
   Enabled: true
 Rails/DynamicFindBy:
@@ -38,6 +40,8 @@ Style/AsciiComments:
 Style/Documentation:
   Enabled: false
 Style/DoubleNegation:
+  Enabled: false
+Style/ClassAndModuleChildren:
   Enabled: false
 Style/MethodCallWithArgsParentheses:
   Enabled: true
@@ -59,3 +63,6 @@ Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
+Lint/LiteralAsCondition:
+  Exclude:
+    - config/initializers/doorkeeper.rb
