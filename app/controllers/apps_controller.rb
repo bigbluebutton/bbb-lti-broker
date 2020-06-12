@@ -1,11 +1,12 @@
-class AppsController < ApplicationController
+# frozen_string_literal: true
 
+class AppsController < ApplicationController
   # verified oauth, etc
   # launch into lti application
   def launch
     # Make launch request to LTI-APP
-    redirector = "#{lti_app_url(params[:app])}?#{{:launch_nonce => app_launch.nonce}.to_query}"
-    redirect_to redirector
+    redirector = "#{lti_app_url(params[:app])}?#{{ launch_nonce: app_launch.nonce }.to_query}"
+    redirect_to(redirector)
   end
 
   private
@@ -17,5 +18,4 @@ class AppsController < ApplicationController
       launch.update(tool_id: tool.id, message: lti_launch.message.to_json)
     end
   end
-
 end
