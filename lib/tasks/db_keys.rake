@@ -6,7 +6,7 @@ require 'bbb_lti_broker/helpers'
 namespace :db do
   namespace :keys do
     desc "Add a new blti keypair (e.g. 'rake db:keys:add[key:secret]')"
-    task :add, keys: :environment do |_t, args|
+    task :add, [:keys] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -30,7 +30,7 @@ namespace :db do
     end
 
     desc "Update an existent blti keypair if exists (e.g. 'rake db:keys:update[key:secret]')"
-    task :update, keys: :environment do |_t, args|
+    task :update, [:keys] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -55,7 +55,7 @@ namespace :db do
     end
 
     desc "Delete an existent blti keypair if exists (e.g. 'rake db:keys:delete[key:secret]')"
-    task :delete, keys: :environment do |_t, args|
+    task :delete, [:keys] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -80,7 +80,7 @@ namespace :db do
     end
 
     desc 'Delete all existent blti keypairs'
-    task deleteall: :environment do
+    task :deleteall, [] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -92,7 +92,7 @@ namespace :db do
     end
 
     desc 'Show all existent blti keypairs'
-    task show: :environment do
+    task :showall, [] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection

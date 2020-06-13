@@ -3,7 +3,7 @@
 namespace :db do
   namespace :registration do
     desc 'Add new Tool configuration [key, jwk]'
-    task :new, type: :environment do |_t, args|
+    task :new, [:type] => :environment do |_t, args|
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
 
@@ -68,8 +68,9 @@ namespace :db do
       puts(e.backtrace)
       exit(1)
     end
+
     desc 'Delete existing Tool configuration'
-    task delete: :environment do |_t, _args|
+    task :delete, [] => :environment do |_t, _args|
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
       STDOUT.puts('What is the issuer for the registration you wish to delete?')
@@ -89,8 +90,9 @@ namespace :db do
 
       reg.destroy
     end
+
     desc 'Generate new key pair for existing Tool configuration [key, jwk]'
-    task :keygen, type: :environment do |_t, args|
+    task :keygen, [:type] => :environment do |_t, _args|
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
 
