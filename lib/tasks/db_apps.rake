@@ -139,6 +139,5 @@ namespace :db do
       puts(e.backtrace)
       exit(1)
     end
-
   end
 end

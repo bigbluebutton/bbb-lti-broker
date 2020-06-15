@@ -80,7 +80,7 @@ namespace :db do
     end
 
     desc 'Delete all existent blti keypairs'
-    task :deleteall, [] => :environment do |_t, args|
+    task :deleteall, [] => :environment do |_t|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -92,7 +92,7 @@ namespace :db do
     end
 
     desc 'Show all existent blti keypairs'
-    task :showall, [] => :environment do |_t, args|
+    task :showall, [] => :environment do |_t|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
