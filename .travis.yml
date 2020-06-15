@@ -58,7 +58,7 @@ jobs:
     after_success:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
       - docker push $DOCKER_REPO
-    if: env(IGNORE_BUILD) IS NOT present AND tag IS blank AND env(BUILD_ALL) IS present
+    if: env(IGNORE_BUILD) IS NOT present AND branch != master AND tag IS blank AND env(BUILD_ALL) IS present
 # This build is only triggered when building from a tag.
   - stage: build
     name: build release

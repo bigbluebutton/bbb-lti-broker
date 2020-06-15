@@ -2,7 +2,7 @@
 
 namespace :db do
   desc 'Checks to see if the database exists'
-  task exists: :environment do
+  task :exists, [] => :environment do
     Rake::Task['environment'].invoke
     ActiveRecord::Base.connection
   rescue StandardError

@@ -9,7 +9,7 @@ require 'bbb_lti_broker/helpers'
 namespace :db do
   namespace :apps do
     desc 'Add a new blti app'
-    task %i[add name hostname uid secret root] => :environment do |_t, args|
+    task :add, [:name, :hostname, :uid, :secret] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -41,7 +41,7 @@ namespace :db do
     end
 
     desc 'Update an existent blti app if exists'
-    task [:update, :name, :hostname, :uid, :secret] => :environment do |_t, args|
+    task :update, [:name, :hostname, :uid, :secret] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -68,7 +68,7 @@ namespace :db do
     end
 
     desc 'Delete an existent blti app if exists'
-    task :delete, name: :environment do |_t, args|
+    task :delete, [:name] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -91,7 +91,7 @@ namespace :db do
     end
 
     desc 'Show an existent blti app if exists'
-    task :show, name: :environment do |_t, args|
+    task :show, [:name] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -114,7 +114,7 @@ namespace :db do
     end
 
     desc 'Delete all existent blti apps'
-    task deleteall: :environment do
+    task :deleteall, [] => :environment do
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -126,7 +126,7 @@ namespace :db do
     end
 
     desc 'Show all existent blti apps'
-    task showall: :environment do
+    task :showall, [] => :environment do
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -135,7 +135,7 @@ namespace :db do
         app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
         puts app1.to_json
       end
-    rescue StandardError => e
+    rescue ApplicationRedisRecord::RecordNotFound
       puts(e.backtrace)
       exit(1)
     end
