@@ -68,17 +68,17 @@ class ToolProfileController < ApplicationController
     tc.secure_icon = secure_url(tc.icon)
     tc.description = t("apps.#{params[:app]}.description")
 
-    if query_params == request.query_parameters
+    if params == request.query_parameters
       platform = CanvasExtensions::PLATFORM
-      tc.set_ext_param(platform, :selection_width, query_params[:selection_width])
-      tc.set_ext_param(platform, :selection_height, query_params[:selection_height])
+      tc.set_ext_param(platform, :selection_width, params[:selection_width])
+      tc.set_ext_param(platform, :selection_height, params[:selection_height])
       tc.set_ext_param(platform, :privacy_level, 'public')
       tc.set_ext_param(platform, :text, t("apps.#{params[:app]}.title"))
       tc.set_ext_param(platform, :icon_url, tc.icon)
       tc.set_ext_param(platform, :domain, request.host_with_port)
 
-      query_params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
-      query_params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
+      params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
+      params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
     end
     render(xml: tc.to_xml(indent: 2))
   end
