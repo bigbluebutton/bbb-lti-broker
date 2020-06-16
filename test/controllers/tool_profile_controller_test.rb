@@ -11,6 +11,6 @@ class ToolProfileControllerTest < ActionDispatch::IntegrationTest
 
     # Element blti:title should never be empty
     doc = Nokogiri::XML(response.body)
-    assert(!doc.xpath("//blti:title").text.empty?)
+    assert_not(doc.xpath('//blti:title').text.empty?)
   end
 end

@@ -4,15 +4,8 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
 require 'rake'
-
-
-ENV['RAILS_ENV'] ||= 'test'
-require_relative '../config/environment'
-require 'rails/test_help'
-require 'rake'
 require 'webmock/minitest'
-# require 'minitest/stub_any_instance'
-
+require 'minitest/stub_any_instance'
 
 BbbLtiBroker::Application.load_tasks if Rake::Task.tasks.empty?
 
