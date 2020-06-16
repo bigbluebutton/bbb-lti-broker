@@ -6,7 +6,10 @@
 #     DOCKER_PASSWORD=your-password
 #
 #   For bypassing tests add:
-#     IGNORE_TEST=true
+#     TEST_IGNORE=true
+#
+#   For bypassing build add:
+#     BUILD_IGNORE=true
 #
 #   For building docker images for all branches add:
 #     BUILD_ALL=true (by default only docker images for tags and master branch are built)
@@ -38,12 +41,15 @@ jobs:
     name: test
     before_script:
       - bundle install
+    before_script:
+      - bundle exec rake db:create
+      - bundle exec rake db:migrate
     script:
-      - echo "rails test"
+      - bundle exec rails test
     if: env(TEST_IGNORE) IS NOT present
 # This build is only triggered when building from a branch.
   - stage: build
-    name: build branch
+    name: build master
     script:
       - docker build -t $DOCKER_REPO:$TRAVIS_BRANCH .
     after_success:
@@ -59,4 +65,4 @@ jobs:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
       - docker tag $DOCKER_REPO:$TRAVIS_TAG $DOCKER_REPO:latest
       - docker push $DOCKER_REPO
-    if: env(IGNORE_BUILD) IS NOT present AND tag IS NOT blank
+    if: env(BUILD_IGNORE) IS NOT present AND tag IS NOT blank
