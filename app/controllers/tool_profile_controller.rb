@@ -62,11 +62,13 @@ class ToolProfileController < ApplicationController
   end
 
   def xml_config
-    tc = IMS::LTI::Services::ToolConfig.new(title: t("apps.#{params[:app]}.title"), launch_url: blti_launch_url(app: params[:app])) # "#{location}/#{year}/#{id}"
+    title = t("apps.#{params[:app]}.title", default: "#{params[:app].capitalize} #{t('apps.default.title')}")
+    description = t("apps.#{params[:app]}.description", default: "#{t('apps.default.title')} provider powered by BBB LTI Broker.")
+    tc = IMS::LTI::Services::ToolConfig.new(title: title, launch_url: blti_launch_url(app: params[:app])) # "#{location}/#{year}/#{id}"
     tc.secure_launch_url = secure_url(tc.launch_url)
     tc.icon = lti_icon(params[:app])
     tc.secure_icon = secure_url(tc.icon)
-    tc.description = t("apps.#{params[:app]}.description")
+    tc.description = description
 
     if params == request.query_parameters
       platform = CanvasExtensions::PLATFORM
