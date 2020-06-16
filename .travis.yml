@@ -38,8 +38,11 @@ jobs:
     name: test
     before_script:
       - bundle install
+    before_script:
+      - bundle exec rake db:create
+      - bundle exec rake db:migrate
     script:
-      - echo "rails test"
+      - bundle exec rails test
     if: env(IGNORE_TEST) IS NOT present
 # This build is only triggered when building from the master branch.
   - stage: build
