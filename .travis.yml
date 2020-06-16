@@ -38,6 +38,9 @@ jobs:
     name: test
     before_script:
       - bundle install
+    before_script:
+      - bundle exec rake db:create
+      - bundle exec rake db:migrate
     script:
       - bundle exec rails test
     if: env(IGNORE_TEST) IS NOT present
