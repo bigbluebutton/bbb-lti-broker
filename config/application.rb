@@ -15,5 +15,7 @@ module BbbLtiBroker
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     config.url_host = ENV['URL_HOST']
+
+    config.build_number = ENV['BUILD_NUMBER'] || 'v1'
   end
 end
