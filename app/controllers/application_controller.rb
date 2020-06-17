@@ -15,4 +15,6 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
   # CSRF stuff ^
+
+  @build_number = Rails.configuration.build_number
 end
