@@ -3,6 +3,7 @@ default: &default
   adapter: postgresql
   pool: 5
   timeout: 5000
+  url: <%= ENV['DATABASE_URL'] || 'postgres://localhost:5432' %>
 
 development:
   <<: *default
