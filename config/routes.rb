@@ -2,6 +2,9 @@
 
 Rails.application.routes.draw do
   scope ENV['RELATIVE_URL_ROOT'] || '/' do
+    get '/health_check', to: 'health_check#all'
+    get '/healthz', to: 'health_check#all'
+
     # rooms calls this api to validate launch from broker
     namespace :api do
       namespace :v1 do
