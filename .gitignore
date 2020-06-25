@@ -37,5 +37,3 @@ localhost.crt
 localhost.key
 
 /public/assets
-
-# /config/database.yml
