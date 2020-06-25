@@ -79,7 +79,9 @@ Rails.application.configure do
   config.action_dispatch.default_headers['X-Frame-Options'] = 'ALLOW-FROM http://localhost'
 
   if ENV['RAILS_LOG_TO_STDOUT'].present?
-    logger           = ActiveSupport::Logger.new(STDOUT)
+    # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
+    STDOUT.sync = true
+    logger = ActiveSupport::Logger.new(STDOUT)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
