@@ -49,7 +49,7 @@ Rails.application.routes.draw do
     match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 
     # xml config and builder for lti 1.0/1.1
-    get ':app/xml_config', to: 'tool_profile#xml_config', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_config 
+    get ':app/xml_config', to: 'tool_profile#xml_config', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_config
     get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 

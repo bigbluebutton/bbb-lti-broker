@@ -47,10 +47,8 @@ module AppsValidator
     # it is safe to remove the last 2 segments from the path.
     app = Doorkeeper::Application.where(name: name).first
     uri = URI.parse(app.redirect_uri)
-    puts uri
     path = uri.path.split('/')
     path.delete_at(0)
-    puts path
     path = path.first(path.size - 3) unless path.size < 3
     "#{URI.join(uri, '/')}#{path.join('/')}/launch"
   end
