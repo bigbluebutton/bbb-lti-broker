@@ -49,7 +49,7 @@ module AppsValidator
     uri = URI.parse(app.redirect_uri)
     path = uri.path.split('/')
     path.delete_at(0)
-    path = path.first(path.size - 3)
+    path = path.first(path.size - 3) unless path.size < 3
     "#{URI.join(uri, '/')}#{path.join('/')}/launch"
   end
 

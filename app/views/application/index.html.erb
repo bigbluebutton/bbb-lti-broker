@@ -8,9 +8,11 @@
 <% xml_url = "" %>
 <% end %>
 
-<p>View the LTI configuration xml <%= link_to('here', xml_config_url, target: "_blank") %>.</p>
-<p> Customize the configuration <%= link_to('here', xml_url) %>.</p>
-<p>This configuration is used to install your LTI tool into an LSM.  This xml can be referenced by url or copied and pasted during the install process.</p>
+<% if ENV['DEVELOPER_MODE_ENABLED'] == 'true'%>
+    <p>View the LTI configuration xml <%= link_to('here', xml_config_url, target: "_blank") %>.</p>
+    <p> Customize the configuration <%= link_to('here', xml_url) %>.</p>
+    <p>This configuration is used to install your LTI tool into an LSM.  This xml can be referenced by url or copied and pasted during the install process.</p>
+<% end %>
 
 <h2>LTI Launch</h2>
 

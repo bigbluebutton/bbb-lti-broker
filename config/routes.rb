@@ -53,7 +53,7 @@ Rails.application.routes.draw do
 
     # xml config and builder for lti 1.0/1.1
     get ':app/xml_config', to: 'tool_profile#xml_config', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_config
-    get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder # if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+    get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
     mount RailsLti2Provider::Engine => '/rails_lti2_provider'
