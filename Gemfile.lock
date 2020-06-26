@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
-  revision: 5df268a1b5a43029229797e905286d6e76dbe75a
-  tag: 0.0.3
+  revision: e293172144b46b38207495a14d5dbb0c29918921
+  tag: 0.0.4
   specs:
-    rails_lti2_provider (0.0.3)
+    rails_lti2_provider (0.0.4)
       ims-lti (~> 2.3.0)
       rails (~> 6.0.3)
 
@@ -293,7 +293,7 @@ DEPENDENCIES
   dotenv-rails
   faraday
   http
-  ims-lti
+  ims-lti (~> 2.3.0)
   jbuilder (~> 2.7)
   jquery-rails
   jwt

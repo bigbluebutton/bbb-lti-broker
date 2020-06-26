@@ -35,7 +35,7 @@ gem 'jbuilder', '~> 2.7'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'ims-lti'
+gem 'ims-lti', '~> 2.3.0'
 gem 'jwt'
 gem 'oauth', '~> 0.5.1'
 
@@ -44,7 +44,7 @@ gem 'doorkeeper', '~> 5.2.6'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.3'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.4'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
