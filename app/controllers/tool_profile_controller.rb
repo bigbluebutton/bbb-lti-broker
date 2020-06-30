@@ -25,6 +25,10 @@ class ToolProfileController < ApplicationController
 
   # show xml builder for customization in tool consumer url
   def xml_builder
+    if ENV['DEVELOPER_MODE_ENABLED'] != 'true'
+      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
+      return
+    end
     @placements = CanvasExtensions::PLACEMENTS
   end
 
@@ -62,6 +66,10 @@ class ToolProfileController < ApplicationController
   end
 
   def xml_config
+    if ENV['DEVELOPER_MODE_ENABLED'] != 'true'
+      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
+      return
+    end
     title = t("apps.#{params[:app]}.title", default: "#{params[:app].capitalize} #{t('apps.default.title')}")
     description = t("apps.#{params[:app]}.description", default: "#{t('apps.default.title')} provider powered by BBB LTI Broker.")
     tc = IMS::LTI::Services::ToolConfig.new(title: title, launch_url: blti_launch_url(app: params[:app])) # "#{location}/#{year}/#{id}"
