@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'nokogiri'
 
 class ToolProfileControllerTest < ActionDispatch::IntegrationTest
   test 'responds with xml_config for default with no parameters when developer mode is true' do
@@ -29,5 +30,12 @@ class ToolProfileControllerTest < ActionDispatch::IntegrationTest
 
     # Response must be successful
     assert_response(:missing)
+  end
+
+  test 'XML builder gives xml properties that are selected for cartridge link' do
+    ENV['DEVELOPER_MODE_ENABLED'] = 'true'
+    get xml_config_path('default') + "?assignment_menu_message_type=content_item_selection&assignment_selection_message_type=content_item_selection_request&collaboration_message_type=content_item_selection_request&course_assignments_menu_message_type=basic_lti_request&discussion_topic_menu_message_type=content_item_selection&editor_button_message_type=content_item_selection_request&file_menu_message_type=content_item_selection&homework_submission_message_type=content_item_selection_request&link_selection_message_type=content_item_selection_request&migration_selection_message_type=content_item_selection_request&module_menu_message_type=content_item_selection&quiz_menu_message_type=content_item_selection&similarity_detection_message_type=basic_lti_request&wiki_page_menu_message_type=content_item_selection&selection_height=500&selection_width=500"
+    page = Nokogiri::HTML.parse(@response.body)
+    assert(page.xpath('//extensions/property'))
   end
 end
