@@ -31,6 +31,7 @@ class ToolProfileControllerTest < ActionDispatch::IntegrationTest
     # Response must be successful
     assert_response(:missing)
   end
+<<<<<<< HEAD
 
   test 'XML builder gives xml properties that are selected for cartridge link' do
     ENV['DEVELOPER_MODE_ENABLED'] = 'true'
@@ -38,4 +39,6 @@ class ToolProfileControllerTest < ActionDispatch::IntegrationTest
     page = Nokogiri::HTML.parse(@response.body)
     assert(page.xpath('//extensions/property'))
   end
+=======
+>>>>>>> 779bcfd71e5bbe2284c431f24e4870829118bb33
 end
