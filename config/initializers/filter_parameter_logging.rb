@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/.
 
 # Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
@@ -13,8 +15,6 @@
 
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-
-# frozen_string_literal: true
 
 # Be sure to restart your server when you modify this file.
 
