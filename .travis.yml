@@ -46,7 +46,7 @@ jobs:
       - bundle exec rake db:migrate
     script:
       - export
-      - bundle exec rails test
+      - bundle exec rspec
     if: env(TEST_IGNORE) IS NOT present
 # This build is only triggered when building from a branch.
   - stage: build
