@@ -340,4 +340,8 @@ DEPENDENCIES
   tzinfo-data
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
+<<<<<<< HEAD
   webmock
+=======
+  webmock
+>>>>>>> 11cb95318266578167fb8b91b03c07efdd3b13be
