@@ -1,11 +1,7 @@
 default: &default
   encoding: unicode
   adapter: postgresql
-<<<<<<< HEAD
   host: ''
-=======
-  host: localhost
->>>>>>> f9729ff90e29266ceece26f88ce6ca02a0891066
   username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
   pool: 5
