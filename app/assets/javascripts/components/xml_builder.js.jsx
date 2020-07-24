@@ -49,7 +49,7 @@ var XmlBuilder = createReactClass({
           </div>
           <div className="col-md-7">
             <p>
-              <strong>Live XML Preveiw</strong>
+              <strong>Live XML Preview</strong>
             </p>
             <div id="generated-xml">
               <pre>

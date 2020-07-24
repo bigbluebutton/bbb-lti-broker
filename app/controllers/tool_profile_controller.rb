@@ -77,7 +77,7 @@ class ToolProfileController < ApplicationController
     tc.icon = lti_icon(params[:app])
     tc.secure_icon = secure_url(tc.icon)
     tc.description = description
-
+    request.query_parameters.each { |key, value| tc.set_ext_param(CanvasExtensions::PLATFORM, key, value) }
     if params == request.query_parameters
       platform = CanvasExtensions::PLATFORM
       tc.set_ext_param(platform, :selection_width, params[:selection_width])
