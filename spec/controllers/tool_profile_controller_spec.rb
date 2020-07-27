@@ -29,19 +29,5 @@ RSpec.describe(ToolProfileController, type: :controller) do
       doc = Nokogiri::XML(response.body)
       expect(doc.xpath('//blti:title').text.empty?).to(be(false))
     end
-
-    it 'gives a 404 page when developer mode disabled' do
-      ENV['DEVELOPER_MODE_ENABLED'] = 'false'
-      get :xml_config, params: { app: 'default' }
-      expect(response).to(have_http_status(404))
-    end
-  end
-
-  describe 'GET :app/xml_builder' do
-    it 'gives a 404 page when developer mode disabled' do
-      ENV['DEVELOPER_MODE_ENABLED'] = 'false'
-      get :xml_config, params: { app: 'default' }
-      expect(response).to(have_http_status(404))
-    end
   end
 end
