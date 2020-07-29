@@ -92,7 +92,7 @@ GEM
     diff-lcs (1.4.4)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    doorkeeper (5.2.6)
+    doorkeeper (5.3.3)
       railties (>= 5)
     dotenv (2.7.5)
     dotenv-rails (2.7.5)
@@ -311,7 +311,7 @@ DEPENDENCIES
   bundler (>= 2.1.4)
   byebug
   coffee-rails (~> 5.0)
-  doorkeeper (~> 5.2.6)
+  doorkeeper (~> 5.3.0)
   dotenv-rails
   faraday
   http
