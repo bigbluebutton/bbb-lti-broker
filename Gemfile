@@ -39,7 +39,7 @@ gem 'ims-lti', '~> 2.3.0'
 gem 'jwt'
 gem 'oauth', '~> 0.5.1'
 
-gem 'doorkeeper', '~> 5.2.6'
+gem 'doorkeeper', '~> 5.3.0'
 
 gem 'lodash-rails'
 gem 'react-rails'
