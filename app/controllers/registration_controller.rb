@@ -26,6 +26,10 @@ class RegistrationController < ApplicationController
   include TemporaryStore
 
   def list
+    if ENV['DEVELOPER_MODE_ENABLED'] != 'true'
+      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
+      return
+    end
     @registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0').pluck(:tool_settings)
     @registrations.map! do |reg|
       JSON.parse(reg)
