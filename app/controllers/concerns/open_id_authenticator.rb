@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
+require 'open-uri'
+
 module OpenIdAuthenticator
   include ActiveSupport::Concern
 
@@ -72,7 +74,7 @@ module OpenIdAuthenticator
   end
 
   def validate_jwt_signature(reg, jwt_header)
-    public_key_set = JSON.parse(File.open(reg['key_set_url']).string)
+    public_key_set = JSON.parse(URI.open(reg['key_set_url']).read)
     jwk_json = public_key_set['keys'].find do |key|
       key['kid'] == jwt_header['kid']
     end
