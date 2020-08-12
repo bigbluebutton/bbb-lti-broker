@@ -37,11 +37,11 @@ class AppsController < ApplicationController
 
   def standarized_message(message_json)
     message = JSON.parse(message_json)
-    unless message["user_id"].present?
-      message["user_id"] = message["unknown_params"]["sub"]
-      message["roles"] = message["unknown_params"]["https://purl.imsglobal.org/spec/lti/claim/roles"].join(",")
-      message["tool_consumer_instance_guid"] = message["unknown_params"]["https://purl.imsglobal.org/spec/lti/claim/tool_platform"]["guid"]
-      message["resource_link_id"] = message["unknown_params"]["https://purl.imsglobal.org/spec/lti/claim/resource_link"]["id"]
+    if message['user_id'].blank?
+      message['user_id'] = message['unknown_params']['sub']
+      message['roles'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/roles'].join(',')
+      message['tool_consumer_instance_guid'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['guid']
+      message['resource_link_id'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id']
     end
     message.to_json
   end
