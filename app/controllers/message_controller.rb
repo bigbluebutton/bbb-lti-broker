@@ -66,11 +66,13 @@ class MessageController < ApplicationController
   def openid_launch_request
     return if params[:app] == 'default'
 
-    nonce = @jwt_body['nonce']
+    params[:oauth_nonce] = @jwt_body['nonce']
+    params[:oauth_consumer_key] = @jwt_body['iss']
     # Redirect to external application if configured
-    Rails.cache.write(nonce, message: @message, oauth: { timestamp: @jwt_body['exp'] }, lti_launch_nonce: @lti_launch.nonce)
+    Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
     session[:user_id] = @current_user.id
-    redirect_to(app_launch_path(params.to_unsafe_h))
+    redirector = app_launch_path(params.to_unsafe_h)
+    redirect_to(redirector)
   end
 
   # first touch point from tool consumer (moodle, canvas, etc)
