@@ -39,9 +39,15 @@ class AppsController < ApplicationController
     message = JSON.parse(message_json)
     if message['user_id'].blank?
       message['user_id'] = message['unknown_params']['sub']
+      message['lis_person_name_full'] = message['unknown_params']['name']
+      message['lis_person_name_given'] = message['unknown_params']['given_name']
+      message['lis_person_name_family'] = message['unknown_params']['family_name']
+      message['lis_person_contact_email_primary'] = message['unknown_params']['email']
+      message['user_image'] = message['unknown_params']['picture']
       message['roles'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/roles'].join(',')
       message['tool_consumer_instance_guid'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['guid']
       message['resource_link_id'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id']
+      message['launch_presentation_locale'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/launch_presentation']['locale']
     end
     message.to_json
   end
