@@ -18,4 +18,10 @@
 
 # Be sure to restart your server when you modify this file.
 
-Rails.application.config.session_store(:cookie_store, key: '_bbb_lti_broker_session', expire_after: 60.minutes)
+attrs = {
+    key: '_bbb_app_broker_session',
+    secure: ENV['COOKIES_SECURE_OFF'].blank?,
+    same_site: ENV['COOKIES_SAME_SITE'].blank? ? 'None' : ENV['COOKIES_SAME_SITE']
+}
+
+Rails.application.config.session_store(:cookie_store, **attrs)
