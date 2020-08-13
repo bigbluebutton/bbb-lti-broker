@@ -143,5 +143,4 @@ class MessageController < ApplicationController
       user.update(user_params(tc_instance_guid, @jwt_body))
     end
   end
-
 end
