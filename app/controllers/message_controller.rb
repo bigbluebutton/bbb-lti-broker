@@ -128,22 +128,21 @@ class MessageController < ApplicationController
   # verify lti 1.3 launch
   def verify_blti_launch
     jwt = verify_openid_launch
+    @jwt_header = jwt[:header]
     @jwt_body = jwt[:body]
     logger.info('JWT Body: ' + @jwt_body.to_s)
-    @jwt_header = jwt[:header]
-    check_launch
+
+    tool = lti_registration(@jwt_body['iss'])
+    tool.lti_launches.where('created_at > ?', 1.day.ago).delete_all
+    @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header))
+
     @message = IMS::LTI::Models::Messages::Message.generate(params)
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
-    @current_user = User.find_or_create_by(context: tc_instance_guid, uid: params['user_id']) do |user|
+    @current_user = User.find_or_create_by(context: tc_instance_guid, uid: @jwt_body['sub']) do |user|
       user.update(user_params(tc_instance_guid, params))
     end
     @current_user.update(last_accessed_at: Time.current)
   end
 
-  def check_launch
-    tool = lti_registration(@jwt_body['iss'])
-    tool.lti_launches.where('created_at > ?', 1.day.ago).delete_all
-    @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header))
-  end
 end

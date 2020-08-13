@@ -47,6 +47,8 @@ class AppsController < ApplicationController
       message['roles'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/roles'].join(',')
       message['tool_consumer_instance_guid'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['guid']
       message['resource_link_id'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id']
+      message['resource_link_title'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['title']
+      message['resource_link_description'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['description']
       message['launch_presentation_locale'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/launch_presentation']['locale']
     end
     message.to_json
