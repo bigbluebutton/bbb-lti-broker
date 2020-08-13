@@ -36,9 +36,6 @@ en:
     rooms:
       title:       "Rooms"
       description: "Rooms allows the creation and use of BigBlueButton Rooms through LTI"
-    greenlight:
-      title:       "Greenlight"
-      description: "Rooms allows the creation and use of BigBlueButton Rooms through LTI"
   registration:
     goback:         "Go Back"
     issuer:         "Issuer"
