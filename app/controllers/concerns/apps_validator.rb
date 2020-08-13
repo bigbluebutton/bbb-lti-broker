@@ -20,13 +20,19 @@ module AppsValidator
   include ActiveSupport::Concern
 
   def user_params(tc_instance_guid, params)
+    if params['user_id'].blank?
+      params['user_id'] = params['unknown_params']['sub']
+      params['lis_person_name_full'] = params['unknown_params']['name']
+      params['lis_person_name_given'] = params['unknown_params']['given_name']
+      params['lis_person_name_family'] = params['unknown_params']['family_name']
+    end
     {
       context: tc_instance_guid,
       uid: params['user_id'],
-      full_name: params['custom_lis_person_name_full'] || params['lis_person_name_full'],
-      first_name: params['custom_lis_person_name_given'] || params['lis_person_name_given'],
-      last_name: params['custom_lis_person_name_family'] || params['lis_person_name_family'],
-      last_accessed_at: DateTime.now,
+      full_name: params['lis_person_name_full'],
+      first_name: params['lis_person_name_given'],
+      last_name: params['lis_person_name_family'],
+      last_accessed_at: Time.current,
     }
   end
 
