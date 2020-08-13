@@ -19,9 +19,9 @@
 # Be sure to restart your server when you modify this file.
 
 attrs = {
-    key: '_bbb_app_broker_session',
-    secure: ENV['COOKIES_SECURE_OFF'].blank?,
-    same_site: ENV['COOKIES_SAME_SITE'].blank? ? 'None' : ENV['COOKIES_SAME_SITE']
+  key: '_bbb_app_broker_session',
+  secure: ENV['COOKIES_SECURE_OFF'].blank?,
+  same_site: ENV['COOKIES_SAME_SITE'].presence || 'None',
 }
 
 Rails.application.config.session_store(:cookie_store, **attrs)
