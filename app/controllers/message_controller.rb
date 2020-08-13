@@ -36,7 +36,7 @@ class MessageController < ApplicationController
   # validates message with oauth in rails lti2 provider gem
   before_action :lti_authentication, except: %i[signed_content_item_request openid_launch_request deep_link]
   # validates message corresponds to a LTI launch
-  before_action :verify_blti_launch, only: %i[openid_launch_request deep_link]
+  before_action :process_openid_message, only: %i[openid_launch_request deep_link]
 
   # fails lti_authentication in rails lti2 provider gem
   rescue_from RailsLti2Provider::LtiLaunch::Unauthorized do |ex|
@@ -77,7 +77,7 @@ class MessageController < ApplicationController
 
   # first touch point from tool consumer (moodle, canvas, etc)
   def basic_lti_launch_request
-    process_message
+    process_blti_message
     return if params[:app] == 'default'
 
     # Redirect to external application if configured
@@ -90,7 +90,7 @@ class MessageController < ApplicationController
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request
   # shows select content on tool configuration page in platform
   def content_item_selection
-    process_message
+    process_blti_message
     @launch_url = blti_launch_url
     @update_url = content_item_request_launch_url
     @oauth_consumer_key = params[:oauth_consumer_key]
@@ -115,18 +115,18 @@ class MessageController < ApplicationController
   private
 
   # called by all requests to process the message first
-  def process_message
-    # TODO: should we create the lti_launch with all of the oauth params as well?
+  def process_blti_message
     @message = @lti_launch&.message || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
-
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
                                                                                 consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
-    @current_user = User.find_by(context: tc_instance_guid, uid: params['user_id']) || User.create(user_params(tc_instance_guid, params))
+    @current_user = User.find_or_create_by(context: tc_instance_guid, uid: params['user_id']) do |user|
+      user.update(user_params(tc_instance_guid, params))
+    end
   end
 
   # verify lti 1.3 launch
-  def verify_blti_launch
+  def process_openid_message
     jwt = verify_openid_launch
     @jwt_header = jwt[:header]
     @jwt_body = jwt[:body]
@@ -140,9 +140,8 @@ class MessageController < ApplicationController
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
     @current_user = User.find_or_create_by(context: tc_instance_guid, uid: @jwt_body['sub']) do |user|
-      user.update(user_params(tc_instance_guid, params))
+      user.update(user_params(tc_instance_guid, @jwt_body))
     end
-    @current_user.update(last_accessed_at: Time.current)
   end
 
 end
