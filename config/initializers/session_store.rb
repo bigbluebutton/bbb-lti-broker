@@ -22,6 +22,7 @@ attrs = {
   key: '_bbb_lti_broker_session',
   secure: ENV['COOKIES_SECURE_OFF'].blank?,
   same_site: ENV['COOKIES_SAME_SITE'].presence || 'None',
+  expire_after: 60.minutes,
 }
 
-Rails.application.config.session_store(:cookie_store, **attrs, expire_after: 60.minutes)
+Rails.application.config.session_store(:cookie_store, **attrs)
