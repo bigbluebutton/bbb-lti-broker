@@ -21,7 +21,7 @@ gem 'http'
 
 gem 'addressable', '~> 2.7'
 gem 'faraday'
-gem 'oauthenticator'
+gem 'oauthenticator', '~> 1.3'
 
 gem 'bundler', '>=2.1.4'
 # Use jquery as the JavaScript library
