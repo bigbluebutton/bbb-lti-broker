@@ -21,10 +21,10 @@ module AppsValidator
 
   def user_params(tc_instance_guid, params)
     if params['user_id'].blank?
-      params['user_id'] = params['unknown_params']['sub']
-      params['lis_person_name_full'] = params['unknown_params']['name']
-      params['lis_person_name_given'] = params['unknown_params']['given_name']
-      params['lis_person_name_family'] = params['unknown_params']['family_name']
+      params['user_id'] = params['sub']
+      params['lis_person_name_full'] = params['name']
+      params['lis_person_name_given'] = params['given_name']
+      params['lis_person_name_family'] = params['family_name']
     end
     {
       context: tc_instance_guid,
