@@ -44,6 +44,7 @@ class RegistrationController < ApplicationController
             else
               ENV['DEFAULT_LTI_TOOL']
             end
+    puts @app
     @apps = lti_apps
     set_temp_keys
     set_starter_info
