@@ -139,6 +139,7 @@ class MessageController < ApplicationController
     @message = IMS::LTI::Models::Messages::Message.generate(params)
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, callback: 'about:blank')
+
     @current_user = User.find_or_create_by(context: tc_instance_guid, uid: @jwt_body['sub']) do |user|
       user.update(user_params(tc_instance_guid, @jwt_body))
     end

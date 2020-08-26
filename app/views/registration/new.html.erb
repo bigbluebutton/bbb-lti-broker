@@ -17,7 +17,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 <div>
     <%= link_to t('registration.goback'), registration_list_url %>
     <h3><%= t('registration.newreg') %></h3>
-    <%= render 'starter_info' %>
+    <%= render 'starter_info', :app => @app, :apps => @apps, :temp_key_token => @temp_key_token, :jwk => @jwk, :redirect_uri => @redirect_uri, :public_key => @public_key %>
     <br>
     <%= form_tag(submit_registration_path) do %>
         <%= content_tag :div, class: "form-group row" do %>
