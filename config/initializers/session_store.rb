@@ -25,4 +25,4 @@ attrs = {
   expire_after: 60.minutes,
 }
 
-Rails.application.config.session_store(:cookie_store, **attrs)
+Rails.application.config.session_store(:active_record_store, **attrs)
