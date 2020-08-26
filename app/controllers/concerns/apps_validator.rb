@@ -80,7 +80,7 @@ module AppsValidator
 
     begin
       app = lti_app(app_name)
-      uri = URI.parse(app['redirect_uri'])
+      uri = URI.parse(app['redirect_uri'].sub('https', 'http'))
       site = "#{uri.scheme}://#{uri.host}#{uri.port != 80 ? ':' + uri.port.to_s : ''}/"
       path = uri.path.split('/')
       path_base = (path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '') + '/'
