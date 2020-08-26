@@ -106,6 +106,9 @@ class ToolProfileController < ApplicationController
       params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
       params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
     end
+
+    tc.icon = nil if ENV['DEVELOPER_MODE_ENABLED'] != 'true'
+
     render(xml: tc.to_xml(indent: 2))
   end
 
