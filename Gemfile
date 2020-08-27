@@ -46,6 +46,8 @@ gem 'react-rails'
 
 gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.5'
 
+gem 'activerecord-session_store'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
