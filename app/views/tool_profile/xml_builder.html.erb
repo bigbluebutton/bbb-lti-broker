@@ -14,4 +14,4 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
-<%= react_component('XmlBuilder', placements: @placements, baseUrl:xml_config_url) %>
+<%= react_component('XmlBuilder', placements: @placements, baseUrl:xml_config_url(params[:app])) %>
