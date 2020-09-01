@@ -22,7 +22,9 @@ class Api::V1::SessionsController < Api::V1::BaseController
   def validate_launch
     lti_launch = RailsLti2Provider::LtiLaunch.find_by_nonce(params[:token])
     render(json: { token: params[:token], valid: false }.to_json) unless lti_launch
-    render(json: { token: params[:token], valid: true, message: JSON.parse(standarized_message(lti_launch.message.to_json)) }.to_json)
+    tenant = lti_launch.tool.tenant_id
+    message = JSON.parse(standarized_message(lti_launch.message.to_json))
+    render(json: { token: params[:token], valid: true, tenant: tenant, message: message }.to_json)
   end
 
   private
