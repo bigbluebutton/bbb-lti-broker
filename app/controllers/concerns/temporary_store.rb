@@ -31,6 +31,19 @@ module TemporaryStore
     file
   end
 
+  # creates a persistent file to put in tmp directory with prefix, and return path name
+  def store_perm_file(prefix, content)
+    init_temp_file_storage
+    clean_temp_files
+
+    filepath = temp_file_path(prefix + SecureRandom.hex)
+    file = File.open(filepath, 'w')
+    file.write(content)
+
+    file.close
+    file
+  end
+
   def read_temp_file(file_path, delete = true)
     begin
       file = File.open(file_path, 'r')
