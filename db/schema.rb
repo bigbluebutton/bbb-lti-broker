@@ -10,10 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_31_193410) do
+ActiveRecord::Schema.define(version: 2020_09_14_160845) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "app_launches", force: :cascade do |t|
+    t.string "tool_id"
+    t.string "nonce"
+    t.text "message"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "oauth_access_grants", force: :cascade do |t|
     t.bigint "resource_owner_id", null: false
@@ -75,13 +83,6 @@ ActiveRecord::Schema.define(version: 2020_08_31_193410) do
     t.bigint "tool_id"
     t.text "correlation_id"
     t.index ["correlation_id"], name: "index_rails_lti2_provider_registrations_on_correlation_id", unique: true
-  end
-
-  create_table "rails_lti2_provider_tenants", force: :cascade do |t|
-    t.string "uuid"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["uuid"], name: "index_tenant_uuid", unique: true
   end
 
   create_table "rails_lti2_provider_tools", id: :serial, force: :cascade do |t|
