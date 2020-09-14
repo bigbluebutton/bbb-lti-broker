@@ -1,5 +1,7 @@
-PATH
-  remote: ../rails_lti2_provider
+GIT
+  remote: https://github.com/jfederico/rails_lti2_provider.git
+  revision: 80e3d2581d72103fde03ca40149fe1932870a76a
+  branch: develop
   specs:
     rails_lti2_provider (0.0.6)
       ims-lti (~> 2.3.0)

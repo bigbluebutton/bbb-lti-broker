@@ -21,7 +21,7 @@ require 'canvas_extensions'
 class ToolProfileController < ApplicationController
   include AppsValidator
   include ExceptionHandler
-  include Helper
+  include LtiHelper
   include TemporaryStore
 
   before_action :lti_authorized_application, only: :xml_builder

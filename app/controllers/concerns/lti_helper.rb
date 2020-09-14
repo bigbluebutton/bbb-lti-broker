@@ -18,7 +18,7 @@
 
 require 'bbb_lti_broker/helpers'
 
-module Helper
+module LtiHelper
   extend ActiveSupport::Concern
   include BbbLtiBroker::Helpers
 end

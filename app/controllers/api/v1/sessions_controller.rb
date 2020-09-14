@@ -17,7 +17,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class Api::V1::SessionsController < Api::V1::BaseController
-  include Helper
+  include LtiHelper
 
   before_action :doorkeeper_authorize!
 
