@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/jfederico/rails_lti2_provider.git
-  revision: 80e3d2581d72103fde03ca40149fe1932870a76a
+  revision: ed8e130bd1d8cba53b5c672c8957098af85bd6b1
   branch: develop
   specs:
     rails_lti2_provider (0.0.6)
