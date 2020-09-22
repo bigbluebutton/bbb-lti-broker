@@ -16,20 +16,9 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-module Converter
-  include ActiveSupport::Concern
-  def string_to_hash(str)
-    Hash[
-      str.split(',').map do |pair|
-        k, v = pair.split(':', 2)
-        [k, v]
-      end
-    ]
-  end
+require 'bbb_lti_broker/helpers'
 
-  def secure_url(url)
-    uri = URI.parse(url)
-    uri.scheme = 'https'
-    uri.to_s
-  end
+module LtiHelper
+  extend ActiveSupport::Concern
+  include BbbLtiBroker::Helpers
 end

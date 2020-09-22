@@ -26,6 +26,7 @@ class MessageController < ApplicationController
   include ExceptionHandler
   include OpenIdAuthenticator
   include AppsValidator
+  include LtiHelper
   include PlatformValidator
   include DeepLinkService
 
