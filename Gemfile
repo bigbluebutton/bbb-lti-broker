@@ -44,9 +44,7 @@ gem 'doorkeeper', '~> 5.3.0'
 gem 'lodash-rails'
 gem 'react-rails'
 
-# gem 'rails_lti2_provider', path: '../rails_lti2_provider'
-gem 'rails_lti2_provider', git: 'https://github.com/jfederico/rails_lti2_provider.git', branch: 'develop'
-# gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.6'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.6'
 
 gem 'activerecord-session_store'
 
