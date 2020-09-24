@@ -5,75 +5,84 @@ require 'bbb_lti_broker/helpers'
 
 namespace :db do
   namespace :keys do
-    desc 'Add a new blti keypair - add[key:secret]'
-    task :add, [:keys] => :environment do |_t, args|
+    desc 'Add a new blti keypair - add[key,secret,tenant]'
+    task :add, [:key, :secret, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
-      blti_keys = BbbLtiBroker::Helpers.string_to_hash(args[:keys] || '')
-      if blti_keys.empty?
-        puts('No keys provided')
+      unless args[:key]
+        puts('No key provided')
         exit(1)
       end
-      blti_keys.each do |key, secret|
-        puts "Adding '#{key}=#{secret}'"
-        tool = RailsLti2Provider::Tool.find_by(uuid: key, lti_version: 'LTI-1p0', tool_settings: 'none')
-        if tool
-          puts("Key '#{key}' already exists, it can not be added")
-        else
-          RailsLti2Provider::Tool.create!(uuid: key, shared_secret: secret, lti_version: 'LTI-1p0', tool_settings: 'none')
-        end
+      unless args[:secret]
+        puts('No secret provided')
+        exit(1)
       end
+      tenant_uid = args[:tenant] || ''
+      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      if tool
+        puts("Key '#{key}' already exists, it can not be added")
+        exit(1)
+      end
+      RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: args[:secret], lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
+      for_teanat = ''
+      for_teanat = " for tenant '#{tool.uid}'" unless tenant_uid.empty?
+      puts "Added '#{args[:key]}=#{args[:secret]}'" + for_tenant
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
     end
 
     desc "Update an existent blti keypair if exists - update[key:secret]'"
-    task :update, [:keys] => :environment do |_t, args|
+    task :update, [:key, :secret, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
-      blti_keys = BbbLtiBroker::Helpers.string_to_hash(args[:keys] || '')
-      if blti_keys.empty?
-        puts('No keys provided')
+      unless args[:key]
+        puts('No key provided')
         exit(1)
       end
-      puts(blti_keys.to_s)
-      blti_keys.each do |key, secret|
-        puts "Updating '#{key}=#{secret}'"
-        tool = RailsLti2Provider::Tool.find_by(uuid: key, lti_version: 'LTI-1p0', tool_settings: 'none')
-        if !tool
-          puts("Key '#{key}' does not exist, it can not be updated")
-        else
-          tool.update!(shared_secret: secret)
-        end
+      unless args[:secret]
+        puts('No secret provided')
+        exit(1)
       end
+      tenant_uid = args[:tenant] || ''
+      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      unless tool
+        puts("Key '#{key}' does not exist, it can not be updated")
+        exit(1)
+      end
+      tool.update!(shared_secret: secret)
+      for_teanat = ''
+      for_teanat = " for tenant '#{tool.uid}'" unless tenant_uid.empty?
+      puts "Updated '#{args[:key]}=#{args[:secret]}'" + for_tenant
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
     end
 
     desc "Delete an existent blti keypair if exists [key:secret]'"
-    task :delete, [:keys] => :environment do |_t, args|
+    task :delete, [:key, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
-      blti_keys = BbbLtiBroker::Helpers.string_to_hash(args[:keys] || '')
-      if blti_keys.empty?
-        puts('No keys provided')
+      unless args[:key]
+        puts('No key provided')
         exit(1)
       end
-      puts(blti_keys.to_s)
-      blti_keys.each do |key, _secret|
-        puts "Deleting '#{key}'"
-        tool = RailsLti2Provider::Tool.find_by(uuid: key, lti_version: 'LTI-1p0', tool_settings: 'none')
-        if !tool
-          puts("Key '#{key}' does not exist, it can not be deleted")
-        else
-          tool.delete
-        end
+      tenant_uid = args[:tenant] || ''
+      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      unless tool
+        puts("Key '#{key}' does not exist, it can not be deleted")
+        exit(1)
       end
+      tool.delete
+      for_teanat = ''
+      for_teanat = " for tenant '#{tool.uid}'" unless tenant_uid.empty?
+      puts "Deleted '#{args[:key]}=#{args[:secret]}'" + for_tenant
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -98,7 +107,9 @@ namespace :db do
       ActiveRecord::Base.connection
       blti_keys = RailsLti2Provider::Tool.all
       blti_keys.each do |key|
-        puts "'#{key.uuid}'='#{key.shared_secret}'"
+        for_teanat = ''
+        for_teanat = " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
+        puts "'#{key.uuid}'='#{key.shared_secret}'" +  for_teanat
       end
     rescue StandardError => e
       puts(e.backtrace)
