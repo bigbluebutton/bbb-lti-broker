@@ -18,17 +18,14 @@ namespace :db do
         puts('No secret provided')
         exit(1)
       end
-      tenant_uid = args[:tenant] || ''
-      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
-      if tool
-        puts("Key '#{key}' already exists, it can not be added")
+      unless tool.nil?
+        puts("Key '#{args[:key]}' already exists, it can not be added")
         exit(1)
       end
       RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: args[:secret], lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
-      for_teanat = ''
-      for_teanat = " for tenant '#{tool.uid}'" unless tenant_uid.empty?
-      puts "Added '#{args[:key]}=#{args[:secret]}'" + for_tenant
+      puts("Added '#{args[:key]}=#{args[:secret]}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -47,17 +44,14 @@ namespace :db do
         puts('No secret provided')
         exit(1)
       end
-      tenant_uid = args[:tenant] || ''
-      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
-      unless tool
-        puts("Key '#{key}' does not exist, it can not be updated")
+      unless tool.nil?
+        puts("Key '#{args[:key]}' does not exist, it can not be updated")
         exit(1)
       end
       tool.update!(shared_secret: secret)
-      for_teanat = ''
-      for_teanat = " for tenant '#{tool.uid}'" unless tenant_uid.empty?
-      puts "Updated '#{args[:key]}=#{args[:secret]}'" + for_tenant
+      puts("Updated '#{args[:key]}=#{args[:secret]}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -72,17 +66,14 @@ namespace :db do
         puts('No key provided')
         exit(1)
       end
-      tenant_uid = args[:tenant] || ''
-      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
-      unless tool
-        puts("Key '#{key}' does not exist, it can not be deleted")
+      if tool.nil?
+        puts("Key '#{args[:key]}' does not exist, it can not be deleted")
         exit(1)
       end
       tool.delete
-      for_teanat = ''
-      for_teanat = " for tenant '#{tool.uid}'" unless tenant_uid.empty?
-      puts "Deleted '#{args[:key]}=#{args[:secret]}'" + for_tenant
+      puts("Deleted '#{args[:key]}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
