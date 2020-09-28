@@ -19,4 +19,4 @@ obj['spec']['template']['spec']['containers'].first['env'].each do |kv|
 end
 
 # put json string
-File.write(k8s_filename, obj.to_json)
+File.write(k8s_filename, JSON.pretty_generate(obj))
