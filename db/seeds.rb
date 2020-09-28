@@ -16,24 +16,37 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
+tenant = RailsLti2Provider::Tenant.find_or_create_by!(uid: '')
+
 case Rails.env
 when 'development'
-  default_key = 'key'
-  default_secret = 'secret'
+  default_keys = [
+    {
+      key: 'key',
+      secret: 'secret'
+    },
+  ]
+
+  default_keys.each do |default_key|
+    puts default_key[:key]
+    unless RailsLti2Provider::Tool.find_by_uuid(default_key[:key])
+      RailsLti2Provider::Tool.create!(uuid: default_key[:key], shared_secret: default_key[:secret], lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
+    end
+  end
 
   default_tools = [
     {
       name: 'default',
       uid: 'key',
       secret: 'secret',
-      redirect_uri: 'http://localhost:3000/apps/default/auth/bbbltibroker/callback',
+      redirect_uri: "https://#{Rails.configuration.url_host}/apps/default/auth/bbbltibroker/callback",
+      scopes: 'api'
     },
   ]
 
-  unless RailsLti2Provider::Tool.find_by_uuid(default_key)
-    RailsLti2Provider::Tool.create!(uuid: default_key, shared_secret: default_secret, lti_version: 'LTI-1p0', tool_settings: 'none')
-    default_tools.each do |tool|
-      Doorkeeper::Application.create!(tool)
+  default_tools.each do |default_tool|
+    unless Doorkeeper::Application.find_by_name(default_tool[:name])
+      Doorkeeper::Application.create!(default_tool)
     end
   end
   # when 'production'
