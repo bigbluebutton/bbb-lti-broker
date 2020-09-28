@@ -23,12 +23,11 @@ when 'development'
   default_keys = [
     {
       key: 'key',
-      secret: 'secret'
+      secret: 'secret',
     },
   ]
 
   default_keys.each do |default_key|
-    puts default_key[:key]
     unless RailsLti2Provider::Tool.find_by_uuid(default_key[:key])
       RailsLti2Provider::Tool.create!(uuid: default_key[:key], shared_secret: default_key[:secret], lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
     end
@@ -40,14 +39,12 @@ when 'development'
       uid: 'key',
       secret: 'secret',
       redirect_uri: "https://#{Rails.configuration.url_host}/apps/default/auth/bbbltibroker/callback",
-      scopes: 'api'
+      scopes: 'api',
     },
   ]
 
   default_tools.each do |default_tool|
-    unless Doorkeeper::Application.find_by_name(default_tool[:name])
-      Doorkeeper::Application.create!(default_tool)
-    end
+    Doorkeeper::Application.create!(default_tool) unless Doorkeeper::Application.find_by_name(default_tool[:name])
   end
   # when 'production'
 end
