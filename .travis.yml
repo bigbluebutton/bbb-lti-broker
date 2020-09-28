@@ -82,5 +82,5 @@ jobs:
       - kubectl --insecure-skip-tls-verify --kubeconfig="/dev/null" --server=$KUBERNETES_SERVER --token=$KUBERNETES_TOKEN get deployment $KUBERNETES_DEPLOYMENT -o json > deployment.json
       # Update the deployment.yaml file with $DOCKER_REPO:$TRAVIS_BRANCH
       - ruby scripts/ci_k8s_deployment_update.rb $DOCKER_REPO:$TRAVIS_BRANCH deployment.json
-      - kubectl --insecure-skip-tls-verify --kubeconfig="/dev/null" --server=$KUBERNETES_SERVER --token=$KUBERNETES_TOKEN apply - f deployment.json
+      - kubectl --insecure-skip-tls-verify --kubeconfig="/dev/null" --server=$KUBERNETES_SERVER --token=$KUBERNETES_TOKEN apply -f deployment.json
     if: type = push AND env(BUILD_IGNORE) IS NOT present AND (branch = master OR tag IS blank AND env(DEPLOY_ALL) IS present)
