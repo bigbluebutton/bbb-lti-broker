@@ -15,7 +15,7 @@ obj = JSON.parse(s)
 obj['spec']['template']['spec']['containers'].first['image'] = k8s_image
 # update container DEPLOYMENT_TIMESTAMP env
 obj['spec']['template']['spec']['containers'].first['env'].each do |kv|
-  kv['value'] = Time.now.to_i if kv['name'] == 'DEPLOYMENT_TIMESTAMP'
+  kv['value'] = "\"#{Time.now.to_i}\"" if kv['name'] == 'DEPLOYMENT_TIMESTAMP'
 end
 
 # put json string

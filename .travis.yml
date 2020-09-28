@@ -11,8 +11,14 @@
 #   For bypassing build add:
 #     BUILD_IGNORE=true
 #
+#   For bypassing deploys add:
+#     DEPLOY_IGNORE=true
+#
 #   For building docker images for all branches add:
 #     BUILD_ALL=true (by default only docker images for tags and master branch are built)
+#
+#   For deploying docker images for all branches add:
+#     DEPLOY_ALL=true (by default only docker images for tags and master branch are built)
 
 sudo: required
 language: ruby
@@ -86,7 +92,7 @@ jobs:
       - ruby scripts/ci_k8s_deployment_update.rb $DOCKER_REPO:$TRAVIS_BRANCH deployment.json
       - cat deployment.json
       - kubectl --insecure-skip-tls-verify --kubeconfig="/dev/null" --server=$KUBERNETES_SERVER --token=$KUBERNETES_TOKEN apply -f deployment.json
-    if: type = push AND env(BUILD_IGNORE) IS NOT present AND (branch = master OR tag IS blank AND env(DEPLOY_ALL) IS present)
+    if: type = push AND env(DEPLOY_IGNORE) IS NOT present AND (branch = master OR tag IS blank AND env(DEPLOY_ALL) IS present)
 # This deployment is only triggered when building from a branch.
   - stage: deploy
     name: deploy release to k8s
@@ -103,4 +109,4 @@ jobs:
       # Update the deployment.yaml file with $DOCKER_REPO:$TRAVIS_TAG.
       - ruby scripts/ci_k8s_deployment_update.rb $DOCKER_REPO:$TRAVIS_TAG deployment.json
       - kubectl --insecure-skip-tls-verify --kubeconfig="/dev/null" --server=$KUBERNETES_SERVER --token=$KUBERNETES_TOKEN apply -f deployment.json
-    if: env(BUILD_IGNORE) IS NOT present AND tag IS NOT blank
+    if: env(DEPLOY_IGNORE) IS NOT present AND tag IS NOT blank
