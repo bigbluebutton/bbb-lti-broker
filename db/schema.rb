@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 2020_08_31_193410) do
     t.datetime "updated_at"
     t.string "lti_version"
     t.integer "tenant_id"
+    t.index ["id", "tenant_id"], name: "index_tool_id_tenant_id", unique: true
     t.index ["tenant_id"], name: "index_tenant_id"
   end
 
