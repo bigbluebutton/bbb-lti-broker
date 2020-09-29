@@ -44,7 +44,7 @@ gem 'doorkeeper', '~> 5.3.0'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.5'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.0.7'
 
 gem 'activerecord-session_store'
 
@@ -77,3 +77,5 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data'
+
+gem 'coveralls', require: false

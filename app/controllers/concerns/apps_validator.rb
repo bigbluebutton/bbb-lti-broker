@@ -19,23 +19,6 @@
 module AppsValidator
   include ActiveSupport::Concern
 
-  def user_params(tc_instance_guid, params)
-    if params['user_id'].blank?
-      params['user_id'] = params['sub']
-      params['lis_person_name_full'] = params['name']
-      params['lis_person_name_given'] = params['given_name']
-      params['lis_person_name_family'] = params['family_name']
-    end
-    {
-      context: tc_instance_guid,
-      uid: params['user_id'],
-      full_name: params['lis_person_name_full'],
-      first_name: params['lis_person_name_given'],
-      last_name: params['lis_person_name_family'],
-      last_accessed_at: Time.current,
-    }
-  end
-
   def tool_consumer_instance_guid(request_referrer, params)
     params['tool_consumer_instance_guid'] || URI.parse(request_referrer).host
   end

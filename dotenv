@@ -21,7 +21,8 @@ CONSUMER_SECRET=secret
 
 # DEVELOPER_MODE_ENABLED=true
 
-# WHITELIST_HOST=broker.example.com
+## Use to serve assets through the app (Required for now)
+RAILS_SERVE_STATIC_FILES=true
 
 # HOST_URL=broker.example.com
 

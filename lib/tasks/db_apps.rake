@@ -8,7 +8,7 @@ require 'bbb_lti_broker/helpers'
 
 namespace :db do
   namespace :apps do
-    desc 'Add a new blti app'
+    desc 'Add a new blti app - add[name,hostname,uid,secret]'
     task :add, [:name, :hostname, :uid, :secret] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
@@ -40,7 +40,7 @@ namespace :db do
       exit(1)
     end
 
-    desc 'Update an existent blti app if exists'
+    desc 'Update an existent blti app if exists - update[name,hostname,uid,secret]'
     task :update, [:name, :hostname, :uid, :secret] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
@@ -67,7 +67,7 @@ namespace :db do
       exit(1)
     end
 
-    desc 'Delete an existent blti app if exists'
+    desc 'Delete an existent blti app if exists - delete[name]'
     task :delete, [:name] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
@@ -90,7 +90,7 @@ namespace :db do
       exit(1)
     end
 
-    desc 'Show an existent blti app if exists'
+    desc 'Show an existent blti app if exists - show[name]'
     task :show, [:name] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
