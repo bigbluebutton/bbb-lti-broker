@@ -2,7 +2,7 @@
 
 class CreateDoorkeeperTables < ActiveRecord::Migration[6.0]
   def change
-    create_table :oauth_applications do |t|
+    create_table(:oauth_applications) do |t|
       t.string(:name,    null: false)
       t.string(:uid,     null: false)
       t.string(:secret,  null: false)
@@ -18,7 +18,7 @@ class CreateDoorkeeperTables < ActiveRecord::Migration[6.0]
 
     add_index(:oauth_applications, :uid, unique: true)
 
-    create_table :oauth_access_grants do |t|
+    create_table(:oauth_access_grants) do |t|
       t.references(:resource_owner,  null: false)
       t.references(:application,     null: false)
       t.string(:token, null: false)
@@ -36,7 +36,7 @@ class CreateDoorkeeperTables < ActiveRecord::Migration[6.0]
       column: :application_id
     )
 
-    create_table :oauth_access_tokens do |t|
+    create_table(:oauth_access_tokens) do |t|
       t.references(:resource_owner, index: true)
 
       # Remove `null: false` if you are planning to use Password

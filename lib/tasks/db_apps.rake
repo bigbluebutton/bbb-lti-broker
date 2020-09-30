@@ -83,7 +83,7 @@ namespace :db do
       end
       blti_apps.each do |app|
         app.delete
-        puts "App '#{args[:name]}' was deleted"
+        puts("App '#{args[:name]}' was deleted")
       end
     rescue StandardError => e
       puts(e.backtrace)
@@ -106,7 +106,7 @@ namespace :db do
       end
       apps.each do |app|
         app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
-        puts app1.to_json
+        puts(app1.to_json)
       end
     rescue StandardError => e
       puts(e.backtrace)
@@ -133,7 +133,7 @@ namespace :db do
       apps = Doorkeeper::Application.all
       apps.each do |app|
         app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
-        puts app1.to_json
+        puts(app1.to_json)
       end
     rescue ApplicationRedisRecord::RecordNotFound
       puts(e.backtrace)

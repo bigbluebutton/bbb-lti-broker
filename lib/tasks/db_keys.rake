@@ -100,7 +100,7 @@ namespace :db do
       blti_keys.each do |key|
         for_teanat = ''
         for_teanat = " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
-        puts "'#{key.uuid}'='#{key.shared_secret}'" +  for_teanat
+        puts("'#{key.uuid}'='#{key.shared_secret}'" +  for_teanat)
       end
     rescue StandardError => e
       puts(e.backtrace)
