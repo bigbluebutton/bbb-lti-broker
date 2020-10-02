@@ -2,7 +2,7 @@
 
 class CreateUsersTable < ActiveRecord::Migration[6.0]
   def change
-    create_table :users do |t|
+    create_table(:users) do |t|
       t.string(:context)
       t.string(:uid)
       t.string(:full_name)
