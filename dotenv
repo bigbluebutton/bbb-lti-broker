@@ -27,7 +27,7 @@ RAILS_SERVE_STATIC_FILES=true
 # HOST_URL=broker.example.com
 
 ## Enable redis for actioncable
-# REDIS_URL=
+# REDIS_URL=redis://myuser:mypass@localhost
 
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
 ## DATABASE_URL=postgres://myuser:mypass@localhost
