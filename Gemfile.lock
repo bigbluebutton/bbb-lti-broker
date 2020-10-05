@@ -231,6 +231,7 @@ GEM
       execjs
       railties (>= 3.2)
       tilt
+    redis (4.2.2)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -353,6 +354,7 @@ DEPENDENCIES
   rails (>= 6.0.3.3)
   rails_lti2_provider!
   react-rails
+  redis (~> 4.0)
   rspec
   rspec-rails
   rubocop (~> 0.79.0)

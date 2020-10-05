@@ -34,7 +34,17 @@ Rails.application.configure do
 
   # Enable/disable caching. By default caching is disabled.
   config.action_controller.perform_caching = true
-  config.cache_store = :file_store, Rails.root.join('tmp/cache_store')
+  config.cache_store = if ENV['REDIS_URL'].present?
+                         # Set up Redis cache store
+                         [:redis_cache_store, { url: ENV['REDIS_URL'],
+
+                                                connect_timeout: 30, # Defaults to 20 seconds
+                                                read_timeout: 0.2, # Defaults to 1 second
+                                                write_timeout: 0.2, # Defaults to 1 second
+                                                reconnect_attempts: 1, },] # Defaults to 0,]
+                       else
+                         config.cache_store = :file_store, Rails.root.join('tmp/cache_store')
+                       end
   if Rails.root.join('tmp/caching-dev.txt').exist?
     config.public_file_server.headers = {
       'Cache-Control' => 'public, max-age=172800',

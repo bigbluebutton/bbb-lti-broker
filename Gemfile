@@ -48,6 +48,8 @@ gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2
 
 gem 'activerecord-session_store'
 
+gem 'redis', '~> 4.0'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
