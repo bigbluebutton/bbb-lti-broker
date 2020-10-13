@@ -115,7 +115,7 @@ Rails.application.configure do
                                                                  config.logger.warn("Support: Redis cache action #{method} failed and returned '#{returning}': #{exception}")
                                                                }, },]
                        else
-                         config.cache_store = :file_store, Rails.root.join('tmp/cache_store')
+                         [:file_store, Rails.root.join('tmp/cache_store')]
                        end
 
   config.hosts = ENV['WHITELIST_HOST'].presence || nil
