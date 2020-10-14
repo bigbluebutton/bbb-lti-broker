@@ -19,7 +19,7 @@ namespace :db do
         exit(1)
       end
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
-      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
       unless tool.nil?
         puts("Key '#{args[:key]}' already exists, it can not be added")
         exit(1)
