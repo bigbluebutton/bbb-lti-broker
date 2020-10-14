@@ -57,12 +57,12 @@ namespace :db do
       ActiveRecord::Base.connection
       tenants = RailsLti2Provider::Tenant.all
       tenants.each do |tenant|
-        unless tenant.uid.empty?
-          puts("Deleting keys for tenant '#{tenant.uid}'")
-          RailsLti2Provider::Tool.delete_all(tenant: tenant)
-          puts("Deleting tenant '#{tenant.uid}'")
-          tenant.delete
-        end
+        next if tenant.uid.empty?
+
+        puts("Deleting keys for tenant '#{tenant.uid}'")
+        RailsLti2Provider::Tool.delete_all(tenant: tenant)
+        puts("Deleting tenant '#{tenant.uid}'")
+        tenant.delete
       end
     rescue StandardError => e
       puts(e.backtrace)
