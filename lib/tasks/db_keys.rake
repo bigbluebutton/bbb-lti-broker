@@ -31,7 +31,7 @@ namespace :db do
       exit(1)
     end
 
-    desc "Update an existent blti keypair if exists - update[key:secret]'"
+    desc "Update an existent blti keypair if exists - update[key,secret,Tenant]'"
     task :update, [:key, :secret, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
@@ -57,7 +57,7 @@ namespace :db do
       exit(1)
     end
 
-    desc "Delete an existent blti keypair if exists [key:secret]'"
+    desc "Delete an existent blti keypair if exists [key,secret,tenant]'"
     task :delete, [:key, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
