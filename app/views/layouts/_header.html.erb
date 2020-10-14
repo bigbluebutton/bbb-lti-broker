@@ -24,6 +24,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
     <%= csrf_meta_tags %>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/tomorrow.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/highlight.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script type="text/javascript">
@@ -31,5 +34,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
             hljs.initHighlightingOnLoad();
         });
     </script>
+
+    <div class="header">
+        <div class="container">
+            <div class="d-flex bd-highlight mb3">
+                <div class="mr-auto p-2 bd-highlight">
+                    <%= link_to root_path do%>
+                        <%= image_tag("bbb_logo.png", class: "bbb-logo") %>
+                    <% end %>
+                </div>
+                <div class="p-2 bd-highlight"> 
+                    <%= link_to "Config", lti_home_path, :class => "btn btn-outline-primary mx-2 config-button" %>
+                </div>
+            </div>
+        </div>
+    </div>
 </head>
 <body>

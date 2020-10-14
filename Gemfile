@@ -48,6 +48,9 @@ gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2
 
 gem 'activerecord-session_store'
 
+# frontend
+gem 'bootstrap', '~> 4.3.1'
+gem 'font-awesome-sass', '~> 5.9.0'
 gem 'redis', '~> 4.2'
 
 # Use Capistrano for deployment

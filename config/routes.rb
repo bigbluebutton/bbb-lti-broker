@@ -19,8 +19,9 @@
 Rails.application.routes.draw do
   get '/health_check', to: 'health_check#all'
   get '/healthz', to: 'health_check#all'
+  root 'main#index'
 
-  scope ENV['RELATIVE_URL_ROOT'] || '/' do
+  scope ENV['RELATIVE_URL_ROOT'] do
     get '/health_check', to: 'health_check#all'
     get '/healthz', to: 'health_check#all'
 
@@ -51,7 +52,7 @@ Rails.application.routes.draw do
       skip_controllers :applications unless ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     end
 
-    root to: 'application#index', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
+    get '/', to: 'application#index', as: 'lti_home'
 
     # lti 1.3 authenticate user through login
     post ':app/auth/login', to: 'auth#login', as: 'openid_login'
