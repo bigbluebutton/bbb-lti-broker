@@ -41,8 +41,6 @@ Style/Documentation:
   Enabled: false
 Style/DoubleNegation:
   Enabled: false
-Style/ClassAndModuleChildren:
-  Enabled: false
 Style/MethodCallWithArgsParentheses:
   Enabled: true
   IgnoredMethods:
@@ -63,6 +61,12 @@ Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
-Lint/LiteralAsCondition:
-  Exclude:
-    - config/initializers/doorkeeper.rb
+Style/ClassAndModuleChildren:
+  Enabled: false
+Rails/Date:
+  Enabled: false
+Rails/HelperInstanceVariable:
+  # this is temporary while I refactor the code from the helper to libs/concerns
+  Enabled: false
+Lint/LiteralInInterpolation:
+  Enabled: false
