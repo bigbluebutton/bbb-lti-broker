@@ -95,6 +95,7 @@ class RegistrationController < ApplicationController
       registration.update(tool_settings: reg.to_json, shared_secret: params[:client_id])
       registration.save
       redirect_to(registration_list_path)
+      return
     end
 
     tenant = RailsLti2Provider::Tenant.first
