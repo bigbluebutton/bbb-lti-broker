@@ -13,24 +13,25 @@ RELATIVE_URL_ROOT=lti
 # LTI tools configuration
 DEFAULT_LTI_TOOL=tool
 
-# Consumer key
-CONSUMER_KEY=key
-
-# Consumer Secret
-CONSUMER_SECRET=secret
-
 # DEVELOPER_MODE_ENABLED=true
 
 ## Use to serve assets through the app (Required for now)
 RAILS_SERVE_STATIC_FILES=true
 
-# HOST_URL=broker.example.com
+## Set the hostname using your own domain (Required)
+# URL_HOST=broker.example.com
+
+## Use to send logs to Standard Output (Optional)
+RAILS_LOG_TO_STDOUT=true
+
+## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
+## DATABASE_URL=postgres://myuser:mypass@localhost
 
 ## Enable redis for actioncable
 # REDIS_URL=redis://myuser:mypass@localhost
 
-## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
-## DATABASE_URL=postgres://myuser:mypass@localhost
+## Use to send logs to Standard Output (Optional)
+RAILS_LOG_TO_STDOUT=true
 
 # Only needed for Docker Compose.
 ## Change DOCKER_REPO when using a repo other than bigbluebutton

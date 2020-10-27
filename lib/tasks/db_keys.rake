@@ -14,18 +14,15 @@ namespace :db do
         puts('No key provided')
         exit(1)
       end
-      unless args[:secret]
-        puts('No secret provided')
-        exit(1)
-      end
+      secret = args[:secret] || Array.new(12) { (rand(122 - 97) + 97).chr }.join
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
       unless tool.nil?
         puts("Key '#{args[:key]}' already exists, it can not be added")
         exit(1)
       end
-      RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: args[:secret], lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
-      puts("Added '#{args[:key]}=#{args[:secret]}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
+      RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: secret, lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
+      puts("Added '#{args[:key]}=#{secret}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -40,18 +37,15 @@ namespace :db do
         puts('No key provided')
         exit(1)
       end
-      unless args[:secret]
-        puts('No secret provided')
-        exit(1)
-      end
+      secret = args[:secret] || Array.new(12) { (rand(122 - 97) + 97).chr }.join
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
-      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
-      unless tool.nil?
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
+      unless tool
         puts("Key '#{args[:key]}' does not exist, it can not be updated")
         exit(1)
       end
-      tool.update!(shared_secret: secret)
-      puts("Updated '#{args[:key]}=#{args[:secret]}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
+      tool.update!(shared_secret: secret, tenant: tenant)
+      puts("Updated '#{args[:key]}=#{secret}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)

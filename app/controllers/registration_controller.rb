@@ -89,20 +89,23 @@ class RegistrationController < ApplicationController
     options = {}
     options['client_id'] = params[:client_id]
 
-    if params.key?('reg_id')
-      if lti_registration_exists?(params[:reg_id], options)
-        registration = lti_registration(params[:reg_id], options)
-        reg[:tool_private_key] = lti_registration_params(params[:reg_id], options)['tool_private_key']
-        registration.update(tool_settings: reg.to_json, shared_secret: params[:client_id])
-        registration.save
-      end
-    # elsif ! lti_registration_exists?(params[:iss])
-    else
+    registration = lti_registration(params[:reg_id], options) if params.key?('reg_id')
+    unless registration.nil?
+      reg[:tool_private_key] = lti_registration_params(params[:reg_id], options)['tool_private_key']
+      registration.update(tool_settings: reg.to_json, shared_secret: params[:client_id])
+      registration.save
+      redirect_to(registration_list_path)
+      return
+    end
+
+    tenant = RailsLti2Provider::Tenant.first
+    unless tenant.nil?
       RailsLti2Provider::Tool.create!(
         uuid: params[:iss],
         shared_secret: params[:client_id],
         tool_settings: reg.to_json,
-        lti_version: '1.3.0'
+        lti_version: '1.3.0',
+        tenant: tenant
       )
     end
 

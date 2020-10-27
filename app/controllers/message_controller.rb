@@ -131,10 +131,10 @@ class MessageController < ApplicationController
     jwt = verify_openid_launch
     @jwt_header = jwt[:header]
     @jwt_body = jwt[:body]
-    logger.info('JWT Body: ' + @jwt_body.to_s)
+    logger.info('JWT Body: ' + @jwt_body.to_json)
 
     tool = lti_registration(@jwt_body['iss'])
-    tool.lti_launches.where('created_at > ?', 1.day.ago).delete_all
+    tool.lti_launches.where('created_at < ?', 1.day.ago).delete_all
     @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header))
 
     @message = IMS::LTI::Models::Messages::Message.generate(params)
