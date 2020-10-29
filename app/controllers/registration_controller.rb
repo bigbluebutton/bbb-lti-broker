@@ -23,6 +23,7 @@ class RegistrationController < ApplicationController
   skip_before_action :verify_authenticity_token
   include PlatformValidator
   include AppsValidator
+  include TenantValidator
   include TemporaryStore
 
   def list
@@ -42,12 +43,14 @@ class RegistrationController < ApplicationController
     @app = ENV['DEFAULT_LTI_TOOL']
     @app ||= 'default' if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     @apps = lti_apps
+    @tenants = lti_tenants
     set_temp_keys
     set_starter_info
   end
 
   def edit
     redirect_to(registration_list_path) unless params.key?('reg_id') && params.key?('client_id')
+    @tenants = lti_tenants
     options = {}
     options['client_id'] = params[:client_id] if params.key?('client_id')
     redirect_to(registration_list_path) unless lti_registration_exists?(params[:reg_id], options)
@@ -58,12 +61,16 @@ class RegistrationController < ApplicationController
   def submit
     return if params[:iss] == ''
 
+    tenant = RailsLti2Provider::Tenant.where(uid: params[:tenant]).first
+    return if tenant.nil?
+
     reg = {
       issuer: params[:iss],
       client_id: params[:client_id],
       key_set_url: params[:key_set_url],
       auth_token_url: params[:auth_token_url],
       auth_login_url: params[:auth_login_url],
+      tenant: params[:tenant],
     }
 
     if params.key?('private_key_path') && params.key?('public_key_path')
@@ -98,14 +105,13 @@ class RegistrationController < ApplicationController
       return
     end
 
-    tenant = RailsLti2Provider::Tenant.first
     unless tenant.nil?
       RailsLti2Provider::Tool.create!(
         uuid: params[:iss],
         shared_secret: params[:client_id],
         tool_settings: reg.to_json,
         lti_version: '1.3.0',
-        tenant: tenant
+        tenant: tenant,
       )
     end
 
