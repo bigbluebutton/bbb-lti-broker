@@ -81,6 +81,7 @@ group :test do
 end
 
 group :production do
+  gem 'remote_syslog_logger'
   # For a better logging library in production
   gem 'lograge'
 end
