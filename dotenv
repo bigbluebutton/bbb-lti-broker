@@ -24,6 +24,12 @@ RAILS_SERVE_STATIC_FILES=true
 ## Use to send logs to Standard Output (Optional)
 RAILS_LOG_TO_STDOUT=true
 
+## Use to send logs to external repository (Optional)
+# RAILS_LOG_REMOTE_NAME=xxx.papertrailapp.com
+# RAILS_LOG_REMOTE_PORT=99999
+# RAILS_LOG_REMOTE_TAG=bbb-lti-broker
+# RAILS_LOG_TO_STDOUT=false
+
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
 ## DATABASE_URL=postgres://myuser:mypass@localhost
 
