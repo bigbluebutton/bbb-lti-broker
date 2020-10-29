@@ -14,7 +14,7 @@ namespace :db do
         puts('No key provided')
         exit(1)
       end
-      secret = args[:secret] || Array.new(12) { (rand(122-97) + 97).chr }.join
+      secret = args[:secret] || Array.new(12) { (rand(122 - 97) + 97).chr }.join
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
       unless tool.nil?
@@ -37,7 +37,7 @@ namespace :db do
         puts('No key provided')
         exit(1)
       end
-      secret = args[:secret] || Array.new(12) { (rand(122-97) + 97).chr }.join
+      secret = args[:secret] || Array.new(12) { (rand(122 - 97) + 97).chr }.join
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
       unless tool
