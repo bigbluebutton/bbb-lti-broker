@@ -35,7 +35,7 @@ class MessageController < ApplicationController
   # verify that the application belongs to us before doing anything with it
   before_action :lti_authorized_application
   # validates message with oauth in rails lti2 provider gem
-  before_action :lti_authentication, except: %i[signed_content_item_request openid_launch_request deep_link]
+  before_action :lti_authentication, only: %i[basic_lti_launch_request]
   # validates message corresponds to a LTI launch
   before_action :process_openid_message, only: %i[openid_launch_request deep_link]
 
@@ -64,19 +64,7 @@ class MessageController < ApplicationController
     end
   end
 
-  def openid_launch_request
-    return if params[:app] == 'default'
-
-    params[:oauth_nonce] = @jwt_body['nonce']
-    params[:oauth_consumer_key] = @jwt_body['iss']
-    # Redirect to external application if configured
-    Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
-    session[:user_id] = @current_user.id
-    redirector = app_launch_path(params.to_unsafe_h)
-    redirect_to(redirector)
-  end
-
-  # first touch point from tool consumer (moodle, canvas, etc)
+  # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.3
   def basic_lti_launch_request
     process_blti_message
     return if params[:app] == 'default'
@@ -95,6 +83,19 @@ class MessageController < ApplicationController
     @launch_url = blti_launch_url
     @update_url = content_item_request_launch_url
     @oauth_consumer_key = params[:oauth_consumer_key]
+  end
+
+  # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.3
+  def openid_launch_request
+    return if params[:app] == 'default'
+
+    params[:oauth_nonce] = @jwt_body['nonce']
+    params[:oauth_consumer_key] = @jwt_body['iss']
+    # Redirect to external application if configured
+    Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
+    session[:user_id] = @current_user.id
+    redirector = app_launch_path(params.to_unsafe_h)
+    redirect_to(redirector)
   end
 
   # submit content item selection

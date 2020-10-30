@@ -60,7 +60,7 @@ Rails.application.routes.draw do
     post ':app/messages/oblti', to: 'message#openid_launch_request', as: 'openid_launch'
     # requests from tool consumer go through this path
     get ':app/messages/blti', to: 'tool_profile#xml_config', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
-    post ':app/messages/blti', to: 'message#basic_lti_launch_request', as: 'blti_launch'
+    post ':app/messages/blti', to: 'message#openid_launch_request', as: 'blti_launch'
 
     # requests from xml_config go through these paths
     post ':app/messages/content-item', to: 'message#content_item_selection', as: 'content_item_request_launch'
