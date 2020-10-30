@@ -111,7 +111,7 @@ class RegistrationController < ApplicationController
         shared_secret: params[:client_id],
         tool_settings: reg.to_json,
         lti_version: '1.3.0',
-        tenant: tenant,
+        tenant: tenant
       )
     end
 

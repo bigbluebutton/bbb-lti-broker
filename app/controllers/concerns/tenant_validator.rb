@@ -17,9 +17,9 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 module TenantValidator
-    include ActiveSupport::Concern
-  
-    def lti_tenants
-      RailsLti2Provider::Tenant.all.pluck(:uid)
-    end
+  include ActiveSupport::Concern
+
+  def lti_tenants
+    RailsLti2Provider::Tenant.all.pluck(:uid)
+  end
 end
