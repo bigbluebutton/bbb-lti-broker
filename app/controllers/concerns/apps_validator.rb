@@ -69,6 +69,7 @@ module AppsValidator
       path_base = (path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '') + '/'
     rescue StandardError
       # TODO: handle exception
+      logger.error("App #{app_name} is not registered.")
       return
     end
     "#{site}#{path_base + app_name + '/assets/icon.svg'}"

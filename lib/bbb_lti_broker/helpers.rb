@@ -28,7 +28,7 @@ module BbbLtiBroker
     end
 
     def secure_url(url)
-      uri = URI.parse(url)
+      uri = URI.parse(URI.encode(url.strip))
       uri.scheme = 'https'
       uri.to_s
     end
