@@ -11,7 +11,7 @@ SECRET_KEY_BASE=secret
 RELATIVE_URL_ROOT=lti
 
 # LTI tools configuration
-DEFAULT_LTI_TOOL=tool
+DEFAULT_LTI_TOOL=rooms
 
 # DEVELOPER_MODE_ENABLED=true
 

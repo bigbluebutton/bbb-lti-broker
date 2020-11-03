@@ -30,7 +30,6 @@ module AppsValidator
   end
 
   def lti_authorized_application
-    params[:app] = params[:custom_app] unless params.key?(:app) || !params.key?(:custom_app)
     raise CustomError, :missing_app unless params.key?(:app)
     raise CustomError, :not_found unless params[:app] == 'default' || authorized_tools.key?(params[:app])
   end
