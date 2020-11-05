@@ -54,7 +54,7 @@ module OpenIdAuthenticator
     logger.info('>>>>>>>>> Processing validate_openid_message_state')
     logger.info(params[:state])
     logger.info(cookies.to_json)
-    # raise CustomError, :state_not_found unless cookies.key?(params[:state])
+    raise CustomError, :state_not_found unless params.key?('state')
     raise CustomError, :missing_id_token unless params.key?('id_token')
 
     logger.info('>>>>>>>>> Success')
