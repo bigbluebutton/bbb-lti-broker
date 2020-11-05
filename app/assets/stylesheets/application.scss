@@ -68,7 +68,7 @@ html, body {
     border-top: 1px solid $primary-transparency;
     font-size: 12px;
     width: 100%;
-    position: fixed;
+    position: relative;
 }
 
 .background {
@@ -84,5 +84,5 @@ html, body {
 .wrapper {
     width: 100%;
     position: relative;
-    height: calc(100% - #{$header-height} - #{$footer-height});
+    min-height: calc(100% - #{$header-height} - #{$footer-height});
 }
