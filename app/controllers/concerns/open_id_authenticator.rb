@@ -140,10 +140,11 @@ module OpenIdAuthenticator
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/tool_platform',
                       'tool_consumer_instance_guid': 'guid',
-                      'tool_consumer_info_product_family_code': 'family_code',
-                      'tool_consumer_info_version': 'version',
+                      'tool_consumer_instance_description': 'description',
                       'tool_consumer_instance_name': 'name',
-                      'tool_consumer_instance_description': 'description')
+                      'tool_consumer_instance_url': 'url',
+                      'tool_consumer_info_version': 'version',
+                      'tool_consumer_info_product_family_code': 'family_code')
 
     p = extract_param(p, jwt_body, 'https://purl.imsglobal.org/spec/lti/claim/context',
                       'context_id': 'id',
