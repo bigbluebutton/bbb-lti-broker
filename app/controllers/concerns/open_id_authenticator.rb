@@ -56,7 +56,8 @@ module OpenIdAuthenticator
     logger.info(cookies.to_json)
     # raise CustomError, :state_not_found unless cookies.key?(params[:state])
     raise CustomError, :missing_id_token unless params.key?('id_token')
-    logger.info('success')
+
+    logger.info('>>>>>>>>> Success')
   end
 
   def validate_jwt_format
