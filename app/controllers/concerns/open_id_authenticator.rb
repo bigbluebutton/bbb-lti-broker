@@ -51,13 +51,8 @@ module OpenIdAuthenticator
   end
 
   def validate_openid_message_state
-    logger.info('>>>>>>>>> Processing validate_openid_message_state')
-    logger.info(params[:state])
-    logger.info(cookies.to_json)
     raise CustomError, :state_not_found unless params.key?('state')
     raise CustomError, :missing_id_token unless params.key?('id_token')
-
-    logger.info('>>>>>>>>> Success')
   end
 
   def validate_jwt_format
