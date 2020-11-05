@@ -32,9 +32,6 @@ class MessageController < ApplicationController
 
   # skip rail default verify auth token - we use our own strategies
   skip_before_action :verify_authenticity_token
-
-  before_action :print_parameters
-
   # verify that the application belongs to us before doing anything with it
   before_action :lti_authorized_application
   # validates message with oauth in rails lti2 provider gem
@@ -65,12 +62,6 @@ class MessageController < ApplicationController
     else
       render(:basic_lti_launch_request, status: :ok)
     end
-  end
-
-  def print_parameters
-    logger.info('>>>>>>>>> Params:')
-    logger.info(params.to_json)
-    logger.info(params[:id_token])
   end
 
   # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.3
