@@ -11,7 +11,7 @@ SECRET_KEY_BASE=secret
 RELATIVE_URL_ROOT=lti
 
 # LTI tools configuration
-DEFAULT_LTI_TOOL=tool
+DEFAULT_LTI_TOOL=rooms
 
 # DEVELOPER_MODE_ENABLED=true
 
@@ -23,6 +23,12 @@ RAILS_SERVE_STATIC_FILES=true
 
 ## Use to send logs to Standard Output (Optional)
 RAILS_LOG_TO_STDOUT=true
+
+## Use to send logs to external repository (Optional)
+# RAILS_LOG_REMOTE_NAME=xxx.papertrailapp.com
+# RAILS_LOG_REMOTE_PORT=99999
+# RAILS_LOG_REMOTE_TAG=bbb-lti-broker
+# RAILS_LOG_TO_STDOUT=false
 
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
 ## DATABASE_URL=postgres://myuser:mypass@localhost

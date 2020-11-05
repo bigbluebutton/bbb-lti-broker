@@ -44,7 +44,7 @@ gem 'doorkeeper', '~> 5.3.0'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.0'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', branch: 'master' # , tag: '0.1.0'
 
 gem 'activerecord-session_store'
 
@@ -78,6 +78,10 @@ end
 group :test do
   gem 'minitest-stub_any_instance'
   gem 'webmock'
+end
+
+group :production do
+  gem 'remote_syslog_logger'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
