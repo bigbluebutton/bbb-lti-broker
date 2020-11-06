@@ -20,6 +20,6 @@ module TenantValidator
   include ActiveSupport::Concern
 
   def lti_tenants
-    RailsLti2Provider::Tenant.all.pluck(:uid)
+    RailsLti2Provider::Tenant.all
   end
 end

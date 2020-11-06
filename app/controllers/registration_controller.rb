@@ -43,7 +43,8 @@ class RegistrationController < ApplicationController
     @app = ENV['DEFAULT_LTI_TOOL']
     @app ||= 'default' if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
     @apps = lti_apps
-    @tenants = lti_tenants
+    session[:tenants] = lti_tenants
+    @tenants = session[:tenants].pluck(:uid)
     set_temp_keys
     set_starter_info
   end
@@ -61,7 +62,7 @@ class RegistrationController < ApplicationController
   def submit
     return if params[:iss] == ''
 
-    tenant = RailsLti2Provider::Tenant.where(uid: params[:tenant]).first
+    tenant = session[:tenants].where(uid: params[:tenant]).first
     return if tenant.nil?
 
     reg = {
