@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
-  revision: 0ef33ccce957009d8be010b11b9c6c49e876d44e
-  tag: 0.1.0
+  revision: eeb3636a0253acab2e33f916cbd60bc4c2d89d8f
+  branch: master
   specs:
     rails_lti2_provider (0.1.0)
       ims-lti (~> 2.3.0)
@@ -241,6 +241,8 @@ GEM
       tilt
     redis (4.2.2)
     regexp_parser (1.8.2)
+    remote_syslog_logger (1.0.4)
+      syslog_protocol
     rexml (3.2.4)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
@@ -306,6 +308,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sync (0.5.0)
+    syslog_protocol (0.9.2)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     thor (1.0.1)
@@ -371,6 +374,7 @@ DEPENDENCIES
   rails_lti2_provider!
   react-rails
   redis (~> 4.2)
+  remote_syslog_logger
   rspec
   rspec-rails
   rubocop (~> 0.90.0)
