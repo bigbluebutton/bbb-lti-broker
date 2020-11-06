@@ -33,4 +33,11 @@ class ApplicationController < ActionController::Base
   # CSRF stuff ^
 
   @build_number = Rails.configuration.build_number
+
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
+
+  def print_parameters
+    logger.debug('>>>>>>>>> Params:')
+    logger.debug(params.to_json)
+  end
 end

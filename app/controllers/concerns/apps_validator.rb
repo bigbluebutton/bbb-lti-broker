@@ -30,7 +30,6 @@ module AppsValidator
   end
 
   def lti_authorized_application
-    params[:app] = params[:custom_app] unless params.key?(:app) || !params.key?(:custom_app)
     raise CustomError, :missing_app unless params.key?(:app)
     raise CustomError, :not_found unless params[:app] == 'default' || authorized_tools.key?(params[:app])
   end
@@ -69,6 +68,7 @@ module AppsValidator
       path_base = (path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '') + '/'
     rescue StandardError
       # TODO: handle exception
+      logger.error("App #{app_name} is not registered.")
       return
     end
     "#{site}#{path_base + app_name + '/assets/icon.svg'}"
