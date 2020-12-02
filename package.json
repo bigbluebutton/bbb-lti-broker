@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@rails/webpacker": "5.2.1",
+    "tailwindcss": "^2.0.1"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.11.0"
+  }
+}

@@ -48,6 +48,8 @@ gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2
 
 gem 'activerecord-session_store'
 
+gem 'webpacker'
+
 # frontend
 gem 'bootstrap', '~> 4.3.1'
 gem 'font-awesome-sass', '~> 5.9.0'
