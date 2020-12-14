@@ -16,37 +16,23 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-require 'uri'
-require 'net/http'
-require 'ims/lti'
-require 'securerandom'
-require 'faraday'
-require 'oauthenticator'
-require 'oauth'
-require 'addressable/uri'
-require 'oauth/request_proxy/action_controller_request'
+class SessionsController < ApplicationController
+  def new; end
 
-class ApplicationController < ActionController::Base
-  include AppsValidator
-
-  protect_from_forgery with: :exception
-  # CSRF stuff ^
-
-  @build_number = Rails.configuration.build_number
-
-  before_action :print_parameters if Rails.configuration.developer_mode_enabled
-
-  def print_parameters
-    logger.debug('>>>>>>>>> Params:')
-    logger.debug(params.to_json)
-  end
-
-  helper_method :current_user
-  def current_user
-    if session[:user_id]
-      @current_user ||= User.find(session[:user_id])
+  def create
+    user = User.find_by_username(params[:username])
+    if user&.authenticate(params[:password])
+      session[:user_id] = user.id
+      redirect_to admin_users_path
     else
-      @current_user = nil
+      flash.now[:alert] = 'Username or password is invalid'
+      redirect_to login_path, notice: 'Incorrect Username or Password'
     end
   end
-end
+
+  def destroy
+    session[:user_id] = nil
+    redirect_to root_path
+  end
+  end
+  

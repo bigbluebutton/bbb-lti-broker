@@ -1,0 +1,10 @@
+<div class="w-64 flex-none">
+    <% page = active_page %>
+    <%= link_to "Manage Users", admin_users_path, :class => "text-xl #{"font-bold" if page == "users"}" %>
+    </br>
+    <%= link_to "Manage LTI 1.1 Keys", admin_keys_path, :class => "text-xl #{"font-bold" if page == "keys"}" %>
+    </br>
+    <%= link_to "Manage LTI 1.3 Deployments", admin_deployments_path, :class => "text-xl #{"font-bold" if page == "deployments"}" %>
+    </br>
+    <%= link_to "Customization", admin_customization_path, :class => "text-xl #{"font-bold" if page == "customization"}" %>
+</div> 

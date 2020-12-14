@@ -20,6 +20,21 @@ Rails.application.routes.draw do
   get '/health_check', to: 'health_check#all'
   get '/healthz', to: 'health_check#all'
   root 'main#index'
+  
+  get 'login', to: 'sessions#new', as: :login
+  get 'logout', to: 'sessions#destroy', as: :logout
+  resources :sessions, only: %i[new create destroy]
+
+  scope '/admin' do
+    get '/', to: 'admin#home', as: :admin_home
+    get '/users', to: 'admin#users', as: :admin_users
+    get '/keys', to: 'admin#keys', as: :admin_keys
+    post '/keys/submit', to: 'admin#submit_key', as: :admin_submit_key
+    post '/keys/edit', to: 'admin#edit_key', as: :admin_edit_key
+    post '/keys/delete', to: 'admin#delete_key', as: :admin_delete_key
+    get '/deployments', to: 'admin#deployments', as: :admin_deployments
+    get '/customization', to: 'admin#customization', as: :admin_customization
+  end
 
   scope ENV['RELATIVE_URL_ROOT'] do
     get '/health_check', to: 'health_check#all'

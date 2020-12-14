@@ -49,6 +49,7 @@ gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2
 gem 'activerecord-session_store'
 
 gem 'webpacker'
+gem 'bcrypt', '~>3.1.7'
 
 # frontend
 gem 'bootstrap', '~> 4.3.1'
