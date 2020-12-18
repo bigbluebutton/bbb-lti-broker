@@ -21,7 +21,7 @@ class AdminController < ApplicationController
             return
         end
         user = User.find_by(username: params[:username])
-        if tool.nil?
+        if user.nil?
             flash[:notice] = 'There is no existing user'
             redirect_to admin_users_path
             return
