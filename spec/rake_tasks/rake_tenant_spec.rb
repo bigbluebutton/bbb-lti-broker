@@ -23,24 +23,24 @@ RSpec.describe('rake tasks involving tenants') do
   before do
     Rake.application.rake_require('tasks/db_tenants')
     Rake::Task.define_task(:environment)
-    @tenant = RailsLti2Provider::Tenant.create!(uid: "tenant")
+    @tenant = RailsLti2Provider::Tenant.create!(uid: 'tenant')
   end
 
-	describe 'calling db:tenants' do
-		it 'and displays the tenant' do
-			tenant_text = /Tenant with uid 'tenant'/
-			expect do
-				Rake.application.invoke_task('db:tenants:showall')
-			end.to(output(tenant_text).to_stdout)
-		end
-		it 'and adds a tenant' do
-			response = Rake.application.invoke_task('db:tenants:add[test-tenant]')
-		end 
-		it 'and deletes a tenant' do 
-			Rake.application.invoke_task('db:tenants:delete[tenant]')
-		end
-		it 'and deletes all tenants' do 
-			Rake.application.invoke_task('db:tenants:deleteall')
-		end
+  describe 'calling db:tenants' do
+    it 'and displays the tenant' do
+      tenant_text = /Tenant with uid 'tenant'/
+      expect do
+        Rake.application.invoke_task('db:tenants:showall')
+      end.to(output(tenant_text).to_stdout)
+    end
+    it 'and adds a tenant' do
+      Rake.application.invoke_task('db:tenants:add[test-tenant]')
+    end
+    it 'and deletes a tenant' do
+      Rake.application.invoke_task('db:tenants:delete[tenant]')
+    end
+    it 'and deletes all tenants' do
+      Rake.application.invoke_task('db:tenants:deleteall')
+    end
   end
 end

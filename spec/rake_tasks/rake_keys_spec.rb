@@ -51,7 +51,7 @@ RSpec.describe('rake tasks involving keys') do
       Rake.application.invoke_task('db:keys:update[multi-key,secret-updated, other-tenant]')
     end
     it 'and deleting an key' do
-      Rake.application.invoke_task("db:keys:delete[single-key]")
+      Rake.application.invoke_task('db:keys:delete[single-key]')
     end
   end
 end
