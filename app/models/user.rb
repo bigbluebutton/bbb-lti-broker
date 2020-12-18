@@ -17,9 +17,9 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class User < ApplicationRecord
-    has_secure_password
+  has_secure_password
 
-    def admin?
-        return self.admin
-    end
+  def admin?
+    admin
+  end
 end

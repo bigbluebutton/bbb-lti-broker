@@ -17,9 +17,9 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 module ApplicationHelper
-    def active_page
-        route = Rails.application.routes.recognize_path(request.env['PATH_INFO'])
-        
-        route[:action]
-    end
+  def active_page
+    route = Rails.application.routes.recognize_path(request.env['PATH_INFO'])
+
+    route[:action]
+  end
 end

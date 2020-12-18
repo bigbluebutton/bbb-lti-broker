@@ -17,24 +17,23 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class SessionsController < ApplicationController
-  def new 
-    redirect_to admin_users_path if session[:user_id]
+  def new
+    redirect_to(admin_users_path) if session[:user_id]
   end
 
   def create
     user = User.find_by_username(params[:username])
-    if user&.authenticate(params[:password]) && user.admin
+    if user&.authenticate(params[:password]) && user&.admin
       session[:user_id] = user.id
-      redirect_to admin_users_path
+      redirect_to(admin_users_path)
     else
       flash.now[:alert] = 'Username or password is invalid'
-      redirect_to login_path, notice: 'Incorrect Username or Password'
+      redirect_to(login_path, notice: 'Incorrect Username or Password')
     end
   end
 
   def destroy
     session[:user_id] = nil
-    redirect_to root_path
+    redirect_to(root_path)
   end
-  end
-  
+end
