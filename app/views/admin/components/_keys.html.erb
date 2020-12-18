@@ -1,8 +1,25 @@
 <div class="px-24 py-12">
     <div class="flex justify-between">
-        <div class="pb-8 border-b-2">
+        <div class="pb-6 border-b-2">
             <p class="text-4xl font-semibold">LTI 1.1 Keys<p>
             <p id="notice" class="font-md"><%= notice %></p>
+            <div>
+                <% if @apps.length > 1 %>
+                    <%= content_tag :div, class: "flex pt-3" do %>
+                        <% random_placeholder = Digest::SHA1.hexdigest([Time.now, rand].join)%>
+                        <%= label_tag(:app, 'App :', class: "flex-1 pt-1") %>
+                        <%= content_tag :div, class: "flex-1 pl-2 pt-1" do %>
+                            <%= select_tag 'lti_app_name', options_for_select(@apps, @app)%>
+                        <% end %>
+                        <div class="pl-4">
+                            <button type="button" class="btn btn-info btn-sm" onclick="redirectConfig('<%=xml_config_path(random_placeholder)%>', '<%=random_placeholder%>')">Config</button>
+                        </div>
+                        <div class="pl-2">
+                            <button type="button" class="btn btn-info btn-sm" onclick="redirectConfig('<%=xml_builder_path(random_placeholder)%>', '<%=random_placeholder%>')">Builder</button>
+                        </div>
+                    <% end %>
+                <% end %>
+            </div>
         </div>
         <div>
             <div class="mt-8 flex justify-center">

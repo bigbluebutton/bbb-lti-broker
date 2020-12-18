@@ -11,10 +11,29 @@ class AdminController < ApplicationController
         redirect_to admin_users_path
     end
     def users
+        @users = User.all
+    end
+
+    def delete_user
+        if params[:username].nil?
+            flash[:notice] = 'There is no username'
+            redirect_to admin_users_path
+            return
+        end
+        user = User.find_by(username: params[:username])
+        if tool.nil?
+            flash[:notice] = 'There is no existing user'
+            redirect_to admin_users_path
+            return
+        end
+        user.delete
+        flash[:notice] = 'Successfully deleted!'
+        redirect_to admin_users_path
     end
 
     def keys
         tools = RailsLti2Provider::Tool.all
+        @apps = lti_apps
         @keys=[]
         tools.each do |tool|
             tenant = RailsLti2Provider::Tenant.find(tool.tenant_id).uid != "" ? RailsLti2Provider::Tenant.find(tool.tenant_id).uid : "-"

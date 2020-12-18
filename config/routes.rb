@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   scope '/admin' do
     get '/', to: 'admin#home', as: :admin_home
     get '/users', to: 'admin#users', as: :admin_users
+    post '/users/delete', to: 'admin#delete_user', as: :admin_delete_user
 
     get '/keys', to: 'admin#keys', as: :admin_keys
     post '/keys/submit', to: 'admin#submit_key', as: :admin_submit_key
