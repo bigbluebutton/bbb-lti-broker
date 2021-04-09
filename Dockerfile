@@ -6,7 +6,7 @@ RUN apk update \
 && apk upgrade \
 && apk add --update --no-cache \
 build-base curl-dev git postgresql-dev \
-yaml-dev zlib-dev nodejs yarn
+yaml-dev zlib-dev nodejs yarn shared-mime-info
 
 ARG BUILD_NUMBER
 ENV BUILD_NUMBER=${BUILD_NUMBER}
