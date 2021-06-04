@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
             <th><%= t('registration.authtokenurl') %></th>
             <th><%= t('registration.authloginurl') %></th>
             <th><%= t('registration.toolprivkey') %></th>
+            <th><%= t('registration.tenant') %></th>
             <th><%= t('ui.options') %></th>
         </tr>
     </thead>
@@ -37,6 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
                 <th><%= reg['auth_token_url'] %></th>
                 <th><%= reg['auth_login_url'] %></th>
                 <th><%= reg['tool_private_key'] %></th>
+                <th><%= reg['tenant'] %></th>
                 <th>
                     <%= link_to '<i class="fa fa-edit"></i>'.html_safe, url_for( edit_registration_path + '?' + { :reg_id => reg['issuer'], :client_id => reg['client_id'] }.to_query )%>
                     <%= link_to '<i class="fa fa-trash"></i>'.html_safe, url_for( delete_registration_path + '?' + { :reg_id => reg['issuer'], :client_id => reg['client_id'] }.to_query ) %>
