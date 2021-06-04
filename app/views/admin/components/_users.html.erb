@@ -1,0 +1,53 @@
+<div class="px-24 py-12">
+    <div class="flex justify-between">
+        <div class="pb-8 border-b-2">
+            <p class="text-4xl font-semibold">Users<p>
+            <p id="notice" class="font-md"><%= notice %></p>
+        </div>
+    </div>
+    <div class="pt-8">
+        <table class="table-fixed">
+            <thead>
+                <tr>
+                    <th class="w-1/3">Name</th>
+                    <th class="w-1/3">Username</th>
+                    <th class="w-1/3">Role</th>
+                    <th class="w-1/3">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @users.each do |user| %>
+                    <tr>
+                        <td><%=user.full_name%></td>
+                        <td><%=user.username%></td>
+                        <td><%= user.admin ? "admin" : "user" %></td>
+                        <td>
+                            <% delete_modal_id = "deleteModal#{user.username}"%>
+                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#<%=delete_modal_id%>">Delete</button>
+                            <div class="modal fade" id="<%=delete_modal_id%>" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-left">
+                                            <h4 class="modal-title">Confirmation</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <%=form_tag admin_delete_user_path do |form|%>
+                                                <div>
+                                                    <p>Are you sure you want to delete key "<%=user.full_name%>"?</p>
+                                                    <%= hidden_field_tag 'username', user.username%>
+                                                    <div class="border-t-2 border-grey-200 border-opacity-50 flex w-full mt-3 pt-2">
+                                                        <%= submit_tag "Delete" %>
+                                                    </div>
+                                                </div>
+                                            <% end %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+</div>
