@@ -36,7 +36,7 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'ims-lti', '~> 2.3.0'
-gem 'jwt'
+gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
 gem 'doorkeeper', '~> 5.3.0'
@@ -44,7 +44,7 @@ gem 'doorkeeper', '~> 5.3.0'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', branch: 'master' # , tag: '0.1.0'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.1'
 
 gem 'activerecord-session_store'
 
@@ -63,6 +63,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
   gem 'dotenv-rails'
+  gem 'rails-controller-testing'
   gem 'rspec'
   gem 'rspec-rails'
 end

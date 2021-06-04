@@ -43,3 +43,6 @@ localhost.key
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+# ignore rspec coverage
+coverage/*
