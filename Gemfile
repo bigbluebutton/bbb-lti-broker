@@ -36,7 +36,7 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'ims-lti', '~> 2.3.0'
-gem 'jwt'
+gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
 gem 'doorkeeper', '~> 5.3.0'
