@@ -71,7 +71,7 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2, >= 2.2.2)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aes_key_wrap (1.1.0)
     ast (2.4.2)
@@ -147,8 +147,6 @@ GEM
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
-    http-parser (1.2.3)
-      ffi-compiler (>= 1.0, < 2.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     ims-lti (2.3.1)
@@ -364,7 +362,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-session_store
-  addressable (~> 2.7)
+  addressable (~> 2.8)
   bootstrap (~> 4.3.1)
   bundler (>= 2.1.4)
   byebug
