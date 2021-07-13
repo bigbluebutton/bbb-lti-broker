@@ -19,7 +19,7 @@ gem 'coffee-rails', '~> 5.0'
 # gem 'therubyracer', platforms: :ruby
 gem 'http'
 
-gem 'addressable', '~> 2.7'
+gem 'addressable', '~> 2.8'
 gem 'faraday'
 gem 'oauthenticator', '~> 1.3'
 
