@@ -13,6 +13,7 @@ RUN apk add --no-cache \
     ruby-json \
     nodejs \
     npm \
+    yarn \
     tini \
     tzdata \
     shared-mime-info
@@ -36,6 +37,8 @@ RUN bundle config build.nokogiri --use-system-libraries \
     && bundle install --deployment --without development:test -j4 \
     && rm -rf vendor/bundle/ruby/*/cache \
     && find vendor/bundle/ruby/*/gems/ \( -name '*.c' -o -name '*.o' \) -delete
+RUN yarn install
+RUN bin/webpack
 COPY . ./
 
 FROM base AS application
