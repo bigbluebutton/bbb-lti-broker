@@ -37,6 +37,3 @@ localhost.crt
 localhost.key
 
 /public/assets
-
-# ignore rspec coverage
-coverage/*
