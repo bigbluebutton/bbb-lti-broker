@@ -42,7 +42,7 @@ namespace :db do
         exit(1)
       end
       puts("Deleting keys for tenant '#{tenant.uid}'")
-      RailsLti2Provider::Tool.delete_by(tenant: tenant)
+      RailsLti2Provider::Tool.delete_all(tenant: tenant)
       puts("Deleting tenant '#{tenant.uid}'")
       tenant.delete
     rescue StandardError => e
@@ -60,7 +60,7 @@ namespace :db do
         next if tenant.uid.empty?
 
         puts("Deleting keys for tenant '#{tenant.uid}'")
-        RailsLti2Provider::Tool.delete_by(tenant: tenant)
+        RailsLti2Provider::Tool.delete_all(tenant: tenant)
         puts("Deleting tenant '#{tenant.uid}'")
         tenant.delete
       end
