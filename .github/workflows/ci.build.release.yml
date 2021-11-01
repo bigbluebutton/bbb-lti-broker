@@ -28,4 +28,4 @@ jobs:
           tags: |
             bigbluebutton/bbb-lti-broker:latest
             bigbluebutton/bbb-lti-broker:${{ github.event.release.tag_name }}
-          build-args: version_code=${{ github.event.release.tag_name }}
+          build-args: BUILD_NUMBER=${{ github.event.release.tag_name }}
