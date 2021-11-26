@@ -18,9 +18,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 <html lang="en-US">
 <head>
     <title>BbbLtiBroker</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= stylesheet_pack_tag 'stylesheets', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+
     <%= csrf_meta_tags %>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/tomorrow.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -29,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/highlight.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    
     <script type="text/javascript">
         $(document).ready(function(){
             hljs.initHighlightingOnLoad();
@@ -44,7 +48,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
                     <% end %>
                 </div>
                 <div class="p-2 bd-highlight"> 
-                    <%= link_to "Config", lti_home_path, :class => "btn btn-outline-primary mx-2 config-button" %>
+                    <% if current_user %>
+                        <%= link_to "Admin", admin_users_path, :class => "btn btn-outline-primary mx-2 config-button" %>
+                        <%= link_to "Log out", logout_path, :class => "btn btn-outline-primary mx-2 config-button" %>
+                    <% else %>
+                        <%= link_to "Log in", login_path, :class => "btn btn-outline-primary mx-2 config-button" %>
+                    <% end %>
                 </div>
             </div>
         </div>

@@ -20,7 +20,7 @@ module DeepLinkService
   include ActiveSupport::Concern
 
   def deep_link_resource(url, custom_params, title)
-    resource = {
+    {
       'type' => 'ltiResourceLink',
       'title' => title,
       'url' => url,
@@ -29,7 +29,6 @@ module DeepLinkService
       },
       'custom' => custom_params,
     }
-    resource
   end
 
   def deep_link_jwt_response(registration, jwt_header, jwt_body, resources)
