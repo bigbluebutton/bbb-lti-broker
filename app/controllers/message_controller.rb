@@ -58,7 +58,7 @@ class MessageController < ApplicationController
                                                                                 consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
     if request.request_parameters.key?('launch_presentation_return_url')
       launch_presentation_return_url = request.request_parameters['launch_presentation_return_url'] + '&lti_errormsg=' + @error
-      redirect_post(launch_presentation_return_url, options: {authenticity_token: :auto})
+      redirect_post(launch_presentation_return_url, options: { authenticity_token: :auto })
     else
       render(:basic_lti_launch_request, status: :ok)
     end
@@ -73,7 +73,7 @@ class MessageController < ApplicationController
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h)
-    redirect_post(redirector, options: {authenticity_token: :auto})
+    redirect_post(redirector, options: { authenticity_token: :auto })
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request
@@ -95,7 +95,7 @@ class MessageController < ApplicationController
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h)
-    redirect_post(redirector, options: {authenticity_token: :auto})
+    redirect_post(redirector, options: { authenticity_token: :auto })
   end
 
   # submit content item selection
