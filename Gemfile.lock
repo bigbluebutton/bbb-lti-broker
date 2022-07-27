@@ -262,6 +262,7 @@ GEM
     regexp_parser (2.1.1)
     remote_syslog_logger (1.0.4)
       syslog_protocol
+    repost (0.3.8)
     rexml (3.2.5)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -395,6 +396,7 @@ DEPENDENCIES
   react-rails
   redis (~> 4.2)
   remote_syslog_logger
+  repost (~> 0.3.8)
   rspec
   rspec-rails
   rubocop (~> 0.90.0)

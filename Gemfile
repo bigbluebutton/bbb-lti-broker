@@ -40,6 +40,7 @@ gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
 gem 'doorkeeper', '~> 5.3.0'
+gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
 gem 'react-rails'
