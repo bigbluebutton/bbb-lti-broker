@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0', '>= 6.0.5'
+gem 'rails', '~> 6.0', '>= 6.0.5.1'
 # Use sqlite3 as the database for Active Record
 gem 'pg', '>= 0.4.4'
 # Use Puma as the app server
@@ -32,7 +32,7 @@ gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.11', '>= 2.11.2'
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 3.0'
+gem 'redis', '~> 4.2'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -53,15 +53,14 @@ gem 'activerecord-session_store'
 # frontend
 gem 'bootstrap', '~> 4.3.1'
 gem 'font-awesome-sass', '~> 5.9.0'
-gem 'redis', '~> 4.2'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
+  gem 'dotenv-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'dotenv-rails'
   gem 'rspec'
   gem 'rspec-rails'
 end
