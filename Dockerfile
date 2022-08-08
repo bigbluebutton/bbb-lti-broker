@@ -1,4 +1,4 @@
-FROM alpine:3.15 AS alpine
+FROM alpine:3.15.5 AS alpine
 
 FROM alpine AS base
 RUN apk add --no-cache \
@@ -31,7 +31,7 @@ RUN apk add --update --no-cache \
     && ( echo 'install: --no-document' ; echo 'update: --no-document' ) >>/etc/gemrc
 
 USER root
-COPY Gemfile* ./
+COPY . ./
 RUN bundle config build.nokogiri --use-system-libraries \
     && bundle config set --local deployment 'true' \
     && bundle config set --local without 'development:test' \
@@ -39,7 +39,6 @@ RUN bundle config build.nokogiri --use-system-libraries \
     && rm -rf vendor/bundle/ruby/*/cache \
     && find vendor/bundle/ruby/*/gems/ \( -name '*.c' -o -name '*.o' \) -delete
 
-COPY . ./
 
 FROM base AS application
 USER root
@@ -61,3 +60,4 @@ EXPOSE 3000
 
 # Run startup command
 CMD ["scripts/start.sh"]
+RUN SECRET_KEY_BASE=1 RAILS_ENV=production bundle exec rake assets:precompile
