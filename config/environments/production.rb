@@ -94,7 +94,6 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
-  config.action_dispatch.default_headers['X-Frame-Options'] = 'ALLOW-FROM http://localhost'
 
   if 'true'.casecmp?(ENV['RAILS_LOG_TO_STDOUT'])
     # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
@@ -134,5 +133,10 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : ''}/assets"
+  # Allow this to work in an iframe on another domain
+  config.action_dispatch.default_headers = {
+    'X-Frame-Options' => 'ALLOWALL',
+  }
+
+  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : 'lti'}/assets"
 end
