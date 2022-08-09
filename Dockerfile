@@ -1,4 +1,4 @@
-FROM alpine:3.15 AS alpine
+FROM alpine:3.15.5 AS alpine
 
 FROM alpine AS base
 RUN apk add --no-cache \
@@ -11,8 +11,7 @@ RUN apk add --no-cache \
     ruby-bigdecimal \
     ruby-bundler \
     ruby-json \
-    nodejs \
-    npm \
+    nodejs npm yarn \
     tini \
     tzdata \
     shared-mime-info
@@ -30,17 +29,23 @@ RUN apk add --update --no-cache \
     zlib-dev \
     curl-dev git \
     && ( echo 'install: --no-document' ; echo 'update: --no-document' ) >>/etc/gemrc
+
 USER root
-COPY Gemfile* ./
+COPY . ./
 RUN bundle config build.nokogiri --use-system-libraries \
-    && bundle install --deployment --without development:test -j4 \
+    && bundle config set --local deployment 'true' \
+    && bundle config set --local without 'development:test' \
+    && bundle install -j4 \
     && rm -rf vendor/bundle/ruby/*/cache \
     && find vendor/bundle/ruby/*/gems/ \( -name '*.c' -o -name '*.o' \) -delete
-COPY . ./
+
 
 FROM base AS application
 USER root
-ENV RAILS_ENV=production RAILS_LOG_TO_STDOUT=true
+ARG RAILS_ENV
+ENV RAILS_ENV=${RAILS_ENV:-production}
+ARG RAILS_LOG_TO_STDOUT
+ENV RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT:-true}
 COPY --from=builder /usr/src/app ./
 
 ARG BUILD_NUMBER
@@ -55,3 +60,4 @@ EXPOSE 3000
 
 # Run startup command
 CMD ["scripts/start.sh"]
+RUN SECRET_KEY_BASE=1 RAILS_ENV=production bundle exec rake assets:precompile --trace
