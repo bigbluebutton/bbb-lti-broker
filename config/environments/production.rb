@@ -37,7 +37,9 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Compress JavaScripts and CSS.
-  config.assets.js_compressor = Uglifier.new(harmony: true)
+  Sprockets.register_compressor('application/javascript', :terser, Terser::Compressor)
+  config.assets.js_compressor = :terser
+  # config.assets.js_compressor = Uglifier.new(harmony: true)
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
@@ -62,7 +64,7 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = ENV['LOG_LEVEL'] || 'debug'
+  config.log_level = ENV['LOG_LEVEL'] || 'warn'
 
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
@@ -92,7 +94,6 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
-  config.action_dispatch.default_headers['X-Frame-Options'] = 'ALLOW-FROM http://localhost'
 
   if 'true'.casecmp?(ENV['RAILS_LOG_TO_STDOUT'])
     # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
@@ -132,5 +133,13 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? "/#{ENV['RELATIVE_URL_ROOT']}" : ''}/assets"
+  # Allow this to work in an iframe on another domain
+  config.action_dispatch.default_headers = {
+    'X-Frame-Options' => 'ALLOWALL',
+  }
+
+  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : '/lti'}/assets"
+
+  config.lograge.enabled = true
+  config.lograge.ignore_actions = ['HealthCheckController#all']
 end

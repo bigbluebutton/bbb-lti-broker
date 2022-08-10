@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   get '/healthz', to: 'health_check#all'
   root 'main#index'
 
-  scope ENV['RELATIVE_URL_ROOT'] do
+  scope ENV['RELATIVE_URL_ROOT'] || 'lti' do
     get '/health_check', to: 'health_check#all'
     get '/healthz', to: 'health_check#all'
 
