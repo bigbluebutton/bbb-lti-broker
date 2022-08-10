@@ -21,13 +21,13 @@ module PlatformValidator
 
   # LTI 1.0/1.1
   def lti_secret(key, _options = {})
-    tool = RailsLti2Provider::Tool.find_by_uuid(key)
+    tool = RailsLti2Provider::Tool.find_by(uuid: key)
     return tool.shared_secret if tool
   end
 
   # LTI 1.3
   def lti_registration_exists?(iss, options = {})
-    RailsLti2Provider::Tool.find_by_issuer(iss, options).present?
+    RailsLti2Provider::Tool.find_by(iss, options).present?
   end
 
   def lti_registration_params(iss, options = {})
@@ -36,6 +36,6 @@ module PlatformValidator
   end
 
   def lti_registration(iss, options = {})
-    RailsLti2Provider::Tool.find_by_issuer(iss, options)
+    RailsLti2Provider::Tool.find_by(iss, options)
   end
 end

@@ -34,7 +34,7 @@ Rails:
   Enabled: true
 Rails/DynamicFindBy:
   # The models used in this code aren't actually ActiveRecord
-  Enabled: false
+  Enabled: true
 Style/AsciiComments:
   AllowedChars: [ © ]
 Style/Documentation:
@@ -70,3 +70,7 @@ Rails/HelperInstanceVariable:
   Enabled: false
 Lint/LiteralInInterpolation:
   Enabled: false
+Lint/MissingSuper:
+  Exclude:
+    - 'app/controllers/**/*'
+    - 'lib/**/*'

@@ -63,18 +63,19 @@ module OpenIdAuthenticator
   end
 
   def validate_nonce(jwt_body)
-    raise CustomError, :invalid_nonce unless jwt_body['nonce'] == Rails.cache.read('lti1p3_' + jwt_body['nonce'])[:nonce]
+    raise CustomError, :invalid_nonce unless jwt_body['nonce'] == Rails.cache.read("lti1p3_#{jwt_body['nonce']}")[:nonce]
   end
 
   def validate_registration(jwt_body)
-    registration = RailsLti2Provider::Tool.find_by_issuer(jwt_body['iss'])
+    registration = RailsLti2Provider::Tool.find_by(issuer: jwt_body['iss'])
     raise CustomError, :not_registered if registration.nil?
 
     JSON.parse(registration.tool_settings)
   end
 
   def validate_jwt_signature(reg, jwt_header)
-    public_key_set = JSON.parse(URI.open(reg['key_set_url']).read)
+    # public_key_set = JSON.parse(URI.open(reg['key_set_url']).read)
+    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read).open(reg['key_set_url'])
     jwk_json = public_key_set['keys'].find do |key|
       key['kid'] == jwt_header['kid']
     end
@@ -169,9 +170,10 @@ module OpenIdAuthenticator
       end
     end
 
-    if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiResourceLinkRequest'
+    case jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type']
+    when 'LtiResourceLinkRequest'
       p[:lti_message_type] = 'basic-lti-launch-request'
-    elsif jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiDeepLinkingRequest'
+    when 'LtiDeepLinkingRequest'
       p[:lti_message_type] = 'ContentItemSelectionRequest'
     end
     p

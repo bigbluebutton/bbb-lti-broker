@@ -28,7 +28,7 @@ when 'development'
   ]
 
   default_keys.each do |default_key|
-    unless RailsLti2Provider::Tool.find_by_uuid(default_key[:key])
+    unless RailsLti2Provider::Tool.find_by(uuid: default_key[:key])
       RailsLti2Provider::Tool.create!(uuid: default_key[:key], shared_secret: default_key[:secret], lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
     end
   end
@@ -44,7 +44,7 @@ when 'development'
   ]
 
   default_tools.each do |default_tool|
-    Doorkeeper::Application.create!(default_tool) unless Doorkeeper::Application.find_by_name(default_tool[:name])
+    Doorkeeper::Application.create!(default_tool) unless Doorkeeper::Application.find_by(name: default_tool[:name])
   end
   # when 'production'
 end

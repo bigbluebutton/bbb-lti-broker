@@ -22,7 +22,7 @@ class Api::V1::SessionsController < Api::V1::BaseController
   before_action :doorkeeper_authorize!
 
   def validate_launch
-    lti_launch = RailsLti2Provider::LtiLaunch.find_by_nonce(params[:token])
+    lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:token])
     render(json: { token: params[:token], valid: false }.to_json) unless lti_launch
     tenant = lti_launch.tool.tenant.uid unless lti_launch.tool.tenant_id.nil?
     message = JSON.parse(standarized_message(lti_launch.message.to_json))

@@ -9,22 +9,22 @@ namespace :db do
 
       abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
 
-      STDOUT.puts('What is the issuer?')
-      issuer = STDIN.gets.strip
+      $stdout.puts('What is the issuer?')
+      issuer = $stdin.gets.strip
 
       abort('The issuer must be valid.') if issuer.blank?
 
-      STDOUT.puts('What is the client id?')
-      client_id = STDIN.gets.strip
+      $stdout.puts('What is the client id?')
+      client_id = $stdin.gets.strip
 
-      STDOUT.puts('What is the key set url?')
-      key_set_url = STDIN.gets.strip
+      $stdout.puts('What is the key set url?')
+      key_set_url = $stdin.gets.strip
 
-      STDOUT.puts('What is the auth token url?')
-      auth_token_url = STDIN.gets.strip
+      $stdout.puts('What is the auth token url?')
+      auth_token_url = $stdin.gets.strip
 
-      STDOUT.puts('What is the auth login url?')
-      auth_login_url = STDIN.gets.strip
+      $stdout.puts('What is the auth login url?')
+      auth_login_url = $stdin.gets.strip
 
       private_key = OpenSSL::PKey::RSA.generate(4096)
       public_key = private_key.public_key
@@ -35,7 +35,7 @@ namespace :db do
 
       key_dir = Digest::MD5.hexdigest(issuer + client_id)
       Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-      Dir.mkdir('.ssh/' + key_dir) unless Dir.exist?('.ssh/' + key_dir)
+      Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 
       File.open(Rails.root.join(".ssh/#{key_dir}/priv_key"), 'w') do |f|
         f.puts(private_key.to_s)
@@ -73,15 +73,15 @@ namespace :db do
     task :delete, [] => :environment do |_t, _args|
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
-      STDOUT.puts('What is the issuer for the registration you wish to delete?')
-      issuer = STDIN.gets.strip
-      STDOUT.puts('What is the client ID for the registration?')
-      client_id = STDIN.gets.strip
+      $stdout.puts('What is the issuer for the registration you wish to delete?')
+      issuer = $stdin.gets.strip
+      $stdout.puts('What is the client ID for the registration?')
+      client_id = $stdin.gets.strip
 
       options = {}
       options['client_id'] = client_id if client_id.present?
 
-      reg = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
+      reg = RailsLti2Provider::Tool.find_by(issuer, options)
 
       if JSON.parse(reg.tool_settings)['tool_private_key'].present?
         key_dir = Pathname.new(JSON.parse(reg.tool_settings)['tool_private_key']).parent.to_s
@@ -98,14 +98,14 @@ namespace :db do
 
       abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
 
-      STDOUT.puts('What is the issuer for the registration?')
-      issuer = STDIN.gets.strip
-      STDOUT.puts('What is the client ID for the registration?')
-      client_id = STDIN.gets.strip
+      $stdout.puts('What is the issuer for the registration?')
+      issuer = $stdin.gets.strip
+      $stdout.puts('What is the client ID for the registration?')
+      client_id = $stdin.gets.strip
 
       options = {}
       options['client_id'] = client_id if client_id.present?
-      registration = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
+      registration = RailsLti2Provider::Tool.find_by(issuer, options)
 
       abort('The registration must be valid.') if registration.blank?
 
@@ -118,7 +118,7 @@ namespace :db do
 
       key_dir = Digest::MD5.hexdigest(issuer + client_id)
       Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-      Dir.mkdir('.ssh/' + key_dir) unless Dir.exist?('.ssh/' + key_dir)
+      Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 
       # File.open(File.join(Rails.root, '.ssh', key_dir, 'priv_key'), 'w') do |f|
       #   f.puts(private_key.to_s)
@@ -150,8 +150,8 @@ namespace :db do
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
 
-      STDOUT.puts('What is the app you want to register with?')
-      requested_app = STDIN.gets.strip
+      $stdout.puts('What is the app you want to register with?')
+      requested_app = $stdin.gets.strip
       app = Doorkeeper::Application.find_by(name: requested_app)
       if app.nil?
         puts("App '#{requested_app}' does not exist, no urls can be given.")
@@ -178,19 +178,19 @@ namespace :db do
         Rails.cache.write(temp_key_token, public_key_path: public_key_file.path, private_key_path: private_key_file.path, timestamp: Time.now.to_i)
       end
 
-      STDOUT.puts("Tool URL: \n#{openid_launch_url(app: app.name)}")
-      STDOUT.puts("\n")
-      STDOUT.puts("Deep Link URL: \n#{deep_link_request_launch_url(app: app.name)}")
-      STDOUT.puts("\n")
-      STDOUT.puts("Initiate login URL URL: \n#{openid_login_url(app: app.name)}")
-      STDOUT.puts("\n")
-      STDOUT.puts("Redirection URL(s): \n#{openid_launch_url(app: app.name)}" + "\n" + deep_link_request_launch_url(app: app.name).to_s)
-      STDOUT.puts("\n")
-      STDOUT.puts("Public Key: \n #{public_key}")
-      STDOUT.puts("\n")
-      STDOUT.puts("JWK: \n #{jwk}")
-      STDOUT.puts("\n")
-      STDOUT.puts("JSON Configuration URL: \n #{json_config_url(app: app.name, temp_key_token: temp_key_token)}")
+      $stdout.puts("Tool URL: \n#{openid_launch_url(app: app.name)}")
+      $stdout.puts("\n")
+      $stdout.puts("Deep Link URL: \n#{deep_link_request_launch_url(app: app.name)}")
+      $stdout.puts("\n")
+      $stdout.puts("Initiate login URL URL: \n#{openid_login_url(app: app.name)}")
+      $stdout.puts("\n")
+      $stdout.puts("Redirection URL(s): \n#{openid_launch_url(app: app.name)}" + "\n" + deep_link_request_launch_url(app: app.name).to_s)
+      $stdout.puts("\n")
+      $stdout.puts("Public Key: \n #{public_key}")
+      $stdout.puts("\n")
+      $stdout.puts("JWK: \n #{jwk}")
+      $stdout.puts("\n")
+      $stdout.puts("JSON Configuration URL: \n #{json_config_url(app: app.name, temp_key_token: temp_key_token)}")
     end
 
     desc 'Deletes the registration keys inside the temporary bbb-lti folder'
