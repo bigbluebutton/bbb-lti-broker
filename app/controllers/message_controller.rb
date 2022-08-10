@@ -41,19 +41,20 @@ class MessageController < ApplicationController
 
   # fails lti_authentication in rails lti2 provider gem
   rescue_from RailsLti2Provider::LtiLaunch::Unauthorized do |ex|
-    @error = 'Authentication failed with: ' + case ex.error
-                                              when :invalid_key
-                                                'The LTI key used is invalid'
-                                              when :invalid_signature
-                                                'The OAuth Signature was Invalid'
-                                              when :invalid_nonce
-                                                'The nonce has already been used'
-                                              when :request_too_old
-                                                'The request is too old'
-                                              else
-                                                'Unknown Error'
+    quote = case ex.error
+            when :invalid_key
+              'The LTI key used is invalid'
+            when :invalid_signature
+              'The OAuth Signature was Invalid'
+            when :invalid_nonce
+              'The nonce has already been used'
+            when :request_too_old
+              'The request is too old'
+            else
+              'Unknown Error'
 
-                                              end
+            end
+    @error = "Authentication failed with, #{quote}"
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
                                                                                 consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')

@@ -28,14 +28,15 @@ class ToolProfileController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   rescue_from CustomError do |ex|
-    @error = 'Authorization failed with: ' + case ex.error
-                                             when :missing_app
-                                               'The App ID is not included'
-                                             when :not_found
-                                               'The App is not registered'
-                                             else
-                                               'Unknown Error'
-                                             end
+    msg = case ex.error
+          when :missing_app
+            'The App ID is not included'
+          when :not_found
+            'The App is not registered'
+          else
+            'Unknown Error'
+          end
+    @error = "Authorization failed with: ,#{msg}"
     logger.info(@error)
   end
 

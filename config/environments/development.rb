@@ -88,5 +88,5 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : '/lti'}/assets"
+  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? "/#{ENV['RELATIVE_URL_ROOT']}" : '/lti'}/assets"
 end

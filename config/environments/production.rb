@@ -138,7 +138,7 @@ Rails.application.configure do
     'X-Frame-Options' => 'ALLOWALL',
   }
 
-  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : '/lti'}/assets"
+  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? "/#{ENV['RELATIVE_URL_ROOT']}" : '/lti'}/assets"
 
   config.lograge.enabled = true
   config.lograge.ignore_actions = ['HealthCheckController#all']

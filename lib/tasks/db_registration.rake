@@ -184,7 +184,9 @@ namespace :db do
       $stdout.puts("\n")
       $stdout.puts("Initiate login URL URL: \n#{openid_login_url(app: app.name)}")
       $stdout.puts("\n")
-      $stdout.puts("Redirection URL(s): \n#{openid_launch_url(app: app.name)}" + "\n" + deep_link_request_launch_url(app: app.name).to_s)
+      output1 = openid_launch_url(app: app.name)
+      output2 = deep_link_request_launch_url(app: app.name).to_s
+      $stdout.puts("Redirection URL(s): ,\n, #{output1}, \n, #{output2}")
       $stdout.puts("\n")
       $stdout.puts("Public Key: \n #{public_key}")
       $stdout.puts("\n")
