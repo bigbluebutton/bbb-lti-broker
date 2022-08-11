@@ -103,11 +103,11 @@ Rails.application.configure do
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   else
-      # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
-      STDOUT.sync = true
-      logger = ActiveSupport::Logger.new(STDOUT)
-      logger.formatter = config.log_formatter
-      config.logger = ActiveSupport::TaggedLogging.new(logger)
+    # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
+    STDOUT.sync = true
+    logger = ActiveSupport::Logger.new(STDOUT)
+    logger.formatter = config.log_formatter
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
 
   config.cache_store = if ENV['REDIS_URL'].present?
