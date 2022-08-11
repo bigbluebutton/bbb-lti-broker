@@ -1,7 +1,7 @@
-name: Build Push
+name: Build Release
 on:
-  push:
-    branches: "*"
+  release:
+    types: [prereleased]
 
 jobs:
   main:
@@ -43,26 +43,14 @@ jobs:
         shell: bash
         run: echo "##[set-output name=repository;]$(echo ${DOCKER_REPOSITORY:-$GITHUB_REPOSITORY})"
 
-      - name: Extract Branch Name
-        id: ci_branch_name
-        if: contains(env.DOCKER_BUILD_ENABLED, 'true')
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-
-      - name: Extract Commit Short SHA
-        id: ci_commit_short_sha
-        if: contains(env.DOCKER_BUILD_ENABLED, 'true')
-        shell: bash
-        run: echo "##[set-output name=short_sha;]$(echo ${GITHUB_SHA} | cut -c1-7)"
-
-      - name: Build and Push branch
+      - name: Build and Push pre-release
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: |
-            "${{ steps.ci_docker_repository.outputs.repository }}:${{ steps.ci_branch_name.outputs.branch }}"
-          build-args: "BUILD_NUMBER=${{ steps.ci_branch_name.outputs.branch }} (${{ steps.ci_commit_short_sha.outputs.short_sha }})"
+            "${{ steps.ci_docker_repository.outputs.repository }}:${{ github.event.release.tag_name }}"
+          build-args: BUILD_NUMBER=${{ github.event.release.tag_name }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 
