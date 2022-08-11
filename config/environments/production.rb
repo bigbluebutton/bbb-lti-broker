@@ -95,19 +95,19 @@ Rails.application.configure do
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
-  if 'true'.casecmp?(ENV['RAILS_LOG_TO_STDOUT'])
-    # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
-    STDOUT.sync = true
-    logger = ActiveSupport::Logger.new(STDOUT)
-    logger.formatter = config.log_formatter
-    config.logger = ActiveSupport::TaggedLogging.new(logger)
-  elsif ENV['RAILS_LOG_REMOTE_NAME'] && ENV['RAILS_LOG_REMOTE_PORT']
+  if ENV['RAILS_LOG_REMOTE_NAME'] && ENV['RAILS_LOG_REMOTE_PORT']
     require 'remote_syslog_logger'
     logger_program = ENV['RAILS_LOG_REMOTE_TAG'] || "bbb-lti-broker-#{ENV['RAILS_ENV']}"
     logger = RemoteSyslogLogger.new(ENV['RAILS_LOG_REMOTE_NAME'],
                                     ENV['RAILS_LOG_REMOTE_PORT'], program: logger_program)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
+  else
+      # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
+      STDOUT.sync = true
+      logger = ActiveSupport::Logger.new(STDOUT)
+      logger.formatter = config.log_formatter
+      config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
 
   config.cache_store = if ENV['REDIS_URL'].present?
