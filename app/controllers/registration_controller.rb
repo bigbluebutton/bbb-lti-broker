@@ -69,7 +69,7 @@ class RegistrationController < ApplicationController
     if params.key?('private_key_path') && params.key?('public_key_path')
       key_dir = Digest::MD5.hexdigest(params[:iss] + params[:client_id])
       Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-      Dir.mkdir('.ssh/' + key_dir) unless Dir.exist?('.ssh/' + key_dir)
+      Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 
       priv_key = read_temp_file(params[:private_key_path])
       pub_key = read_temp_file(params[:public_key_path])
@@ -149,6 +149,6 @@ class RegistrationController < ApplicationController
   def set_starter_info
     basic_launch_url = openid_launch_url(app: @app)
     deep_link_url = deep_link_request_launch_url(app: @app)
-    @redirect_uri = basic_launch_url + "\n" + deep_link_url
+    @redirect_uri = "#{basic_launch_url}\n#{deep_link_url}"
   end
 end

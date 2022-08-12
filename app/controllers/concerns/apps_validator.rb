@@ -63,14 +63,14 @@ module AppsValidator
     begin
       app = lti_app(app_name)
       uri = URI.parse(app['redirect_uri'].sub('https', 'http'))
-      site = "#{uri.scheme}://#{uri.host}#{uri.port != 80 ? ':' + uri.port.to_s : ''}/"
+      site = "#{uri.scheme}://#{uri.host}#{uri.port != 80 ? ":#{uri.port}" : ''}/"
       path = uri.path.split('/')
-      path_base = (path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '') + '/'
+      path_base = "#{(path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '')}/"
     rescue StandardError
       # TODO: handle exception
       logger.error("App #{app_name} is not registered.")
       return
     end
-    "#{site}#{path_base + app_name + '/assets/icon.svg'}"
+    "#{site}#{"#{path_base}#{app_name}/assets/icon.svg"}"
   end
 end
