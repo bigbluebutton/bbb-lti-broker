@@ -1,4 +1,4 @@
-FROM alpine:3.15.5 AS alpine
+FROM alpine:3.15 AS alpine
 
 FROM alpine AS base
 RUN apk add --no-cache \
@@ -44,8 +44,6 @@ FROM base AS application
 USER root
 ARG RAILS_ENV
 ENV RAILS_ENV=${RAILS_ENV:-production}
-ARG RAILS_LOG_TO_STDOUT
-ENV RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT:-true}
 COPY --from=builder /usr/src/app ./
 
 ARG BUILD_NUMBER

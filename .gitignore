@@ -38,3 +38,5 @@ localhost.key
 
 /public/assets
 /public/lti
+
+/coverage/*

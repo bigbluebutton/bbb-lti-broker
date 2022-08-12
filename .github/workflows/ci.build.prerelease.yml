@@ -1,7 +1,7 @@
-name: Build Release
+name: Build Pre-release
 on:
   release:
-    types: [released]
+    types: [prereleased]
 
 jobs:
   main:
@@ -43,14 +43,13 @@ jobs:
         shell: bash
         run: echo "##[set-output name=repository;]$(echo ${DOCKER_REPOSITORY:-$GITHUB_REPOSITORY})"
 
-      - name: Build and Push release
+      - name: Build and Push pre-release
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: |
             "${{ steps.ci_docker_repository.outputs.repository }}:${{ github.event.release.tag_name }}"
-            "${{ steps.ci_docker_repository.outputs.repository }}:latest"
           build-args: BUILD_NUMBER=${{ github.event.release.tag_name }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new

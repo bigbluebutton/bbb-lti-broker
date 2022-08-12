@@ -1,12 +1,7 @@
-env:
-  RUBY_VERSION: 2.7.x
-
-
 name: Build Push
 on:
   push:
-    branches:
-      - "*"
+    branches-ignore: [snyk*]
 
 jobs:
   main:
@@ -18,14 +13,9 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      # - name: Dump GitHub context
-      #   env:
-      #     GITHUB_CONTEXT: ${{ toJSON(github) }}
-      #   run: echo "$GITHUB_CONTEXT"
-
       - name: Checkout
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
