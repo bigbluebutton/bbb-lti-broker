@@ -60,9 +60,9 @@ gem 'font-awesome-sass', '~> 5.9.0'
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
-  gem 'dotenv-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
+  gem 'dotenv-rails'
   gem 'rspec'
   gem 'rspec-rails'
 end
