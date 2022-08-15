@@ -70,11 +70,6 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
-  # Allow this to work in an iframe on another domain
-  config.action_dispatch.default_headers = {
-    'X-Frame-Options' => 'ALLOWALL',
-  }
-
   config.hosts = nil
 
   config.web_console.whiny_requests = false
@@ -87,6 +82,4 @@ Rails.application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
-
-  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : '/lti'}/assets"
 end

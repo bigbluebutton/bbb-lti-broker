@@ -41,23 +41,24 @@ class MessageController < ApplicationController
 
   # fails lti_authentication in rails lti2 provider gem
   rescue_from RailsLti2Provider::LtiLaunch::Unauthorized do |ex|
-    @error = 'Authentication failed with: ' + case ex.error
-                                              when :invalid_key
-                                                'The LTI key used is invalid'
-                                              when :invalid_signature
-                                                'The OAuth Signature was Invalid'
-                                              when :invalid_nonce
-                                                'The nonce has already been used'
-                                              when :request_too_old
-                                                'The request is too old'
-                                              else
-                                                'Unknown Error'
-                                              end
+    output = case ex.error
+             when :invalid_key
+               'The LTI key used is invalid'
+             when :invalid_signature
+               'The OAuth Signature was Invalid'
+             when :invalid_nonce
+               'The nonce has already been used'
+             when :request_too_old
+               'The request is too old'
+             else
+               'Unknown Error'
+             end
+    @error = "Authentication failed with: #{output}"
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
                                                                                 consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
     if request.request_parameters.key?('launch_presentation_return_url')
-      launch_presentation_return_url = request.request_parameters['launch_presentation_return_url'] + '&lti_errormsg=' + @error
+      launch_presentation_return_url = "#{request.request_parameters['launch_presentation_return_url']}&lti_errormsg=#{@error}"
       redirect_post(launch_presentation_return_url, options: { authenticity_token: :auto })
     else
       render(:basic_lti_launch_request, status: :ok)

@@ -37,7 +37,7 @@ module DeepLinkService
       'aud' => [registration['issuer']],
       'exp' => Time.now.to_i + 600,
       'iat' => Time.now.to_i,
-      'nonce' => 'nonce' + SecureRandom.hex,
+      'nonce' => "nonce#{SecureRandom.hex}",
       'https://purl.imsglobal.org/spec/lti/claim/deployment_id' => jwt_body['https://purl.imsglobal.org/spec/lti/claim/deployment_id'],
       'https://purl.imsglobal.org/spec/lti/claim/message_type' => 'LtiDeepLinkingResponse',
       'https://purl.imsglobal.org/spec/lti/claim/version' => '1.3.0',

@@ -22,7 +22,7 @@ namespace :db do
         exit(1)
       end
       RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: secret, lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
-      puts("Added '#{args[:key]}=#{secret}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
+      puts("Added '#{args[:key]}=#{secret}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -45,7 +45,7 @@ namespace :db do
         exit(1)
       end
       tool.update!(shared_secret: secret, tenant: tenant)
-      puts("Updated '#{args[:key]}=#{secret}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
+      puts("Updated '#{args[:key]}=#{secret}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -67,7 +67,7 @@ namespace :db do
         exit(1)
       end
       tool.delete
-      puts("Deleted '#{args[:key]}'#{' for tenant ' + tenant.uid unless tenant.uid.empty?}")
+      puts("Deleted '#{args[:key]}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
