@@ -6,7 +6,7 @@ class TemporaryStorage
     store_perm_file(prefix, content)
   end
 
-  def read(file, deletion = true)
+  def read(file, deletion: true)
     read_temp_file(file, deletion)
   end
 

@@ -95,20 +95,18 @@ Rails.application.configure do
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
-  if 'true'.casecmp?(ENV['RAILS_LOG_TO_STDOUT'])
-    # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
-    STDOUT.sync = true
-    logger = ActiveSupport::Logger.new(STDOUT)
-    logger.formatter = config.log_formatter
-    config.logger = ActiveSupport::TaggedLogging.new(logger)
-  elsif ENV['RAILS_LOG_REMOTE_NAME'] && ENV['RAILS_LOG_REMOTE_PORT']
+  # Disable output buffering when STDOUT isn't a tty (e.g. Docker images, systemd services)
+  $stdout.sync = true
+  logger = ActiveSupport::Logger.new($stdout)
+
+  if ENV['RAILS_LOG_REMOTE_NAME'] && ENV['RAILS_LOG_REMOTE_PORT']
     require 'remote_syslog_logger'
     logger_program = ENV['RAILS_LOG_REMOTE_TAG'] || "bbb-lti-broker-#{ENV['RAILS_ENV']}"
     logger = RemoteSyslogLogger.new(ENV['RAILS_LOG_REMOTE_NAME'],
                                     ENV['RAILS_LOG_REMOTE_PORT'], program: logger_program)
-    logger.formatter = config.log_formatter
-    config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
+  logger.formatter = config.log_formatter
+  config.logger = ActiveSupport::TaggedLogging.new(logger)
 
   config.cache_store = if ENV['REDIS_URL'].present?
                          # Set up Redis cache store
@@ -132,14 +130,6 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-
-  # Allow this to work in an iframe on another domain
-  config.action_dispatch.default_headers = {
-    'X-Frame-Options' => 'ALLOWALL',
-  }
-
-  config.assets.prefix = "#{ENV['RELATIVE_URL_ROOT'] ? '/' + ENV['RELATIVE_URL_ROOT'] : '/lti'}/assets"
-
   config.lograge.enabled = true
   config.lograge.ignore_actions = ['HealthCheckController#all']
 end

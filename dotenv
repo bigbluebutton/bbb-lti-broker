@@ -21,23 +21,16 @@ RAILS_SERVE_STATIC_FILES=true
 ## Set the hostname using your own domain (Required)
 # URL_HOST=broker.example.com
 
-## Use to send logs to Standard Output (Optional)
-RAILS_LOG_TO_STDOUT=true
-
 ## Use to send logs to external repository (Optional)
 # RAILS_LOG_REMOTE_NAME=xxx.papertrailapp.com
 # RAILS_LOG_REMOTE_PORT=99999
 # RAILS_LOG_REMOTE_TAG=bbb-lti-broker
-# RAILS_LOG_TO_STDOUT=false
 
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
 ## DATABASE_URL=postgres://myuser:mypass@localhost
 
 ## Enable redis for actioncable
 # REDIS_URL=redis://myuser:mypass@localhost
-
-## Use to send logs to Standard Output (Optional)
-RAILS_LOG_TO_STDOUT=true
 
 # Only needed for Docker Compose.
 ## Change DOCKER_REPO when using a repo other than bigbluebutton

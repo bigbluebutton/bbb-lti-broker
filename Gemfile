@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/.
+
+# Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -60,15 +76,15 @@ gem 'font-awesome-sass', '~> 5.9.0'
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
-  gem 'dotenv-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
+  gem 'dotenv-rails'
   gem 'rspec'
   gem 'rspec-rails'
 end
 
 group :development do
-  gem 'rubocop', '~> 0.90.0', require: false
+  gem 'rubocop', '~> 1.10.0', require: false
   gem 'rubocop-rails', '~> 2.4.0', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'

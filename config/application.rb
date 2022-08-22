@@ -35,5 +35,13 @@ module BbbLtiBroker
     config.build_number = ENV['BUILD_NUMBER'] || 'v1'
 
     config.developer_mode_enabled = (ENV['DEVELOPER_MODE_ENABLED'] == 'true')
+
+    config.relative_url_root = "/#{ENV['RELATIVE_URL_ROOT'] || 'lti'}"
+    config.assets.prefix = "#{config.relative_url_root}/assets"
+
+    # Allow this to work in an iframe on another domain
+    config.action_dispatch.default_headers = {
+      'X-Frame-Options' => 'ALLOWALL',
+    }
   end
 end
