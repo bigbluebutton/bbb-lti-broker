@@ -26,7 +26,7 @@ class RegistrationController < ApplicationController
   include TemporaryStore
 
   def list
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true'
+    if Rails.configuration.developer_mode_enabled != 'true'
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
       return
     end
@@ -40,7 +40,7 @@ class RegistrationController < ApplicationController
   # production - use rails task
   def new
     @app = ENV['DEFAULT_LTI_TOOL']
-    @app ||= 'default' if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+    @app ||= 'default' if Rails.configuration.developer_mode_enabled == 'true'
     @apps = lti_apps
     set_temp_keys
     set_starter_info
@@ -69,7 +69,7 @@ class RegistrationController < ApplicationController
     if params.key?('private_key_path') && params.key?('public_key_path')
       key_dir = Digest::MD5.hexdigest(params[:iss] + params[:client_id])
       Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-      Dir.mkdir('.ssh/' + key_dir) unless Dir.exist?('.ssh/' + key_dir)
+      Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 
       priv_key = read_temp_file(params[:private_key_path])
       pub_key = read_temp_file(params[:public_key_path])
@@ -149,6 +149,6 @@ class RegistrationController < ApplicationController
   def set_starter_info
     basic_launch_url = openid_launch_url(app: @app)
     deep_link_url = deep_link_request_launch_url(app: @app)
-    @redirect_uri = basic_launch_url + "\n" + deep_link_url
+    @redirect_uri = "#{basic_launch_url}\n#{deep_link_url}"
   end
 end

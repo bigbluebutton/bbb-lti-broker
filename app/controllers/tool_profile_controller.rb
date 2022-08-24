@@ -28,20 +28,21 @@ class ToolProfileController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   rescue_from CustomError do |ex|
-    @error = 'Authorization failed with: ' + case ex.error
-                                             when :missing_app
-                                               'The App ID is not included'
-                                             when :not_found
-                                               'The App is not registered'
-                                             else
-                                               'Unknown Error'
-                                             end
+    output = case ex.error
+             when :missing_app
+               'The App ID is not included'
+             when :not_found
+               'The App is not registered'
+             else
+               'Unknown Error'
+             end
+    @error = "Authorization failed with: #{output}"
     logger.info(@error)
   end
 
   # show xml builder for customization in tool consumer url
   def xml_builder
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true' && params[:app] == 'default'
+    if Rails.configuration.developer_mode_enabled != 'true' && params[:app] == 'default'
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
       return
     end
@@ -65,7 +66,6 @@ class ToolProfileController < ApplicationController
       jwk = OpenSSL::PKey::RSA.new(read_temp_file(@keys[:public_key_path], false)).to_jwk
       jwk['alg'] = 'RS256' unless jwk.key?('alg')
       jwk['use'] = 'sig' unless jwk.key?('use')
-      jwk = jwk
 
       @json_config['public_jwk'] = jwk
 
@@ -82,7 +82,7 @@ class ToolProfileController < ApplicationController
   end
 
   def xml_config
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true' && params[:app] == 'default'
+    if Rails.configuration.developer_mode_enabled != 'true' && params[:app] == 'default'
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
       return
     end
