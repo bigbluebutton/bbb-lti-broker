@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
-  revision: 197d9d3ec8866b9227d35ebb26c3067312d5bc35
-  tag: 0.1.2
+  revision: 920ee251cc8de515eaa1ab7331481830c275a44b
+  tag: 0.1.3
   specs:
-    rails_lti2_provider (0.1.2)
+    rails_lti2_provider (0.1.3)
       ims-lti (~> 2.3.1)
       rails (~> 6.0.3)
 
@@ -423,4 +423,3 @@ DEPENDENCIES
   tzinfo-data
   web-console (>= 4.1.0)
   webmock
-
