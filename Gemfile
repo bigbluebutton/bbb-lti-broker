@@ -47,8 +47,10 @@ gem 'repost', '~> 0.3.8'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2.3.2.1'
 gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.3.1'
+
+gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2.3.2.1'
+
 gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git', tag: 'v0.3.1.1'
 
 gem 'activerecord-session_store'
