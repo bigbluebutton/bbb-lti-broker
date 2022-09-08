@@ -38,7 +38,6 @@ gem 'redis', '~> 4.2'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'ims-lti', '~> 2.3.1'
 gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
@@ -48,7 +47,11 @@ gem 'repost', '~> 0.3.8'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.2'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.3.1'
+
+gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2.3.2.1'
+
+gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git', tag: 'v0.3.1.1'
 
 gem 'activerecord-session_store'
 

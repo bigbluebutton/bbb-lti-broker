@@ -44,6 +44,8 @@ class MessageController < ApplicationController
     output = case ex.error
              when :invalid_key
                'The LTI key used is invalid'
+             when :expired_key
+               'The LTI key is expired'
              when :invalid_signature
                'The OAuth Signature was Invalid'
              when :invalid_nonce
@@ -65,7 +67,7 @@ class MessageController < ApplicationController
     end
   end
 
-  # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.3
+  # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.1
   def basic_lti_launch_request
     process_blti_message
     return if params[:app] == 'default'
