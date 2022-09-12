@@ -38,10 +38,5 @@ module BbbLtiBroker
 
     config.relative_url_root = "/#{ENV['RELATIVE_URL_ROOT'] || 'lti'}"
     config.assets.prefix = "#{config.relative_url_root}/assets"
-
-    # Allow this to work in an iframe on another domain
-    config.action_dispatch.default_headers = {
-      'X-Frame-Options' => 'ALLOWALL',
-    }
   end
 end
