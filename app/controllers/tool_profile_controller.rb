@@ -42,7 +42,7 @@ class ToolProfileController < ApplicationController
 
   # show xml builder for customization in tool consumer url
   def xml_builder
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true' && params[:app] == 'default'
+    if Rails.configuration.developer_mode_enabled != 'true' && params[:app] == 'default'
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
       return
     end
@@ -82,7 +82,7 @@ class ToolProfileController < ApplicationController
   end
 
   def xml_config
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true' && params[:app] == 'default'
+    if Rails.configuration.developer_mode_enabled != 'true' && params[:app] == 'default'
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
       return
     end

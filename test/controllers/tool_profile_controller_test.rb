@@ -21,7 +21,7 @@ require 'nokogiri'
 
 class ToolProfileControllerTest < ActionDispatch::IntegrationTest
   test 'responds with xml_config for default with no parameters when developer mode is true' do
-    ENV['DEVELOPER_MODE_ENABLED'] = 'true'
+    Rails.configuration.developer_mode_enabled = 'true'
     get xml_config_path('default')
 
     # Response must be successful

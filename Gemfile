@@ -23,10 +23,10 @@ gem 'coffee-rails', '~> 5.0', '>= 5.0.0'
 gem 'http'
 
 gem 'addressable', '~> 2.7'
+gem 'bundler', '>=2.1.4'
 gem 'faraday'
 gem 'oauthenticator', '~> 1.3'
-
-gem 'bundler', '>=2.1.4'
+gem 'psych', '< 4'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks

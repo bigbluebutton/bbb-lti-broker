@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe(ToolProfileController, type: :controller) do
   describe 'GET :app/xml_config' do
     it 'gives an xml page when developer mode enabled' do
-      ENV['DEVELOPER_MODE_ENABLED'] = 'true'
+      Rails.configuration.developer_mode_enabled = 'true'
       get :xml_config, params: { app: 'default' }
       expect(response).to(be_successful)
 
