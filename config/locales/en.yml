@@ -66,8 +66,18 @@ en:
   permission:
     nonrps:         "The tool does not have permission to send grades or access student list."
   error:
+    header:         "Error"
     invalid:
       token:       "The token does not exist."
     expired:
       token:   "The token has expired."
       request: "The request has expired."
+    http:
+      _401:
+        code:       "Unauthorized"
+        message:    "Unauthorized access"
+        suggestion: "If you are using this room through LTI try launching the app again by using the link or refreshing the browser"
+      _406:
+        code:       "Invalid Authenticity Token"
+        message:    "Can't verify CSRF token authenticity"
+        suggestion: "You may be facing this error because the plugin is not SSL secured, or because third party cookies are not enabled."
