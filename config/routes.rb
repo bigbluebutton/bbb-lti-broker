@@ -78,6 +78,8 @@ Rails.application.routes.draw do
     get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
+    get '/errors/:code', to: 'errors#index', as: :errors
+
     mount RailsLti2Provider::Engine => '/rails_lti2_provider'
   end
 end
