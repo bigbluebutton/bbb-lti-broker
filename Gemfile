@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0', '>= 6.0.5.1'
+gem 'rails', '~> 6.0', '>= 6.0.6'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -72,7 +72,7 @@ end
 
 group :development do
   gem 'rubocop', '~> 1.10.0', require: false
-  gem 'rubocop-rails', '~> 2.4.0', require: false
+  gem 'rubocop-rails', '~> 2.4.2', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.0'
