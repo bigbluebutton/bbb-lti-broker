@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0', '>= 6.0.6'
+gem 'rails', '~> 6.1', '>= 6.1.7.1'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -24,7 +24,7 @@ gem 'http'
 
 gem 'addressable', '~> 2.7'
 gem 'faraday'
-gem 'oauthenticator', '~> 1.3'
+gem 'oauthenticator', '~> 1.4', '>= 1.4.0'
 
 gem 'bundler', '>=2.1.4'
 # Use jquery as the JavaScript library
