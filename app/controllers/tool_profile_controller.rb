@@ -24,6 +24,7 @@ class ToolProfileController < ApplicationController
   include LtiHelper
   include TemporaryStore
 
+  before_action :lti_authorized_default_application, only: [:xml_builder, :xml_config]
   before_action :lti_authorized_application, only: :xml_builder
   skip_before_action :verify_authenticity_token
 
@@ -42,10 +43,6 @@ class ToolProfileController < ApplicationController
 
   # show xml builder for customization in tool consumer url
   def xml_builder
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true' && params[:app] == 'default'
-      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
-      return
-    end
     @placements = CanvasExtensions::PLACEMENTS
   end
 
@@ -82,32 +79,17 @@ class ToolProfileController < ApplicationController
   end
 
   def xml_config
-    if ENV['DEVELOPER_MODE_ENABLED'] != 'true' && params[:app] == 'default'
-      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
-      return
-    end
-    title = t("apps.#{params[:app]}.title", default: "#{params[:app].capitalize} #{t('apps.default.title')}")
-    description = t("apps.#{params[:app]}.description", default: "#{t('apps.default.title')} provider powered by BBB LTI Broker.")
-    tc = IMS::LTI::Services::ToolConfig.new(title: title, launch_url: blti_launch_url(app: params[:app]).sub('https', 'http')) # "#{location}/#{year}/#{id}"
-    tc.secure_launch_url = secure_url(tc.launch_url)
-    tc.icon = lti_icon(params[:app])
-    tc.secure_icon = secure_url(tc.icon)
-    tc.description = description
-    request.query_parameters.each { |key, value| tc.set_ext_param(CanvasExtensions::PLATFORM, key, value) }
-    if params == request.query_parameters
-      platform = CanvasExtensions::PLATFORM
-      tc.set_ext_param(platform, :selection_width, params[:selection_width])
-      tc.set_ext_param(platform, :selection_height, params[:selection_height])
-      tc.set_ext_param(platform, :privacy_level, 'public')
-      tc.set_ext_param(platform, :text, t("apps.#{params[:app]}.title"))
-      tc.set_ext_param(platform, :icon_url, tc.icon)
-      tc.set_ext_param(platform, :domain, request.host_with_port)
+    render(xml: xml_config_tc(
+      blti_launch_url(app: params[:app]).sub('https', 'http')
+    ))
+  end
 
-      params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
-      params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
-    end
-
-    render(xml: tc.to_xml(indent: 2))
+  # This action is used only to support the old bbb application for backward compatibility
+  def xml_config_legacy
+    launch_url_params = {tenant: params[:tenant]} if params[:tenant]
+    render(xml: xml_config_tc(blti_launch_legacy_url(
+      launch_url_params).sub('https', 'http')
+    ))
   end
 
   private
@@ -129,5 +111,36 @@ class ToolProfileController < ApplicationController
     navigation_params[:text] = t("apps.#{params[:app]}.title")
 
     tc.set_ext_param(CanvasExtensions::PLATFORM, placement_key, navigation_params)
+  end
+
+  def xml_config_tc(launch_url)
+    title = t("apps.#{params[:app]}.title", default: "#{params[:app].capitalize} #{t('apps.default.title')}")
+    description = t("apps.#{params[:app]}.description", default: "#{t('apps.default.title')} provider powered by BBB LTI Broker.")
+    tc = IMS::LTI::Services::ToolConfig.new(title: title, launch_url: launch_url) # "#{location}/#{year}/#{id}"
+    tc.secure_launch_url = secure_url(tc.launch_url)
+    tc.icon = lti_icon(params[:app])
+    tc.secure_icon = secure_url(tc.icon)
+    tc.description = description
+    request.query_parameters.each { |key, value| tc.set_ext_param(CanvasExtensions::PLATFORM, key, value) }
+    if params == request.query_parameters
+      platform = CanvasExtensions::PLATFORM
+      tc.set_ext_param(platform, :selection_width, params[:selection_width])
+      tc.set_ext_param(platform, :selection_height, params[:selection_height])
+      tc.set_ext_param(platform, :privacy_level, 'public')
+      tc.set_ext_param(platform, :text, t("apps.#{params[:app]}.title"))
+      tc.set_ext_param(platform, :icon_url, tc.icon)
+      tc.set_ext_param(platform, :domain, request.host_with_port)
+
+      params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
+      params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
+    end
+    tc.to_xml(indent: 2)
+  end
+
+  def lti_authorized_default_application
+    if params[:app] == 'default' && !Rails.configuration.developer_mode_enabled
+      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
+      return
+    end
   end
 end
