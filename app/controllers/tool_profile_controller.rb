@@ -86,10 +86,10 @@ class ToolProfileController < ApplicationController
 
   # This action is used only to support the old bbb application for backward compatibility
   def xml_config_legacy
-    launch_url_params = {tenant: params[:tenant]} if params[:tenant]
+    launch_url_params = { tenant: params[:tenant] } if params[:tenant]
     render(xml: xml_config_tc(blti_launch_legacy_url(
-      launch_url_params).sub('https', 'http')
-    ))
+      launch_url_params
+    ).sub('https', 'http')))
   end
 
   private
@@ -140,7 +140,7 @@ class ToolProfileController < ApplicationController
   def lti_authorized_default_application
     if params[:app] == 'default' && !Rails.configuration.developer_mode_enabled
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
-      return
+      nil
     end
   end
 end
