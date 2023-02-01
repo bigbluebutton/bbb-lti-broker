@@ -35,7 +35,7 @@ class MessageController < ApplicationController
   # verify that the application belongs to us before doing anything with it
   before_action :lti_authorized_application
   # validates message with oauth in rails lti2 provider gem
-  before_action :lti_authentication, only: %i[basic_lti_launch_request]
+  before_action :lti_authentication, only: %i[basic_lti_launch_request basic_lti_launch_request_legacy]
   # validates message corresponds to a LTI launch
   before_action :process_openid_message, only: %i[openid_launch_request deep_link]
 
@@ -77,6 +77,17 @@ class MessageController < ApplicationController
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h)
     redirect_post(redirector, options: { authenticity_token: :auto })
+  end
+
+  # monkey patch for backward compatibility of old bbb-lti tools.
+  def basic_lti_launch_request_legacy
+    handler_legacy = Digest::SHA1.hexdigest(params[:tool_consumer_instance_guid] + params[:context_id] + params[:resource_link_id])
+    lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])
+    post_params = lti_launch.message.post_params
+    post_params["custom_handler_legacy"] = handler_legacy
+    lti_message = IMS::LTI::Models::Messages::Message.generate(post_params)
+    lti_launch.update(message: lti_message.post_params)
+    basic_lti_launch_request
   end
 
   # for /lti/:app/xml_builder enable placement for message type: content_item_selection_request

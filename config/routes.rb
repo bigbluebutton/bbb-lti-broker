@@ -23,7 +23,7 @@ Rails.application.routes.draw do
 
   # monkey patch for backward compatibility
   get 'lti/(:tenant)/tool', to: 'tool_profile#xml_config_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
-  post 'lti/(:tenant)/tool', to: 'message#basic_lti_launch_request', as: 'blti_launch_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
+  post 'lti/(:tenant)/tool', to: 'message#basic_lti_launch_request_legacy', as: 'blti_launch_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
 
   scope ENV['RELATIVE_URL_ROOT'] || 'lti' do
     get '/health_check', to: 'health_check#all'
