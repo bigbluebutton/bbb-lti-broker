@@ -23,6 +23,7 @@ require 'securerandom'
 require 'faraday'
 require 'oauthenticator'
 require 'oauth'
+require 'yaml'
 require 'addressable/uri'
 require 'oauth/request_proxy/action_controller_request'
 
@@ -37,7 +38,7 @@ class ApplicationController < ActionController::Base
   before_action :print_parameters if Rails.configuration.developer_mode_enabled
 
   def print_parameters
-    logger.debug(params.to_json)
+    logger.debug(params.to_yaml)
   end
 
   rescue_from ActionController::InvalidAuthenticityToken do |_exception|
