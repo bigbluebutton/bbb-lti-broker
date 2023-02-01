@@ -27,7 +27,9 @@ RAILS_SERVE_STATIC_FILES=true
 # RAILS_LOG_REMOTE_TAG=bbb-lti-broker
 
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
-## DATABASE_URL=postgres://myuser:mypass@localhost
+## DATABASE_URL=postgres://myuser:mypass@localhost/database_name
+## Database name for production can be omitted from DATABASE_URL
+## DB_NAME=database_production
 
 ## Enable redis for actioncable
 # REDIS_URL=redis://myuser:mypass@localhost

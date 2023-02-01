@@ -22,6 +22,7 @@ RSpec.describe(ToolProfileController, type: :controller) do
   describe 'GET :app/xml_config' do
     it 'gives an xml page when developer mode enabled' do
       ENV['DEVELOPER_MODE_ENABLED'] = 'true'
+      ENV['DEFAULT_LTI_TOOL'] = 'default'
       get :xml_config, params: { app: 'default' }
       expect(response).to(be_successful)
 
