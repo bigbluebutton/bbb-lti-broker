@@ -84,7 +84,7 @@ class MessageController < ApplicationController
     handler_legacy = Digest::SHA1.hexdigest(params[:tool_consumer_instance_guid] + params[:context_id] + params[:resource_link_id])
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])
     post_params = lti_launch.message.post_params
-    post_params["custom_handler_legacy"] = handler_legacy
+    post_params['custom_handler_legacy'] = handler_legacy
     lti_message = IMS::LTI::Models::Messages::Message.generate(post_params)
     lti_launch.update(message: lti_message.post_params)
     basic_lti_launch_request

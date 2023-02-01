@@ -138,9 +138,7 @@ class ToolProfileController < ApplicationController
   end
 
   def lti_authorized_default_application
-    if params[:app] == 'default' && !Rails.configuration.developer_mode_enabled
-      render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
-      nil
-    end
+    return unless params[:app] == 'default' && !Rails.configuration.developer_mode_enabled
+    render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
   end
 end
