@@ -17,4 +17,4 @@ test:
 
 production:
   <<: *default
-  database: bbb_lti_broker
+  database: <%= ENV['DB_NAME'] || 'bbb_lti_broker' %>
