@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   get '/healthz', to: 'health_check#all'
   root 'main#index'
 
-  # monkey patch for supporting links coming from legacy lti tools that hardcoded the launch under tool.
+  # A monkey patch for supporting links coming from legacy LTI tools that hardcoded the launch under tool.
   scope ENV['RELATIVE_URL_ROOT_LEGACY'] || 'lti' do
     get '(:tenant)/tool(.xml)', to: 'tool_profile#xml_config_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
     post '(:tenant)/tool', to: 'message#basic_lti_launch_request_legacy', as: 'blti_launch_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
