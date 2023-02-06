@@ -58,7 +58,7 @@ module AppsValidator
   end
 
   def lti_icon(app_name)
-    return "http://#{request.host_with_port}/assets/icon.svg" if app_name == 'default'
+    return "http://#{request.host_with_port}#{Rails.configuration.assets.prefix}/icon.svg" if app_name == 'default'
 
     begin
       app = lti_app(app_name)

@@ -21,6 +21,12 @@ Rails.application.routes.draw do
   get '/healthz', to: 'health_check#all'
   root 'main#index'
 
+  # A monkey patch for supporting links coming from legacy LTI tools that hardcoded the launch under tool.
+  scope ENV['RELATIVE_URL_ROOT_LEGACY'] || 'lti' do
+    get '(:tenant)/tool(.xml)', to: 'tool_profile#xml_config_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
+    post '(:tenant)/tool', to: 'message#basic_lti_launch_request_legacy', as: 'blti_launch_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
+  end
+
   scope ENV['RELATIVE_URL_ROOT'] || 'lti' do
     get '/health_check', to: 'health_check#all'
     get '/healthz', to: 'health_check#all'
@@ -40,7 +46,7 @@ Rails.application.routes.draw do
 
     # registration (LMS -> broker)
     get 'registration/list', to: 'registration#list', as: :registration_list
-    get 'registration/new', to: 'registration#new', as: :new_registration # if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+    get 'registration/new', to: 'registration#new', as: :new_registration
     get 'registration/edit', to: 'registration#edit', as: :edit_registration
     post 'registration/submit', to: 'registration#submit', as: :submit_registration
     get 'registration/delete', to: 'registration#delete', as: :delete_registration
