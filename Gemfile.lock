@@ -117,7 +117,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.12.2)
-    concurrent-ruby (1.1.10)
+    concurrent-ruby (1.2.0)
     connection_pool (2.3.0)
     coveralls (0.8.23)
       json (>= 1.8, < 3)
@@ -171,7 +171,7 @@ GEM
       rake
     font-awesome-sass (5.9.0)
       sassc (>= 1.11)
-    globalid (1.0.0)
+    globalid (1.1.0)
       activesupport (>= 5.0)
     hashdiff (1.0.1)
     http (5.1.0)
@@ -221,7 +221,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
-    minitest (5.16.3)
+    minitest (5.17.0)
     minitest-stub_any_instance (1.0.3)
     multi_json (1.15.0)
     multipart-post (2.2.3)
@@ -369,7 +369,7 @@ GEM
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
-    tzinfo (1.2.10)
+    tzinfo (1.2.11)
       thread_safe (~> 0.1)
     tzinfo-data (1.2022.1)
       tzinfo (>= 1.0.0)
@@ -389,7 +389,7 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.6.1)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
