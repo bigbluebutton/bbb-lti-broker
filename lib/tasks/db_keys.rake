@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'bbb_lti_broker/helpers'
+require 'securerandom'
 # include BbbLtiBroker::Helpers
 
 namespace :db do
   namespace :keys do
-    desc 'Add a new blti keypair - add[key,secret,tenant]'
-    task :add, [:key, :secret, :tenant] => :environment do |_t, args|
+    desc 'Add a new blti keypair - add[key,secret,tenant,region (optional)]. If "secret" is empty, one will be generated for you'
+    regions = %w[rna1 rna2 reu1]
+    task :add, [:key, :secret, :tenant, :region] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -14,7 +16,11 @@ namespace :db do
         puts('No key provided')
         exit(1)
       end
-      secret = args[:secret] || Array.new(12) { (rand(122 - 97) + 97).chr }.join
+      unless regions.include?(args[:region].downcase || args[:region].empty?)
+        puts("Invalid region. Select one of #{regions}")
+        exit(1)
+      end
+      secret = args[:secret] || SecureRandom.alphanumeric(16)
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
       unless tool.nil?
@@ -23,6 +29,8 @@ namespace :db do
       end
       RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: secret, lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
       puts("Added '#{args[:key]}=#{secret}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
+      puts("Key:\t#{args[:key]}\nSecret:\t#{secret}")
+      puts("URL:\thttps://konekti.#{args[:region].downcase}.blindsidenetworks.com/lti/rooms/messages/blti") unless args[:region].empty?
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
