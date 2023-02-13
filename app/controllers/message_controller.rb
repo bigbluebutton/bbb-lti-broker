@@ -81,7 +81,9 @@ class MessageController < ApplicationController
 
   # monkey patch for backward compatibility of old bbb-lti tools.
   def basic_lti_launch_request_legacy
-    handler_legacy = Digest::SHA1.hexdigest(params[:tool_consumer_instance_guid] + params[:context_id] + params[:resource_link_id])
+    tool_consumer_instance_guid = params[:tool_consumer_instance_guid]
+    tool_consumer_instance_guid = URI.parse(params[:ext_tc_profile_url]).host if tool_consumer_instance_guid.empty?
+    handler_legacy = Digest::SHA1.hexdigest(tool_consumer_instance_guid + params[:context_id] + params[:resource_link_id])
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])
     post_params = lti_launch.message.post_params
     post_params['custom_handler_legacy'] = handler_legacy
