@@ -58,3 +58,18 @@ RAILS_SERVE_STATIC_FILES=true
 # [debug|info|warn|error|fatal]
 # Default 'warn'.
 # LOG_LEVEL=warn
+
+## Define patterns for handler_legacy
+# Different legacy apps used different combinations of params to produce the handler or meetingID. On top of that
+# different consumers may come with differnt parameters or the data may be inconsistent. This is the reason why some
+# rules are needed.
+#   - param-xxx, it is a literal value of parameter xxx.
+#   - fqdn-yyy parses the host obtained from processing the value of parameter yyy as a URL.
+#   - | is a fallback in case the value found from the first pattern is empty.
+#
+#   E.g.
+#     konekti: 'param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
+#     bbb-lti 'param-resource_link_id,param-oauth_consumer_key'
+#
+# Default: param-resource_link_id,param-oauth_consumer_key
+# HANDLER_LEGACY_PATTERNS='param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'

@@ -171,11 +171,11 @@ class MessageController < ApplicationController
   #
   #   E.g.
   #     konekti: 'param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
-  #     bbb-lti 'param-resource_link_id,param-oauth_consumer_key'
+  #     bbb-lti 'param-resource_link_id,param-oauth_consumer_key' (default)
   #
   def handler_legacy
     # Hardcoded patterns to support Konekti launches.
-    patterns = 'param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
+    patterns = Rails.configuration.handler_legacy_patterns
     seed_string = ''
     patterns.split(',').each do |pattern|
       seed = ''
