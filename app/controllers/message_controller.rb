@@ -81,12 +81,14 @@ class MessageController < ApplicationController
 
   # monkey patch for backward compatibility of old bbb-lti tools.
   def basic_lti_launch_request_legacy
-    handler_legacy = Digest::SHA1.hexdigest(params[:tool_consumer_instance_guid] + params[:context_id] + params[:resource_link_id])
+    # Inject the handler_legacy to the lti_launch.
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])
     post_params = lti_launch.message.post_params
     post_params['custom_handler_legacy'] = handler_legacy
     lti_message = IMS::LTI::Models::Messages::Message.generate(post_params)
     lti_launch.update(message: lti_message.post_params)
+
+    # Bring back the launch to the regular flow.
     basic_lti_launch_request
   end
 
@@ -158,5 +160,46 @@ class MessageController < ApplicationController
     @current_user = User.find_or_create_by(context: tc_instance_guid, uid: @jwt_body['sub']) do |user|
       user.update(user_params(tc_instance_guid, @jwt_body))
     end
+  end
+
+  # Different legacy apps used different combinations of params to produce the handler or meetingID. On top of that
+  # different consumers may come with differnt parameters or the data may be inconsistent. This is the reason why some
+  # rules are needed.
+  #   - param-xxx, it is a literal value of parameter xxx.
+  #   - fqdn-yyy parses the host obtained from processing the value of parameter yyy as a URL.
+  #   - | is a fallback in case the value found from the first pattern is empty.
+  #
+  #   E.g.
+  #     konekti: 'param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
+  #     bbb-lti 'param-resource_link_id,param-oauth_consumer_key' (default)
+  #
+  def handler_legacy
+    # Hardcoded patterns to support Konekti launches.
+    patterns = Rails.configuration.handler_legacy_patterns
+    seed_string = ''
+    patterns.split(',').each do |pattern|
+      seed = ''
+      if pattern.include?('|')
+        fallbacks = pattern.split('|')
+        fallbacks.each do |fallback|
+          seed = seed_param(fallback)
+          break unless seed.empty?
+        end
+      else
+        seed = seed_param(pattern)
+      end
+      seed_string += seed
+    end
+
+    Digest::SHA1.hexdigest(seed_string)
+  end
+
+  # E.g. param-resource_link_id
+  def seed_param(pattern)
+    elements = pattern.split('-')
+    return params[elements[1]] if elements[0] == 'param'
+    return URI.parse(params[elements[1]]).host if elements[0] == 'fqdn'
+
+    ''
   end
 end

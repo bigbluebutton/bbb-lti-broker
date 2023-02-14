@@ -47,7 +47,7 @@ gem 'repost', '~> 0.3.8'
 gem 'lodash-rails'
 gem 'react-rails'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.3.1'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.3.2'
 
 gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2.3.2.1'
 
