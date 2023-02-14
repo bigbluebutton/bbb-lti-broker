@@ -38,5 +38,7 @@ module BbbLtiBroker
 
     config.relative_url_root = "/#{ENV['RELATIVE_URL_ROOT'] || 'lti'}"
     config.assets.prefix = "#{config.relative_url_root}/assets"
+
+    config.handler_legacy_patterns = ENV['HANDLER_LEGACY_PATTERNS'] || 'param-resource_link_id,param-oauth_consumer_key'
   end
 end
