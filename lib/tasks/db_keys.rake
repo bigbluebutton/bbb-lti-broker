@@ -1,28 +1,39 @@
 # frozen_string_literal: true
 
 require 'bbb_lti_broker/helpers'
+require 'securerandom'
 # include BbbLtiBroker::Helpers
 
 namespace :db do
   namespace :keys do
-    desc 'Add a new blti keypair - add[key,secret,tenant]'
+    desc 'Add a new blti keypair - add[key,secret,tenant]. If "secret" is empty, one will be generated for you'
     task :add, [:key, :secret, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
-      unless args[:key]
-        puts('No key provided')
+      unless args[:key] || args[:tenant]
+        puts('You must provide either a key or tenant')
         exit(1)
       end
-      secret = args[:secret] || Array.new(12) { (rand(122 - 97) + 97).chr }.join
+
+      key = args[:key] || SecureRandom.alphanumeric(12)
+      secret = args[:secret] || SecureRandom.alphanumeric(16)
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
-      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key])
+      tool = RailsLti2Provider::Tool.find_by(uuid: key)
       unless tool.nil?
-        puts("Key '#{args[:key]}' already exists, it can not be added")
+        puts("Key '#{key}' already exists, it can not be added")
         exit(1)
       end
-      RailsLti2Provider::Tool.create!(uuid: args[:key], shared_secret: secret, lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
-      puts("Added '#{args[:key]}=#{secret}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
+      RailsLti2Provider::Tool.create!(uuid: key, shared_secret: secret, lti_version: 'LTI-1p0', tool_settings: 'none', tenant: tenant)
+      puts("Added '#{key}=#{secret}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
+
+      url = Rails.configuration.url_host
+      url = "https://#{url}" unless url.first(4) == 'http'
+      url += '/' unless url.last(1) == '/'
+      url += 'lti/rooms/messages/blti'
+
+      puts("Key:\t#{key}\nSecret:\t#{secret}\nURL:\t#{url}")
+      puts
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)

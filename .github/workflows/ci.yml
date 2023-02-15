@@ -5,13 +5,13 @@ on:
   pull_request:
     branches: "*"
 env:
-  RUBY_VERSION: 3.0.x
+  RUBY_VERSION: '3.0'
   DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
 
 jobs:
   test:
     name: Rubocop + RSpec
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     services:
       postgres:
@@ -32,13 +32,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Ruby ${{ env.RUBY_VERSION }}
-        uses: actions/setup-ruby@v1
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ env.RUBY_VERSION }}
 
       - name: Bundle cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}

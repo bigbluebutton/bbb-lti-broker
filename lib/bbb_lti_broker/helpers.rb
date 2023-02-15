@@ -27,6 +27,23 @@ module BbbLtiBroker
       ]
     end
 
+    def log_div(seed, num)
+      div = seed
+      (1..num).each do |_i|
+        div += seed
+      end
+      logger.info(div)
+    end
+
+    def log_hash(hash, msg = nil)
+      logger.debug(msg) if msg
+      log_div('*', 100)
+      hash.sort.map do |key, value|
+        logger.debug("#{key}: " + value)
+      end
+      log_div('*', 100)
+    end
+
     def secure_url(url)
       uri = URI.parse(url)
       uri.scheme = 'https'
