@@ -35,8 +35,6 @@ class ApplicationController < ActionController::Base
 
   @build_number = Rails.configuration.build_number
 
-  before_action :print_parameters if Rails.configuration.developer_mode_enabled
-
   def print_parameters
     logger.debug(params.to_yaml)
   end

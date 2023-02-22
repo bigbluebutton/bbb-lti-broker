@@ -19,6 +19,7 @@
 class Api::V1::SessionsController < Api::V1::BaseController
   include LtiHelper
 
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
   before_action :doorkeeper_authorize!
 
   def validate_launch

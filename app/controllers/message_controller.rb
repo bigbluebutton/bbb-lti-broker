@@ -30,6 +30,7 @@ class MessageController < ApplicationController
   include PlatformValidator
   include DeepLinkService
 
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
   # skip rail default verify auth token - we use our own strategies
   skip_before_action :verify_authenticity_token
   # verify that the application belongs to us before doing anything with it

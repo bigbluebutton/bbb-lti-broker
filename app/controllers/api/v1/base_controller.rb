@@ -17,6 +17,9 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class Api::V1::BaseController < ApplicationController
+
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
+
   private
 
   def current_user
