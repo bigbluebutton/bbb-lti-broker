@@ -17,7 +17,6 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class Api::V1::UsersController < Api::V1::BaseController
-
   before_action :doorkeeper_authorize!
 
   def show
