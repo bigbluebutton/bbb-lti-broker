@@ -36,8 +36,7 @@ module BbbLtiBroker
 
     config.developer_mode_enabled = (ENV['DEVELOPER_MODE_ENABLED'] == 'true')
 
-    config.relative_url_root = "/#{ENV['RELATIVE_URL_ROOT'] || 'lti'}"
-    config.assets.prefix = "#{config.relative_url_root}/assets"
+    config.relative_url_root = "/#{ENV['RELATIVE_URL_ROOT']}"
 
     config.handler_legacy_patterns = ENV['HANDLER_LEGACY_PATTERNS'] || 'param-resource_link_id,param-oauth_consumer_key'
   end
