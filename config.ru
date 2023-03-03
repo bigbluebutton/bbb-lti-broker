@@ -4,5 +4,6 @@
 
 require_relative 'config/environment'
 
-run Rails.application
-Rails.application.load_server
+map BbbLtiBroker::Application.config.relative_url_root do
+  run(Rails.application)
+end
