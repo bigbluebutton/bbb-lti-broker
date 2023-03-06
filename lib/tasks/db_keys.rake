@@ -6,7 +6,7 @@ require 'securerandom'
 
 namespace :db do
   namespace :keys do
-    desc 'Add a new blti keypair - add[key,secret,tenant]. If "secret" is empty, one will be generated for you'
+    desc 'Add a new blti keypair - add[key,secret,tenant]. If "key" or "secret" are empty, a value will be generated for you'
     task :add, [:key, :secret, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
@@ -115,7 +115,6 @@ namespace :db do
 
     desc 'Show a key-secret pair if it exists'
     task :show, [:key, :tenant] => :environment do |_t, args|
-      include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
       unless args[:key]
@@ -124,8 +123,9 @@ namespace :db do
       end
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
-      abort("Key '#{args[:key]}' does not exist for tenant '#{tenant}.") if tool.nil?
-      puts("'#{tool.uuid}'='#{tool.shared_secret}' for tenant '#{tenant.uid}.")
+      for_tenant = tenant.uid.empty? ? '' : tenant.uid
+      abort("Key '#{args[:key]}' does not exist for tenant '#{for_tenant}'.") if tool.nil?
+      puts("'#{tool.uuid}'='#{tool.shared_secret}' for tenant '#{for_tenant}'.")
 
     rescue StandardError => e
       puts(e.backtrace)
