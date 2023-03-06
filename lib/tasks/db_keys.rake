@@ -111,5 +111,27 @@ namespace :db do
       puts(e.backtrace)
       exit(1)
     end
+
+
+    desc 'Show a key-secret pair if it exists'
+    task :show, [:key, :tenant] => :environment do |_t, args|
+      include BbbLtiBroker::Helpers
+      Rake::Task['environment'].invoke
+      ActiveRecord::Base.connection
+      unless args[:key]
+        puts('No key provided')
+        exit(1)
+      end
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      if tool.nil?
+        abort("Key '#{args[:key]}' does not exist for tenant '#{tenant}.")
+      end
+      puts("'#{tool.uuid}'='#{tool.shared_secret}' for tenant '#{tenant.uid}.")
+
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
   end
 end
