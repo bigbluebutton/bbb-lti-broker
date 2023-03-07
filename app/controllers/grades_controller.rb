@@ -25,6 +25,8 @@ class GradesController < ApplicationController
   include PlatformMembersService
   include PlatformGradesService
 
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
+
   # For testing to see if grades made it through.
   def grades_list
     send_grades

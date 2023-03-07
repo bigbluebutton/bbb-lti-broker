@@ -6,7 +6,7 @@ require 'securerandom'
 
 namespace :db do
   namespace :keys do
-    desc 'Add a new blti keypair - add[key,secret,tenant]. If "secret" is empty, one will be generated for you'
+    desc 'Add a new blti keypair - add[key,secret,tenant]. If "key" or "secret" are empty, a value will be generated for you'
     task :add, [:key, :secret, :tenant] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
@@ -28,9 +28,10 @@ namespace :db do
       puts("Added '#{key}=#{secret}'#{" for tenant #{tenant.uid}" unless tenant.uid.empty?}")
 
       url = Rails.configuration.url_host
+      url_root = Rails.configuration.relative_url_root[1..] # remove leading '/'
       url = "https://#{url}" unless url.first(4) == 'http'
       url += '/' unless url.last(1) == '/'
-      url += 'lti/rooms/messages/blti'
+      url += "#{url_root}/rooms/messages/blti"
 
       puts("Key:\t#{key}\nSecret:\t#{secret}\nURL:\t#{url}")
       puts
@@ -107,6 +108,25 @@ namespace :db do
         for_teanat = " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
         puts("'#{key.uuid}'='#{key.shared_secret}'" +  for_teanat)
       end
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Show a key-secret pair if it exists'
+    task :show, [:key, :tenant] => :environment do |_t, args|
+      Rake::Task['environment'].invoke
+      ActiveRecord::Base.connection
+      unless args[:key]
+        puts('No key provided')
+        exit(1)
+      end
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      for_tenant = tenant.uid.empty? ? '' : tenant.uid
+      abort("Key '#{args[:key]}' does not exist for tenant '#{for_tenant}'.") if tool.nil?
+      puts("'#{tool.uuid}'='#{tool.shared_secret}' for tenant '#{for_tenant}'.")
+
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)

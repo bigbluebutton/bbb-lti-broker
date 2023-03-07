@@ -23,6 +23,7 @@ class AuthController < ApplicationController
   include ExceptionHandler
   include PlatformValidator
 
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
   skip_before_action :verify_authenticity_token
   before_action :validate_oidc_login
 

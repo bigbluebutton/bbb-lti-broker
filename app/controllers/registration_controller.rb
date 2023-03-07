@@ -25,6 +25,8 @@ class RegistrationController < ApplicationController
   include AppsValidator
   include TemporaryStore
 
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
+
   def list
     if ENV['DEVELOPER_MODE_ENABLED'] != 'true'
       render(file: Rails.root.join('public/404'), layout: false, status: :not_found)
