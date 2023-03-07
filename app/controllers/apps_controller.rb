@@ -17,6 +17,8 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class AppsController < ApplicationController
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
+
   # verified oauth, etc
   # launch into lti application
   def launch

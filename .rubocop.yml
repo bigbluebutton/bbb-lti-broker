@@ -13,6 +13,7 @@ AllCops:
     - bin/unicorn_rails
     - bin/update
     - bin/yarn
+    - db/migrate/*
     - vendor/bundle/**/*
   TargetRubyVersion: 2.6
 Layout/HashAlignment:

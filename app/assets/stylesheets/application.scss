@@ -35,7 +35,6 @@
 
 @import "utilities/variables";
 @import "utilities/fonts";
-@import "main";
 @import "registration";
 @import "grades";
 @import "tool_profile";
@@ -85,4 +84,8 @@ html, body {
     width: 100%;
     position: relative;
     min-height: calc(100% - #{$header-height} - #{$footer-height});
+}
+
+.config-button {
+    font-size: 16px;
 }
