@@ -5,7 +5,7 @@
 #
 #   docker run --rm bigbluebutton/bbb-lti-broker:latest bundle exec rake secret
 #
-SECRET_KEY_BASE=secret
+SECRET_KEY_BASE=
 
 # App configuration
 RELATIVE_URL_ROOT=lti
