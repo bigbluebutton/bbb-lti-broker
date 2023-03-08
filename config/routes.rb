@@ -17,8 +17,8 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 Rails.application.routes.draw do
-  get '/health_check', to: 'health_check#all'
-  get '/healthz', to: 'health_check#all'
+  get '/health_check', to: 'health_check#show'
+  get '/healthz', to: 'health_check#show'
   root 'application#index'
 
   # A monkey patch for supporting links coming from legacy LTI tools that hardcoded the launch under tool.
