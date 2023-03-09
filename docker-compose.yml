@@ -17,7 +17,7 @@ services:
       - ./data/redis/database_data:/data
 # BBB LTI BROKER ↓:
   broker:
-    image: bigbluebutton/bbb-lti-broker
+    image: bigbluebutton/bbb-lti-broker:beta
     restart: unless-stopped
     env_file: broker/.env
     logging:
@@ -28,7 +28,7 @@ services:
       - 127.0.0.1:3030:3000
 # BBB LTI APPS ↓:
   rooms:
-    image: bigbluebutton/bbb-app-rooms
+    image: bigbluebutton/bbb-app-rooms:beta
     restart: unless-stopped
     env_file: rooms/.env
     logging:
