@@ -50,6 +50,7 @@ jobs:
           push: true
           tags: |
             "${{ steps.ci_docker_repository.outputs.repository }}:${{ github.event.release.tag_name }}"
+            "${{ steps.ci_docker_repository.outputs.repository }}:${{ contains(github.event.release.tag_name, 'beta') && 'beta' || 'alpha' }}"
           build-args: BUILD_NUMBER=${{ github.event.release.tag_name }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
