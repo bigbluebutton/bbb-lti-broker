@@ -1,24 +1,41 @@
 version: '3'
 
 services:
-  app:
-    image: ${DOCKER_REPO:-bigbluebutton}/bbb-lti-broker:${DOCKER_TAG:-latest}
-    env_file: .env
-    environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:password@postgres:5432/bbb_lti_broker}
-    command: rails server -p 3000 -b '0.0.0.0'
-    volumes:
-      - .:/app
-    ports:
-      - "3000:3000"
-    links:
-      - postgres
-
+# BBB LTI DEPS ↓:
   postgres:
-    image: postgres:11-alpine
-    environment:
-      POSTGRES_PASSWORD: password
+    image: postgres:14.6-alpine3.17
+    restart: unless-stopped
     volumes:
-      - ./data/postgres/:/var/lib/postgresql/data
+      - ./data/postgres/14/database_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+  redis:
+    image: redis:6.2-alpine3.17
+    restart: unless-stopped
+    volumes:
+      - ./data/redis/database_data:/data
+# BBB LTI BROKER ↓:
+  broker:
+    image: bigbluebutton/bbb-lti-broker
+    restart: unless-stopped
+    env_file: broker/.env
+    logging:
+      driver: journald
+    depends_on:
+      - postgres
     ports:
-      - "5432:5432"
+      - 127.0.0.1:3030:3000
+# BBB LTI APPS ↓:
+  rooms:
+    image: bigbluebutton/bbb-app-rooms
+    restart: unless-stopped
+    env_file: rooms/.env
+    logging:
+      driver: journald
+    ports:
+      - 127.0.0.1:3131:3000
+    depends_on:
+      - postgres
+      - redis
+      - broker

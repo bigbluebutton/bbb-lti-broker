@@ -1,3 +1,6 @@
+<img width="1012" alt="bbb-lti-banner" src="https://user-images.githubusercontent.com/1273169/141151966-5e8c87ac-a062-4deb-9e53-ff5a4151037b.png">
+
+
 ## BigBlueButton LTI Broker
 The BBB LTI Broker is a Web Application that acts as a LTI Broker for connecting Tool Consumers with BigBlueButton Tools. The most basic deployment required the collaboration of two applications, the bbb-lti-broker itself and bbb-app-rooms. Being the flow:
 

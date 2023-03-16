@@ -1,21 +1,37 @@
-# frozen_string_literal: true
-
+<%
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/.
-
 # Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
-
 # This program is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free Software
 # Foundation; either version 3.0 of the License, or (at your option) any later
 # version.
-
+#
 # BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+%>
 
-class MainController < ApplicationController
-  def index; end
-end
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>BbbLtiBroker</title>
+    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= csrf_meta_tags %>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            hljs.initHighlightingOnLoad();
+        });
+    </script>
+
+   
+</head>
+<body>
+    <div class="container border border-danger " style="margin-top: 10%">
+        <h1><%= t('error.header') %></h1>
+
+        <%= render 'error', key: @error[:key], message: @error[:message], suggestion: @error[:suggestion] %>
+    </div>
+</body>

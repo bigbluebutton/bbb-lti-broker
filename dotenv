@@ -5,7 +5,7 @@
 #
 #   docker run --rm bigbluebutton/bbb-lti-broker:latest bundle exec rake secret
 #
-SECRET_KEY_BASE=secret
+SECRET_KEY_BASE=
 
 # App configuration
 RELATIVE_URL_ROOT=lti
@@ -21,23 +21,18 @@ RAILS_SERVE_STATIC_FILES=true
 ## Set the hostname using your own domain (Required)
 # URL_HOST=broker.example.com
 
-## Use to send logs to Standard Output (Optional)
-RAILS_LOG_TO_STDOUT=true
-
 ## Use to send logs to external repository (Optional)
 # RAILS_LOG_REMOTE_NAME=xxx.papertrailapp.com
 # RAILS_LOG_REMOTE_PORT=99999
 # RAILS_LOG_REMOTE_TAG=bbb-lti-broker
-# RAILS_LOG_TO_STDOUT=false
 
 ## Use DATABASE_URL when using a postgres outside the pre-packaged with docker-compose
-## DATABASE_URL=postgres://myuser:mypass@localhost
+## DATABASE_URL=postgres://myuser:mypass@localhost/database_name
+## Database name for production can be omitted from DATABASE_URL
+## DB_NAME=database_production
 
 ## Enable redis for actioncable
 # REDIS_URL=redis://myuser:mypass@localhost
-
-## Use to send logs to Standard Output (Optional)
-RAILS_LOG_TO_STDOUT=true
 
 # Only needed for Docker Compose.
 ## Change DOCKER_REPO when using a repo other than bigbluebutton
@@ -63,3 +58,18 @@ RAILS_LOG_TO_STDOUT=true
 # [debug|info|warn|error|fatal]
 # Default 'warn'.
 # LOG_LEVEL=warn
+
+## Define patterns for handler_legacy
+# Different legacy apps used different combinations of params to produce the handler or meetingID. On top of that
+# different consumers may come with differnt parameters or the data may be inconsistent. This is the reason why some
+# rules are needed.
+#   - param-xxx, it is a literal value of parameter xxx.
+#   - fqdn-yyy parses the host obtained from processing the value of parameter yyy as a URL.
+#   - | is a fallback in case the value found from the first pattern is empty.
+#
+#   E.g.
+#     konekti: 'param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
+#     bbb-lti 'param-resource_link_id,param-oauth_consumer_key'
+#
+# Default: param-resource_link_id,param-oauth_consumer_key
+# HANDLER_LEGACY_PATTERNS='param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'

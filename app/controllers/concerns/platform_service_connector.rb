@@ -29,7 +29,7 @@ module PlatformServiceConnector
       aud: auth_url,
       iat: Time.new.to_i - 5,
       exp: Time.new.to_i + 60,
-      jti: 'lti-service-token' + SecureRandom.hex,
+      jti: "lti-service-token#{SecureRandom.hex}",
     }
 
     priv = File.read(registration['tool_private_key'])
@@ -69,7 +69,7 @@ module PlatformServiceConnector
       request = Net::HTTP::Get.new(uri.request_uri)
     end
 
-    request.add_field('Authorization', 'Bearer ' + token)
+    request.add_field('Authorization', "Bearer #{token}")
     request['Accept'] = accept
     # request.add_field 'Accept', accept
 
