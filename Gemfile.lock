@@ -95,7 +95,7 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
-    addressable (2.8.2)
+    addressable (2.8.3)
       public_suffix (>= 2.0.2, < 6.0)
     aes_key_wrap (1.1.0)
     ast (2.4.2)
@@ -457,6 +457,3 @@ DEPENDENCIES
   tzinfo-data
   web-console (>= 4.2.0)
   webmock
-
-BUNDLED WITH
-   2.1.4
