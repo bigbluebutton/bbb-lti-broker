@@ -95,3 +95,5 @@ end
 gem 'tzinfo-data'
 
 gem 'coveralls', require: false
+
+gem 'rdoc', require: false
