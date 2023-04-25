@@ -43,19 +43,19 @@ jobs:
         id: ci_docker_repository
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
         shell: bash
-        run: echo "##[set-output name=repository;]$(echo ${DOCKER_REPOSITORY:-$GITHUB_REPOSITORY})"
+        run: echo "repository=$(echo ${DOCKER_REPOSITORY:-$GITHUB_REPOSITORY})" >> $GITHUB_OUTPUT
 
       - name: Extract Branch Name
         id: ci_branch_name
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: echo "branch=$(echo ${{github.ref_name}})" >> $GITHUB_OUTPUT
 
       - name: Extract Commit Short SHA
         id: ci_commit_short_sha
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
         shell: bash
-        run: echo "##[set-output name=short_sha;]$(echo ${GITHUB_SHA} | cut -c1-7)"
+        run: echo "short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Build and Push branch
         if: contains(env.DOCKER_BUILD_ENABLED, 'true')
