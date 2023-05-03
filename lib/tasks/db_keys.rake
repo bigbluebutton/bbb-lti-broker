@@ -125,7 +125,15 @@ namespace :db do
       tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
       for_tenant = tenant.uid.empty? ? '' : tenant.uid
       abort("Key '#{args[:key]}' does not exist for tenant '#{for_tenant}'.") if tool.nil?
-      puts("'#{tool.uuid}'='#{tool.shared_secret}' for tenant '#{for_tenant}'.")
+
+      tool_name = Rails.configuration.default_tool
+      url = Rails.configuration.url_host
+      url_root = Rails.configuration.relative_url_root[1..] # remove leading '/'
+      url = "https://#{url}" unless url.first(4) == 'http'
+      url += '/' unless url.last(1) == '/'
+      url += "#{url_root}/#{tool_name}/messages/blti"
+
+      puts("Key:\t#{tool.uuid}\nSecret:\t#{tool.shared_secret}\nURL:\t#{url}")
 
     rescue StandardError => e
       puts(e.backtrace)

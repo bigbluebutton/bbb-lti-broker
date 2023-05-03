@@ -34,7 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
     <h2>LTI Launch</h2>
 
-    <p>The LTI Launch endpoint is <%= link_to(blti_launch_url(app: ENV['DEFAULT_LTI_TOOL']), blti_launch_url(app: ENV['DEFAULT_LTI_TOOL'])) %>.</p>
+    <p>The LTI Launch endpoint is <%= link_to(blti_launch_url(app: Rails.configuration.default_tool), blti_launch_url(app: Rails.configuration.default_tool)) %>.</p>
 
     <p>Note, this url is typically sent a POST request with all sorts of LTI data.  If you access it directly, it'll display an error page indicating your request did not validate.</p>
 
