@@ -41,8 +41,7 @@ class RegistrationController < ApplicationController
   # only available if developer mode is on
   # production - use rails task
   def new
-    @app = ENV['DEFAULT_LTI_TOOL']
-    @app ||= 'default' if ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+    @app = Rails.configuration.default_tool
     @apps = lti_apps
     set_temp_keys
     set_starter_info

@@ -47,6 +47,6 @@ module BbbLtiBroker
 
     config.handler_legacy_patterns = ENV['HANDLER_LEGACY_PATTERNS'] || 'param-resource_link_id,param-oauth_consumer_key'
 
-    config.default_tool = ENV['DEFAULT_LTI_TOOL'] || 'rooms'
+    config.default_tool = ENV['DEFAULT_LTI_TOOL'] || 'default'
   end
 end
