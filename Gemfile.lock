@@ -253,8 +253,8 @@ GEM
       faraday (>= 0.9, < 3.0)
       json
       rack (>= 1.4, < 4.0)
-    parallel (1.22.1)
-    parser (3.2.2.0)
+    parallel (1.23.0)
+    parser (3.2.2.1)
       ast (~> 2.4.1)
     pg (1.4.5)
     popper_js (1.16.1)
@@ -307,7 +307,7 @@ GEM
       railties (>= 3.2)
       tilt
     redis (4.8.1)
-    regexp_parser (2.7.0)
+    regexp_parser (2.8.0)
     remote_syslog_logger (1.0.4)
       syslog_protocol
     repost (0.3.8)
@@ -335,20 +335,22 @@ GEM
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
     rspec-support (3.12.0)
-    rubocop (1.10.0)
+    rubocop (1.50.2)
+      json (~> 2.3)
       parallel (~> 1.10)
-      parser (>= 3.0.0.0)
+      parser (>= 3.2.0.0)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
-      rexml
-      rubocop-ast (>= 1.2.0, < 2.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.28.0, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.28.0)
+      unicode-display_width (>= 2.4.0, < 3.0)
+    rubocop-ast (1.28.1)
       parser (>= 3.2.1.0)
-    rubocop-rails (2.4.2)
+    rubocop-rails (2.19.1)
+      activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 0.72.0)
+      rubocop (>= 1.33.0, < 2.0)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     sass-rails (6.0.0)
@@ -452,8 +454,8 @@ DEPENDENCIES
   repost (~> 0.3.8)
   rspec
   rspec-rails
-  rubocop (~> 1.10.0)
-  rubocop-rails (~> 2.4.2)
+  rubocop (~> 1.26)
+  rubocop-rails (~> 2.17, >= 2.17.4)
   sass-rails (>= 6.0.0)
   simple_oauth!
   spring
