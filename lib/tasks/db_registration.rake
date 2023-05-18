@@ -63,7 +63,7 @@ namespace :db do
       )
 
       puts(jwk) if args[:type] == 'jwk'
-      puts(public_key.to_s) if args[:type] == 'key'
+      puts(public_key) if args[:type] == 'key'
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -139,7 +139,7 @@ namespace :db do
       registration.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
 
       puts(jwk) if args[:type] == 'jwk'
-      puts(public_key.to_s) if args[:type] == 'key'
+      puts(public_key) if args[:type] == 'key'
     end
 
     desc 'Lists the Registration Configuration URLs need to register an app'

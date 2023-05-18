@@ -22,8 +22,8 @@ Rails.application.routes.draw do
   root 'application#index'
 
   # A monkey patch for supporting links coming from legacy LTI tools that hardcoded the launch under tool.
-  get '(:tenant)/tool(.xml)', to: 'tool_profile#xml_config_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
-  post '(:tenant)/tool', to: 'message#basic_lti_launch_request_legacy', as: 'blti_launch_legacy', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
+  get '(:tenant)/tool(.xml)', to: 'tool_profile#xml_config_legacy', app: Rails.configuration.default_tool
+  post '(:tenant)/tool', to: 'message#basic_lti_launch_request_legacy', as: 'blti_launch_legacy', app: Rails.configuration.default_tool
 
   # rooms calls this api to validate launch from broker
   namespace :api do
@@ -57,7 +57,7 @@ Rails.application.routes.draw do
   post ':app/auth/login', to: 'auth#login', as: 'openid_login'
   post ':app/messages/oblti', to: 'message#openid_launch_request', as: 'openid_launch'
   # requests from tool consumer go through this path
-  get ':app/messages/blti', to: 'tool_profile#xml_config', app: ENV['DEFAULT_LTI_TOOL'] || 'default'
+  get ':app/messages/blti', to: 'tool_profile#xml_config', app: Rails.configuration.default_tool
   post ':app/messages/blti', to: 'message#basic_lti_launch_request', as: 'blti_launch'
 
   # requests from xml_config go through these paths
@@ -72,8 +72,8 @@ Rails.application.routes.draw do
   match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 
   # xml config and builder for lti 1.0/1.1
-  get ':app/xml_config', to: 'tool_profile#xml_config', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_config
-  get ':app/xml_builder', to: 'tool_profile#xml_builder', app: ENV['DEFAULT_LTI_TOOL'] || 'default', as: :xml_builder
+  get ':app/xml_config', to: 'tool_profile#xml_config', app: Rails.configuration.default_tool, as: :xml_config
+  get ':app/xml_builder', to: 'tool_profile#xml_builder', app: Rails.configuration.default_tool, as: :xml_builder
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   get '/errors/:code', to: 'errors#index', as: :errors
