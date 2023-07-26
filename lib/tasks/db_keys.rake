@@ -134,7 +134,6 @@ namespace :db do
       url += "#{url_root}/#{tool_name}/messages/blti"
 
       puts("Key:\t#{tool.uuid}\nSecret:\t#{tool.shared_secret}\nURL:\t#{url}")
-
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
