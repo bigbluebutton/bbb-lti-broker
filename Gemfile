@@ -57,7 +57,7 @@ gem 'activerecord-session_store'
 
 # frontend
 gem 'bootstrap', '~> 4.4.1'
-gem 'font-awesome-sass', '~> 5.9.0'
+gem 'font-awesome-sass', '~> 6.4.0'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -71,8 +71,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.26', require: false
-  gem 'rubocop-rails', '~> 2.17', '>= 2.17.4', require: false
+  gem 'rubocop', '~> 1.54', require: false
+  gem 'rubocop-rails', '~> 2.20', '>= 2.20.2', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.0'
