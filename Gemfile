@@ -28,7 +28,7 @@ gem 'oauthenticator', '~> 1.4', '>= 1.4.1'
 
 gem 'bundler', '>=2.1.4'
 # Use jquery as the JavaScript library
-gem 'jquery-rails'
+gem 'jquery-rails', '>= 4.6.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -57,7 +57,7 @@ gem 'activerecord-session_store'
 
 # frontend
 gem 'bootstrap', '~> 4.3.1'
-gem 'font-awesome-sass', '~> 5.9.0'
+gem 'font-awesome-sass', '~> 6.4.0'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -71,8 +71,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.26', require: false
-  gem 'rubocop-rails', '~> 2.17', '>= 2.17.4', require: false
+  gem 'rubocop', '~> 1.54', require: false
+  gem 'rubocop-rails', '~> 2.20', '>= 2.20.2', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.0'
@@ -87,7 +87,7 @@ group :test do
 end
 
 group :production do
-  gem 'lograge', '~> 0.11.2'
+  gem 'lograge', '~> 0.12.0'
   gem 'remote_syslog_logger'
 end
 
