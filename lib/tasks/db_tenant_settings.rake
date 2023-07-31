@@ -61,7 +61,7 @@ namespace :db do
         tenant_id = args[:uid] || ''
         key = args[:key]
 
-        if key.present?
+        if key.blank?
           puts('Error: The setting key is required to delete a tenant setting')
           exit(1)
         end
