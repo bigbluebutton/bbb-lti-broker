@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1', '>= 6.1.7.4'
+gem 'rails', '~> 6.1', '>= 6.1.7.5'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -41,11 +41,11 @@ gem 'redis', '~> 4.2'
 gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
-gem 'doorkeeper', '~> 5.4.0'
+gem 'doorkeeper', '~> 5.5.0'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
-gem 'react-rails', '>= 2.7.0'
+gem 'react-rails', '>= 3.0.0'
 
 gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.4'
 
@@ -56,7 +56,7 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store'
 
 # frontend
-gem 'bootstrap', '~> 4.4.1'
+gem 'bootstrap', '~> 4.5.0'
 gem 'font-awesome-sass', '~> 6.4.0'
 
 # Use Capistrano for deployment
@@ -87,7 +87,7 @@ group :test do
 end
 
 group :production do
-  gem 'lograge', '~> 0.12.0'
+  gem 'lograge', '~> 0.13.0'
   gem 'remote_syslog_logger'
 end
 
