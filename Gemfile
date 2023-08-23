@@ -4,13 +4,13 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1', '>= 6.1.7.4'
+gem 'rails', '~> 6.1', '>= 6.1.7.5'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
 gem 'pg', '>= 0.4.4'
 # Use Puma as the app server
-gem 'puma', '>= 4.3.5'
+gem 'puma', '>= 6.3.1'
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6.0.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -47,7 +47,7 @@ gem 'repost', '~> 0.3.8'
 gem 'lodash-rails'
 gem 'react-rails', '>= 2.7.0'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.4'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.5'
 
 gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2.3.2.1'
 
