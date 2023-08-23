@@ -470,6 +470,3 @@ DEPENDENCIES
   tzinfo-data
   web-console (>= 4.2.0)
   webmock
-
-BUNDLED WITH
-   2.1.4
