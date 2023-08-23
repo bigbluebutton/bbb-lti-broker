@@ -228,6 +228,7 @@ GEM
     marcel (1.0.2)
     method_source (1.0.0)
     mini_mime (1.1.2)
+    mini_portile2 (2.8.4)
     minitest (5.19.0)
     minitest-stub_any_instance (1.0.3)
     multi_json (1.15.0)
@@ -242,6 +243,9 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     nio4r (2.5.9)
+    nokogiri (1.15.3)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.15.3-x86_64-linux)
       racc (~> 1.4)
     oauth (0.5.14)
@@ -259,7 +263,7 @@ GEM
     psych (5.1.0)
       stringio
     public_suffix (5.0.3)
-    puma (6.3.0)
+    puma (6.3.1)
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.7)
@@ -418,6 +422,7 @@ GEM
     zeitwerk (2.6.9)
 
 PLATFORMS
+  ruby
   x86_64-linux
 
 DEPENDENCIES
@@ -444,7 +449,7 @@ DEPENDENCIES
   oauth (~> 0.5.1)
   oauthenticator (~> 1.4, >= 1.4.1)
   pg (>= 0.4.4)
-  puma (>= 4.3.5)
+  puma (>= 6.3.1)
   rails (~> 6.1, >= 6.1.7.4)
   rails_lti2_provider!
   rdoc
