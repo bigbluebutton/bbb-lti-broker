@@ -1,4 +1,4 @@
-FROM alpine:3.17 AS alpine
+FROM alpine:3.18 AS alpine
 
 ARG RAILS_ROOT=/usr/src/app
 ENV RAILS_ROOT=${RAILS_ROOT}
@@ -41,7 +41,8 @@ COPY . ./
 RUN bundle config build.nokogiri --use-system-libraries \
     && bundle config set --local deployment 'true' \
     && bundle config set --local without 'development:test' \
-    && bundle install -j4 \
+    && bundle config set frozen false
+RUN bundle install -j4 \
     && rm -rf vendor/bundle/ruby/*/cache \
     && find vendor/bundle/ruby/*/gems/ \( -name '*.c' -o -name '*.o' \) -delete
 RUN yarn install --check-files
