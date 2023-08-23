@@ -14,10 +14,10 @@ GIT
 
 GIT
   remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
-  revision: bdc2f0c6db9d88609356ff359a2e76d8f4628f61
-  tag: 0.1.4
+  revision: 5ca1cc0427c04187bbeb81848f0e7bfee72f9534
+  tag: 0.1.5
   specs:
-    rails_lti2_provider (0.1.4)
+    rails_lti2_provider (0.1.5)
       ims-lti (~> 2.3.2.1)
 
 GIT
