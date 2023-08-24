@@ -1,4 +1,4 @@
-FROM alpine:3.16 AS alpine
+FROM alpine:3.18 AS alpine
 
 ARG RAILS_ROOT=/usr/src/app
 ENV RAILS_ROOT=${RAILS_ROOT}
@@ -17,6 +17,8 @@ RUN apk add --no-cache \
     ruby-bigdecimal \
     ruby-bundler \
     ruby-json \
+    ruby-rake \
+    ruby-dev \
     nodejs npm yarn \
     tini \
     tzdata \
@@ -31,7 +33,6 @@ RUN apk add --update --no-cache \
     libxslt-dev \
     pkgconf \
     postgresql-dev \
-    ruby-dev \
     yaml-dev \
     zlib-dev \
     curl-dev git \
@@ -40,7 +41,8 @@ COPY . ./
 RUN bundle config build.nokogiri --use-system-libraries \
     && bundle config set --local deployment 'true' \
     && bundle config set --local without 'development:test' \
-    && bundle install -j4 \
+    && bundle config set frozen false
+RUN bundle install -j4 \
     && rm -rf vendor/bundle/ruby/*/cache \
     && find vendor/bundle/ruby/*/gems/ \( -name '*.c' -o -name '*.o' \) -delete
 RUN yarn install --check-files
@@ -61,7 +63,7 @@ ENV PORT=${PORT:-3000}
 EXPOSE ${PORT}
 
 # Precompile assets
-RUN SECRET_KEY_BASE=1 RAILS_ENV=production bundle exec rake assets:precompile --trace
+RUN SECRET_KEY_BASE=1 RAILS_ENV=${RAILS_ENV:-production} bundle exec rake assets:precompile --trace
 
 # Run startup command
 CMD ["scripts/start.sh"]

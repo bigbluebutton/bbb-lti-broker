@@ -4,13 +4,13 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1', '>= 6.1.7.3'
+gem 'rails', '~> 6.1', '>= 6.1.7.5'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
 gem 'pg', '>= 0.4.4'
 # Use Puma as the app server
-gem 'puma', '>= 4.3.5'
+gem 'puma', '>= 6.3.1'
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6.0.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -28,7 +28,7 @@ gem 'oauthenticator', '~> 1.4', '>= 1.4.1'
 
 gem 'bundler', '>=2.1.4'
 # Use jquery as the JavaScript library
-gem 'jquery-rails'
+gem 'jquery-rails', '>= 4.6.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -45,9 +45,9 @@ gem 'doorkeeper', '~> 5.6.6'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
-gem 'react-rails'
+gem 'react-rails', '>= 3.0.0'
 
-gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.4'
+gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.5'
 
 gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2.3.2.1'
 
@@ -56,8 +56,8 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store'
 
 # frontend
-gem 'bootstrap', '~> 4.3.1'
-gem 'font-awesome-sass', '~> 5.9.0'
+gem 'bootstrap', '~> 4.5.0'
+gem 'font-awesome-sass', '~> 6.4.0'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -67,12 +67,12 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'dotenv-rails'
   gem 'rspec'
-  gem 'rspec-rails'
+  gem 'rspec-rails', '>= 6.0.2'
 end
 
 group :development do
-  gem 'rubocop', '~> 1.26', require: false
-  gem 'rubocop-rails', '~> 2.17', '>= 2.17.4', require: false
+  gem 'rubocop', '~> 1.54', require: false
+  gem 'rubocop-rails', '~> 2.20', '>= 2.20.2', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.0'
@@ -87,7 +87,7 @@ group :test do
 end
 
 group :production do
-  gem 'lograge', '~> 0.11.2'
+  gem 'lograge', '~> 0.13.0'
   gem 'remote_syslog_logger'
 end
 

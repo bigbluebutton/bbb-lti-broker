@@ -37,7 +37,7 @@ module BbbLtiBroker
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    config.url_host = ENV['URL_HOST']
+    config.url_host = ENV['URL_HOST'] || 'localhost'
 
     config.build_number = ENV['BUILD_NUMBER'] || 'v1'
 

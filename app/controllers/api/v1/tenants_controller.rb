@@ -16,26 +16,23 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-module PlatformValidator
-  include ActiveSupport::Concern
+class Api::V1::TenantsController < Api::V1::BaseController
+  before_action :doorkeeper_authorize!
 
-  # LTI 1.0/1.1
-  def lti_secret(key, _options = {})
-    tool = RailsLti2Provider::Tool.find_by_uuid(key)
-    tool&.shared_secret
+  before_action :set_tenant, only: [:show]
+
+  # GET /api/v1/tenant/:uid
+  def show
+    render(json: @tenant, status: :ok)
   end
 
-  # LTI 1.3
-  def lti_registration_exists?(iss, options = {})
-    RailsLti2Provider::Tool.find_by_issuer(iss, options).present?
-  end
+  private
 
-  def lti_registration_params(iss, options = {})
-    reg = lti_registration(iss, options)
-    JSON.parse(reg.tool_settings)
-  end
-
-  def lti_registration(iss, options = {})
-    RailsLti2Provider::Tool.find_by_issuer(iss, options)
+  def set_tenant
+    uid = params[:uid]
+    uid ||= ''
+    @tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
+  rescue ApplicationRecord::RecordNotFound => e
+    render(json: { error: e.message }, status: :not_found)
   end
 end
