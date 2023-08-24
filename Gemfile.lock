@@ -136,7 +136,7 @@ GEM
     docile (1.4.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    doorkeeper (5.4.0)
+    doorkeeper (5.5.4)
       railties (>= 5)
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
@@ -433,7 +433,7 @@ DEPENDENCIES
   byebug
   coffee-rails (~> 5.0, >= 5.0.0)
   coveralls
-  doorkeeper (~> 5.4.0)
+  doorkeeper (~> 5.5.0)
   dotenv-rails
   faraday
   font-awesome-sass (~> 6.4.0)
