@@ -56,7 +56,7 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store'
 
 # frontend
-gem 'bootstrap', '~> 4.4.1'
+gem 'bootstrap', '~> 4.5.0'
 gem 'font-awesome-sass', '~> 6.4.0'
 
 # Use Capistrano for deployment
@@ -87,7 +87,7 @@ group :test do
 end
 
 group :production do
-  gem 'lograge', '~> 0.12.0'
+  gem 'lograge', '~> 0.13.0'
   gem 'remote_syslog_logger'
 end
 
