@@ -76,8 +76,9 @@ module PlatformGradesService
     line_items = JSON.parse(response.body)
 
     line_items.each do |line_item|
-      return line_item
+      return line_item if something?(line_item)
     end
+    raise NotFoundError
   end
 
   # get grades associated with current registration

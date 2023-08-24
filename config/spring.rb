@@ -16,9 +16,9 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-%w[
-  .ruby-version
-  .rbenv-vars
-  tmp/restart.txt
-  tmp/caching-dev.txt
-].each { |path| Spring.watch(path) }
+Spring.watch(
+  '.ruby-version',
+  '.rbenv-vars',
+  'tmp/restart.txt',
+  'tmp/caching-dev.txt'
+)

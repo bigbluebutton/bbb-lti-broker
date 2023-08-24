@@ -27,13 +27,26 @@ Bundler.require(*Rails.groups)
 
 module BbbLtiBroker
   class Application < Rails::Application
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration should go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded.
-    config.url_host = ENV['URL_HOST']
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults(5.0)
+
+    # Configuration for the application, engines, and railties goes here.
+    #
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
+    #
+    # config.time_zone = "Central Time (US & Canada)"
+    # config.eager_load_paths << Rails.root.join("extras")
+    config.url_host = ENV['URL_HOST'] || 'localhost'
 
     config.build_number = ENV['BUILD_NUMBER'] || 'v1'
 
     config.developer_mode_enabled = (ENV['DEVELOPER_MODE_ENABLED'] == 'true')
+
+    config.relative_url_root = "/#{ENV['RELATIVE_URL_ROOT']}"
+
+    config.handler_legacy_patterns = ENV['HANDLER_LEGACY_PATTERNS'] || 'param-resource_link_id,param-oauth_consumer_key'
+
+    config.default_tool = ENV['DEFAULT_LTI_TOOL'] || 'default'
   end
 end

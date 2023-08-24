@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_14_193527) do
+ActiveRecord::Schema.define(version: 2023_03_09_132533) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -57,21 +57,22 @@ ActiveRecord::Schema.define(version: 2020_10_14_193527) do
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
   end
 
-  create_table "rails_lti2_provider_lti_launches", id: :serial, force: :cascade do |t|
+  create_table "rails_lti2_provider_lti_launches", force: :cascade do |t|
     t.bigint "tool_id"
     t.string "nonce"
     t.text "message"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nonce"], name: "index_launch_nonce", unique: true
   end
 
-  create_table "rails_lti2_provider_registrations", id: :serial, force: :cascade do |t|
+  create_table "rails_lti2_provider_registrations", force: :cascade do |t|
     t.string "uuid"
     t.text "registration_request_params"
     t.text "tool_proxy_json"
     t.string "workflow_state"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.bigint "tool_id"
     t.text "correlation_id"
     t.index ["correlation_id"], name: "index_rails_lti2_provider_registrations_on_correlation_id", unique: true
@@ -81,17 +82,20 @@ ActiveRecord::Schema.define(version: 2020_10_14_193527) do
     t.string "uid"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "settings", default: {}, null: false
     t.index ["uid"], name: "index_tenant_uid", unique: true
   end
 
-  create_table "rails_lti2_provider_tools", id: :serial, force: :cascade do |t|
+  create_table "rails_lti2_provider_tools", force: :cascade do |t|
     t.string "uuid"
     t.text "shared_secret"
     t.text "tool_settings"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "lti_version"
     t.integer "tenant_id"
+    t.datetime "expired_at"
+    t.index ["id", "tenant_id"], name: "index_tool_id_tenant_id", unique: true
     t.index ["tenant_id"], name: "index_tenant_id"
     t.index ["uuid"], name: "index_uuid", unique: true
   end

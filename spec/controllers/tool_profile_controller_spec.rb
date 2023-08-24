@@ -20,10 +20,18 @@ require 'rails_helper'
 
 RSpec.describe(ToolProfileController, type: :controller) do
   describe 'GET :app/xml_config' do
+    it 'gives an xml page when developer mode disabled' do
+      ENV['DEVELOPER_MODE_ENABLED'] = 'false'
+      get :xml_config, params: { app: 'default' }
+      expect(response).to(have_http_status(:not_found))
+    end
+
     it 'gives an xml page when developer mode enabled' do
       ENV['DEVELOPER_MODE_ENABLED'] = 'true'
+      puts xml_config_path.to_yaml
+      puts xml_config_url.to_yaml
       get :xml_config, params: { app: 'default' }
-      expect(response).to(be_successful)
+      expect(response).to(have_http_status(:success))
 
       # Element blti:title should never be empty
       doc = Nokogiri::XML(response.body)

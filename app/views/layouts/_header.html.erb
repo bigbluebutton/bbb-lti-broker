@@ -18,7 +18,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 <html lang="en-US">
 <head>
     <title>BbbLtiBroker</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
     <%= csrf_meta_tags %>
@@ -43,8 +42,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
                         <%= image_tag("bbb_logo.png", class: "bbb-logo") %>
                     <% end %>
                 </div>
-                <div class="p-2 bd-highlight"> 
-                    <%= link_to "Config", lti_home_path, :class => "btn btn-outline-primary mx-2 config-button" %>
+                <div class="p-2 bd-highlight">
+                    <%= link_to "Config", root_path, :class => "btn btn-outline-primary mx-2 config-button" %>
                 </div>
             </div>
         </div>

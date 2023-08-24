@@ -23,6 +23,7 @@ require 'securerandom'
 require 'faraday'
 require 'oauthenticator'
 require 'oauth'
+require 'yaml'
 require 'addressable/uri'
 require 'oauth/request_proxy/action_controller_request'
 
@@ -34,10 +35,13 @@ class ApplicationController < ActionController::Base
 
   @build_number = Rails.configuration.build_number
 
-  before_action :print_parameters if Rails.configuration.developer_mode_enabled
-
   def print_parameters
-    logger.debug('>>>>>>>>> Params:')
-    logger.debug(params.to_json)
+    logger.debug(params.to_unsafe_h.sort.to_h.to_yaml)
+  end
+
+  rescue_from ActionController::InvalidAuthenticityToken do |_exception|
+    flash[:alert] = 'Can\'t verify CSRF token authenticity'
+    @error = 'Third party cookies are disabled'
+    redirect_to(errors_path(406))
   end
 end

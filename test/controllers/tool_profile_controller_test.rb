@@ -33,7 +33,7 @@ class ToolProfileControllerTest < ActionDispatch::IntegrationTest
   end
   test 'XML builder gives xml properties that are selected for cartridge link' do
     ENV['DEVELOPER_MODE_ENABLED'] = 'true'
-    get xml_config_path('default') + '?selection_height=500&selection_width=500'
+    get "#{xml_config_path('default')}?selection_height=500&selection_width=500"
     page = Nokogiri::HTML.parse(@response.body)
     assert(page.xpath('//extensions/property'))
   end

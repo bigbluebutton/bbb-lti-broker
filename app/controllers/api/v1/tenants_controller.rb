@@ -16,6 +16,23 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-class MainController < ApplicationController
-  def index; end
+class Api::V1::TenantsController < Api::V1::BaseController
+  before_action :doorkeeper_authorize!
+
+  before_action :set_tenant, only: [:show]
+
+  # GET /api/v1/tenant/:uid
+  def show
+    render(json: @tenant, status: :ok)
+  end
+
+  private
+
+  def set_tenant
+    uid = params[:uid]
+    uid ||= ''
+    @tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
+  rescue ApplicationRecord::RecordNotFound => e
+    render(json: { error: e.message }, status: :not_found)
+  end
 end

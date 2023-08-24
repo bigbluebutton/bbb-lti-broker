@@ -13,15 +13,25 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 %>
 
-<div class="background">
-  <div class="main-message">
-    <div class="container pt-9 pb-8">
-      <div class="row">
-        <div class="col-md-12 col-sm-12 text-center">
-          <h1 id="main-text" class="display-4 mb-4"> Welcome to the LTI Broker! </h1>
-          <p class="lead offset-lg-2 col-lg-8 col-sm-12 ">This is a simple LTI broker between Tool Provider and Tool Suppliers</p>
-        </div>
-      </div>
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>BbbLtiBroker</title>
+    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= csrf_meta_tags %>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            hljs.initHighlightingOnLoad();
+        });
+    </script>
+
+   
+</head>
+<body>
+    <div class="container border border-danger " style="margin-top: 10%">
+        <h1><%= t('error.header') %></h1>
+
+        <%= render 'error', key: @error[:key], message: @error[:message], suggestion: @error[:suggestion] %>
     </div>
-  </div>
-</div>
+</body>

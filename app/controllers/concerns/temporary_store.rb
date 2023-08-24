@@ -44,7 +44,7 @@ module TemporaryStore
     file
   end
 
-  def read_temp_file(file_path, delete = true)
+  def read_temp_file(file_path, delete: true)
     begin
       file = File.open(file_path, 'r')
     rescue StandardError

@@ -20,7 +20,7 @@ module DeepLinkService
   include ActiveSupport::Concern
 
   def deep_link_resource(url, custom_params, title)
-    resource = {
+    {
       'type' => 'ltiResourceLink',
       'title' => title,
       'url' => url,
@@ -29,7 +29,6 @@ module DeepLinkService
       },
       'custom' => custom_params,
     }
-    resource
   end
 
   def deep_link_jwt_response(registration, jwt_header, jwt_body, resources)
@@ -38,7 +37,7 @@ module DeepLinkService
       'aud' => [registration['issuer']],
       'exp' => Time.now.to_i + 600,
       'iat' => Time.now.to_i,
-      'nonce' => 'nonce' + SecureRandom.hex,
+      'nonce' => "nonce#{SecureRandom.hex}",
       'https://purl.imsglobal.org/spec/lti/claim/deployment_id' => jwt_body['https://purl.imsglobal.org/spec/lti/claim/deployment_id'],
       'https://purl.imsglobal.org/spec/lti/claim/message_type' => 'LtiDeepLinkingResponse',
       'https://purl.imsglobal.org/spec/lti/claim/version' => '1.3.0',

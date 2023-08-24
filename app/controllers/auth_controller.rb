@@ -23,6 +23,7 @@ class AuthController < ApplicationController
   include ExceptionHandler
   include PlatformValidator
 
+  before_action :print_parameters if Rails.configuration.developer_mode_enabled
   skip_before_action :verify_authenticity_token
   before_action :validate_oidc_login
 
@@ -31,15 +32,15 @@ class AuthController < ApplicationController
   def login
     logger.info('AuthController: login')
 
-    state = 'state' + SecureRandom.hex
+    state = "state#{SecureRandom.hex}"
 
     cookies[state] = {
       value: state,
       expires: 1.year.from_now,
     }
 
-    nonce = 'nonce' + SecureRandom.hex
-    Rails.cache.write('lti1p3_' + nonce, nonce: nonce)
+    nonce = "nonce#{SecureRandom.hex}"
+    Rails.cache.write("lti1p3_#{nonce}", nonce: nonce)
 
     auth_params = {
       scope: 'openid',
@@ -56,7 +57,7 @@ class AuthController < ApplicationController
     auth_params[:lti_message_hint] = params[:lti_message_hint] if params.key?(:lti_message_hint)
 
     aparams = URI.encode_www_form(auth_params)
-    redirect_to(@registration['auth_login_url'] + '?' + aparams)
+    redirect_post("#{@registration['auth_login_url']}?#{aparams}", options: { authenticity_token: :auto })
   end
 
   private
