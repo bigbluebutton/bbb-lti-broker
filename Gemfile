@@ -45,7 +45,7 @@ gem 'doorkeeper', '~> 5.4.0'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
-gem 'react-rails', '>= 2.7.0'
+gem 'react-rails', '>= 3.0.0'
 
 gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.5'
 

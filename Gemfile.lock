@@ -304,7 +304,7 @@ GEM
       ffi (~> 1.0)
     rdoc (6.5.0)
       psych (>= 4.0.0)
-    react-rails (2.7.1)
+    react-rails (3.0.0)
       babel-transpiler (>= 0.7.0)
       connection_pool
       execjs
@@ -453,7 +453,7 @@ DEPENDENCIES
   rails (~> 6.1, >= 6.1.7.5)
   rails_lti2_provider!
   rdoc
-  react-rails (>= 2.7.0)
+  react-rails (>= 3.0.0)
   redis (~> 4.2)
   remote_syslog_logger
   repost (~> 0.3.8)
