@@ -342,7 +342,7 @@ GEM
       rspec-mocks (~> 3.12)
       rspec-support (~> 3.12)
     rspec-support (3.12.1)
-    rubocop (1.56.1)
+    rubocop (1.56.2)
       base64 (~> 0.1.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -356,7 +356,7 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.29.0)
       parser (>= 3.2.1.0)
-    rubocop-rails (2.20.2)
+    rubocop-rails (2.21.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
@@ -464,7 +464,7 @@ DEPENDENCIES
   rspec
   rspec-rails (>= 6.0.2)
   rubocop (~> 1.54)
-  rubocop-rails (~> 2.20, >= 2.20.2)
+  rubocop-rails (~> 2.21, >= 2.21.0)
   sass-rails (>= 6.0.0)
   simple_oauth!
   spring
