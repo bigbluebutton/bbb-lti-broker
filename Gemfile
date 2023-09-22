@@ -53,7 +53,7 @@ gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2
 
 gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git', tag: 'v0.3.1.1'
 
-gem 'activerecord-session_store'
+gem 'activerecord-session_store', '>= 2.1.0'
 
 # frontend
 gem 'bootstrap', '~> 4.5.0'
