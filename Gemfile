@@ -53,7 +53,7 @@ gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2
 
 gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git', tag: 'v0.3.1.1'
 
-gem 'activerecord-session_store'
+gem 'activerecord-session_store', '>= 2.1.0'
 
 # frontend
 gem 'bootstrap', '~> 4.5.0'
@@ -72,10 +72,10 @@ end
 
 group :development do
   gem 'rubocop', '~> 1.54', require: false
-  gem 'rubocop-rails', '~> 2.20', '>= 2.20.2', require: false
+  gem 'rubocop-rails', '~> 2.21', '>= 2.21.0', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
-  gem 'web-console', '>= 4.2.0'
+  gem 'web-console', '>= 4.2.1'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
