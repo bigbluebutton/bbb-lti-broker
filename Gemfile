@@ -67,7 +67,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'dotenv-rails'
   gem 'rspec'
-  gem 'rspec-rails', '>= 6.0.2'
+  gem 'rspec-rails', '>= 6.0.4'
 end
 
 group :development do
@@ -87,7 +87,7 @@ group :test do
 end
 
 group :production do
-  gem 'lograge', '~> 0.13.0'
+  gem 'lograge', '~> 0.14.0'
   gem 'remote_syslog_logger'
 end
 
