@@ -41,7 +41,7 @@ gem 'redis', '~> 4.2'
 gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
-gem 'doorkeeper', '~> 5.6.6'
+gem 'doorkeeper', '~> 5.6.7'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
@@ -67,7 +67,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'dotenv-rails'
   gem 'rspec'
-  gem 'rspec-rails', '>= 6.0.2'
+  gem 'rspec-rails', '>= 6.0.4'
 end
 
 group :development do
@@ -87,7 +87,7 @@ group :test do
 end
 
 group :production do
-  gem 'lograge', '~> 0.13.0'
+  gem 'lograge', '~> 0.14.0'
   gem 'remote_syslog_logger'
 end
 
