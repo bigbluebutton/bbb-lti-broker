@@ -33,6 +33,7 @@ RAILS_SERVE_STATIC_FILES=true
 
 ## Enable redis for actioncable
 # REDIS_URL=redis://myuser:mypass@localhost
+REDIS_PREFIX=bbb-lti-broker
 
 # Only needed for Docker Compose.
 ## Change DOCKER_REPO when using a repo other than bigbluebutton
