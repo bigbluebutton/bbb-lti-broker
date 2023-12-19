@@ -81,10 +81,8 @@ namespace :db do
         puts("App '#{args[:name]}' does not exist, it can not be deleted")
         exit(1)
       end
-      blti_apps.each do |app|
-        app.delete
-        puts("App '#{args[:name]}' was deleted")
-      end
+      blti_apps.each(&:destroy)
+      puts("Apps with name '#{args[:name]}' were successfully destroyed")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
