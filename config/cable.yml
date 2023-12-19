@@ -6,5 +6,4 @@ test:
 
 production:
   adapter: <%= ENV['CABLE_ADAPTER'] || 'async' %>
-  # adapter: redis
-  # url: redis://localhost:6379/1
+  channel_prefix: <%= ENV.fetch("REDIS_PREFIX") { "bbb-lti-broker" } %>
