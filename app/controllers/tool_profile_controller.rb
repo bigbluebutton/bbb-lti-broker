@@ -132,8 +132,8 @@ class ToolProfileController < ApplicationController
       tc.set_ext_param(platform, :icon_url, tc.icon)
       tc.set_ext_param(platform, :domain, request.host_with_port)
 
-      params[:custom_params]&.each { |_, v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
-      params[:placements]&.each { |k, _| create_placement(tc, k.to_sym) }
+      params[:custom_params]&.each_value { |v| tc.set_custom_param(v[:name].to_sym, v[:value]) }
+      params[:placements]&.each_key { |k| create_placement(tc, k.to_sym) }
     end
     tc.to_xml(indent: 2)
   end
