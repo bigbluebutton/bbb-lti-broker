@@ -50,6 +50,7 @@ en:
     goback:         "Go Back"
     issuer:         "Issuer"
     clientid:       "Client ID"
+    deploymentid:   "Deployment ID"
     keyseturl:      "Key set URL"
     authtokenurl:   "Auth token URL"
     authloginurl:   "Auth login URL"
