@@ -70,7 +70,7 @@ class AuthController < ApplicationController
     options['client_id'] = params[:client_id] if params.key?('client_id')
 
     unless lti_registration_exists?(params[:iss], options)
-      render(file: Rails.root.join('public/500'), layout: false, status: :not_found)
+      render(file: Rails.root.join('public/500.html'), layout: false, status: :not_found)
       logger.error('ERROR: The app is not currently registered within the lti broker.')
       return
     end
