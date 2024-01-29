@@ -61,7 +61,7 @@ class ToolProfileController < ApplicationController
       @json_config['target_link_uri'] = openid_launch_url
       @json_config['oidc_initiation_url'] = openid_login_url
 
-      jwk = OpenSSL::PKey::RSA.new(read_temp_file(@keys[:public_key_path], false)).to_jwk
+      jwk = OpenSSL::PKey::RSA.new(read_temp_file(@keys[:public_key_path], delete: false)).to_jwk
       jwk['alg'] = 'RS256' unless jwk.key?('alg')
       jwk['use'] = 'sig' unless jwk.key?('use')
 
