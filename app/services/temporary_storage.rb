@@ -7,7 +7,7 @@ class TemporaryStorage
   end
 
   def read(file, deletion: true)
-    read_temp_file(file, deletion)
+    read_temp_file(file, delete: deletion)
   end
 
   def temp_folder
