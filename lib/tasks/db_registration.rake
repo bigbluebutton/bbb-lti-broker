@@ -173,7 +173,7 @@ namespace :db do
         Rails.cache.write(temp_key_token, public_key_path: public_key_file.path, private_key_path: private_key_file.path, timestamp: Time.now.to_i)
       end
 
-      # Setting jwk
+      # Setting jwk with same private key
       jwk = JWT::JWK.new(private_key).export
       jwk['alg'] = 'RS256' unless jwk.key?('alg')
       jwk['use'] = 'sig' unless jwk.key?('use')
