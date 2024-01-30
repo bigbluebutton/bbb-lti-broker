@@ -75,7 +75,7 @@ module OpenIdAuthenticator
 
   def validate_jwt_signature(reg, jwt_header)
     # TODO: Check if there is a safe way to do this instead of disabling the SSL verification.
-    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read({ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE}))
+    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read({ ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }))
     jwk_json = public_key_set['keys'].find do |key|
       key['kid'] == jwt_header['kid']
     end
