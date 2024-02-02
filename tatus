@@ -1,0 +1,33 @@
+[1mdiff --git a/app/controllers/concerns/open_id_authenticator.rb b/app/controllers/concerns/open_id_authenticator.rb[m
+[1mindex 64b75d0..00186a9 100644[m
+[1m--- a/app/controllers/concerns/open_id_authenticator.rb[m
+[1m+++ b/app/controllers/concerns/open_id_authenticator.rb[m
+[36m@@ -75,7 +75,8 @@[m [mmodule OpenIdAuthenticator[m
+ [m
+   def validate_jwt_signature(reg, jwt_header)[m
+     # TODO: Check if there is a safe way to do this instead of disabling the SSL verification.[m
+[31m-    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read({ ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }))[m
+[32m+[m[32m    # public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read({ ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }))[m
+[32m+[m[32m    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read)[m
+     jwk_json = public_key_set['keys'].find do |key|[m
+       key['kid'] == jwt_header['kid'][m
+     end[m
+[1mdiff --git a/app/controllers/message_controller.rb b/app/controllers/message_controller.rb[m
+[1mindex fa03aaf..2c67737 100644[m
+[1m--- a/app/controllers/message_controller.rb[m
+[1m+++ b/app/controllers/message_controller.rb[m
+[36m@@ -146,7 +146,13 @@[m [mclass MessageController < ApplicationController[m
+ [m
+   # verify lti 1.3 launch[m
+   def process_openid_message[m
+[31m-    jwt = verify_openid_launch[m
+[32m+[m[32m    begin[m
+[32m+[m[32m      jwt = verify_openid_launch[m
+[32m+[m[32m    rescue StandardError => e[m
+[32m+[m[32m      logger.error("Error in openid launch verification: #{e}")[m
+[32m+[m[32m      raise e[m
+[32m+[m[32m    end[m
+[32m+[m
+     @jwt_header = jwt[:header][m
+     @jwt_body = jwt[:body][m
+ [m
