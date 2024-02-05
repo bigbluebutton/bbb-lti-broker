@@ -74,7 +74,7 @@ module OpenIdAuthenticator
   end
 
   def validate_jwt_signature(reg, jwt_header)
-    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read).open
+    public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read)
     jwk_json = public_key_set['keys'].find do |key|
       key['kid'] == jwt_header['kid']
     end
