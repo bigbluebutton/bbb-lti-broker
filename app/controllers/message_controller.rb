@@ -146,7 +146,13 @@ class MessageController < ApplicationController
 
   # verify lti 1.3 launch
   def process_openid_message
-    jwt = verify_openid_launch
+    begin
+      jwt = verify_openid_launch
+    rescue StandardError => e
+      logger.error("Error in openid launch verification: #{e}")
+      raise e
+    end
+
     @jwt_header = jwt[:header]
     @jwt_body = jwt[:body]
 
