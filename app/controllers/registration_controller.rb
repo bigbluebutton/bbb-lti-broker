@@ -127,6 +127,25 @@ class RegistrationController < ApplicationController
     redirect_to(registration_list_path)
   end
 
+  def dynamic
+    # Setting temp keys
+    private_key = OpenSSL::PKey::RSA.generate(4096)
+    public_key = private_key.public_key
+
+    # keep temp files in scope so they are not deleted
+    storage = TemporaryStorage.new
+    public_key_file = storage.store('bbb-lti-rsa-pub-', public_key.to_s)
+    private_key_file = storage.store('bbb-lti-rsa-pri-', private_key.to_s)
+
+    temp_key_token = SecureRandom.hex
+
+    ActiveRecord::Base.connection.cache do
+      Rails.cache.write(temp_key_token, public_key_path: public_key_file.path, private_key_path: private_key_file.path, timestamp: Time.now.to_i)
+    end
+
+    redirect_to(json_config_url(app: params[:app], temp_key_token: temp_key_token))
+  end
+
   private
 
   def set_temp_keys
