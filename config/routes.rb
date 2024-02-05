@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   post 'grades/:grades_token/change', to: 'grades#send_grades', as: :send_grades
 
   # registration (LMS -> broker)
+  get 'registration/dynamic/:app', to: 'registration#dynamic', as: :registration_dynamic
   get 'registration/list', to: 'registration#list', as: :registration_list
   get 'registration/new', to: 'registration#new', as: :new_registration
   get 'registration/edit', to: 'registration#edit', as: :edit_registration
