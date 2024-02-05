@@ -31,6 +31,7 @@ RUN apk add --update --no-cache \
     build-base \
     libxml2-dev \
     libxslt-dev \
+    libffi-dev \
     pkgconf \
     postgresql-dev \
     yaml-dev \
