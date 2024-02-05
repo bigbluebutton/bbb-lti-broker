@@ -94,6 +94,6 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data'
 
-gem 'coveralls', require: false
+gem 'coveralls_reborn', require: false
 
 gem 'rdoc', require: false
