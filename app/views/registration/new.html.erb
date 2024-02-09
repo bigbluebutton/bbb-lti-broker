@@ -21,6 +21,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
     <br>
     <%= form_tag(submit_registration_path) do %>
         <%= content_tag :div, class: "form-group row" do %>
+            <%= label_tag(:app, t('registration.tenant') + ':', class: "col-sm-2 col-form-label") %>
+            <%= content_tag :div, class: "col-sm-10 col" do %>
+                <%= select_tag 'tenant', options_for_select(@tenants) %>
+                <p>Note: Leaving Tenant blank means that this tool will deploy in single tenant mode.</p>
+            <% end %>
+        <% end %>
+        <%= content_tag :div, class: "form-group row" do %>
             <%= label_tag(:iss, class: "col-sm-2 col-form-label") do %>
                 <%= t('registration.issuer') %>
                 <%= label_tag(:required, "(#{t('registration.required')})", class: "form-required-txt") %>:
