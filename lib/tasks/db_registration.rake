@@ -14,7 +14,6 @@ namespace :db do
         issuer = $stdin.gets.strip
       end
       abort('The Issuer must be valid.') if issuer.blank?
-      abort('Issuer or Platform ID has already been registered.') if RailsLti2Provider::Tool.exists?(uuid: issuer)
 
       # Client ID.
       client_id = args[:client_id]
@@ -79,6 +78,8 @@ namespace :db do
       tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
       tenant = RailsLti2Provider::Tenant.first if tenant.nil?
       abort('Tenant not found. Tenant UID must be valid or Deafult Tenant must exist.') if tenant.nil?
+
+      abort("Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.") if RailsLti2Provider::Tool.exists?(uuid: issuer, tenant: tenant)
 
       tool = RailsLti2Provider::Tool.create(
         uuid: issuer,
