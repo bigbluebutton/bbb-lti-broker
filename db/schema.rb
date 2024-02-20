@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_09_132533) do
+ActiveRecord::Schema.define(version: 2024_02_16_190350) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -96,8 +96,8 @@ ActiveRecord::Schema.define(version: 2023_03_09_132533) do
     t.integer "tenant_id"
     t.datetime "expired_at"
     t.index ["id", "tenant_id"], name: "index_tool_id_tenant_id", unique: true
+    t.index ["tenant_id", "uuid"], name: "index_tenant_id_uuid", unique: true
     t.index ["tenant_id"], name: "index_tenant_id"
-    t.index ["uuid"], name: "index_uuid", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|
