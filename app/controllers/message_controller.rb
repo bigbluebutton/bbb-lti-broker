@@ -34,7 +34,7 @@ class MessageController < ApplicationController
   # skip rail default verify auth token - we use our own strategies
   skip_before_action :verify_authenticity_token
   # verify that the application belongs to us before doing anything with it
-  before_action :lti_authorized_application
+  before_action :lti_authorized_application, only: %i[basic_lti_launch_request basic_lti_launch_request_legacy]
   # validates message with oauth in rails lti2 provider gem
   before_action :lti_authentication, only: %i[basic_lti_launch_request basic_lti_launch_request_legacy]
   # validates message corresponds to a LTI launch
@@ -76,7 +76,7 @@ class MessageController < ApplicationController
     # Redirect to external application if configured
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
     session[:user_id] = @current_user.id
-    redirector = app_launch_path(params.to_unsafe_h)
+    redirector = app_launch_path(params.to_unsafe_h.symbolize_keys)
     redirect_post(redirector, options: { authenticity_token: :auto })
   end
 
@@ -102,16 +102,16 @@ class MessageController < ApplicationController
     @oauth_consumer_key = params[:oauth_consumer_key]
   end
 
-  # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.3
+  # first touch point from platform (moodle, canvas, etc) when using LTI 1.3
   def openid_launch_request
-    return if params[:app] == 'default'
-
+    ## TODO: as for now, the launch for LTI 1.3 sets params[:app] with the default tool (only). This should change once deep_linking is enabled.
+    params[:app] ||= Rails.configuration.default_tool
     params[:oauth_nonce] = @jwt_body['nonce']
     params[:oauth_consumer_key] = @jwt_body['iss']
     # Redirect to external application if configured
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
     session[:user_id] = @current_user.id
-    redirector = app_launch_path(params.to_unsafe_h)
+    redirector = app_launch_path(params.to_unsafe_h.symbolize_keys)
     redirect_post(redirector, options: { authenticity_token: :auto })
   end
 
