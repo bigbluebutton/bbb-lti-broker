@@ -2,29 +2,50 @@
 
 namespace :db do
   namespace :registration do
-    desc 'Add new Tool configuration [key, jwk]'
-    task :new, [:type] => :environment do |_t, args|
+    desc 'Add new Tool configuration [issuer,client_id,keyset_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
+    task :new, %i[issuer client_id key_set_url auth_token_url auth_login_url tenant_uid] => :environment do |_t, args|
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
 
-      abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
+      # Issuer or Platform ID.
+      issuer = args[:issuer]
+      if issuer.blank?
+        $stdout.puts('What is the Issuer or Platform ID?')
+        issuer = $stdin.gets.strip
+      end
+      abort('The Issuer must be valid.') if issuer.blank?
 
-      $stdout.puts('What is the issuer?')
-      issuer = $stdin.gets.strip
+      # Client ID.
+      client_id = args[:client_id]
+      if client_id.blank?
+        $stdout.puts('What is the Client ID?')
+        client_id = $stdin.gets.strip
+      end
+      abort('The Client ID must be valid.') if client_id.blank?
 
-      abort('The issuer must be valid.') if issuer.blank?
+      # Public Keyset URL.
+      key_set_url = args[:key_set_url]
+      if key_set_url.blank?
+        $stdout.puts('What is the Public Keyset URL?')
+        key_set_url = $stdin.gets.strip
+      end
+      abort('The Keyset URL must be valid.') if key_set_url.blank?
 
-      $stdout.puts('What is the client id?')
-      client_id = $stdin.gets.strip
+      # Access Token URL.
+      auth_token_url = args[:auth_token_url]
+      if auth_token_url.blank?
+        $stdout.puts('What is the Access Token URL?')
+        auth_token_url = $stdin.gets.strip
+      end
+      abort('The Access Token URL must be valid.') if auth_token_url.blank?
 
-      $stdout.puts('What is the key set url?')
-      key_set_url = $stdin.gets.strip
-
-      $stdout.puts('What is the auth token url?')
-      auth_token_url = $stdin.gets.strip
-
-      $stdout.puts('What is the auth login url?')
-      auth_login_url = $stdin.gets.strip
+      # Authentication Request Login URL.
+      auth_login_url = args[:auth_login_url]
+      if auth_login_url.blank?
+        $stdout.puts('What is the Authentication Request Login URL?')
+        auth_login_url = $stdin.gets.strip
+      end
+      abort('The Authentication Request Login URL must be valid.') if auth_login_url.blank?
 
       private_key = OpenSSL::PKey::RSA.generate(4096)
       public_key = private_key.public_key
@@ -51,19 +72,31 @@ namespace :db do
         key_set_url: key_set_url,
         auth_token_url: auth_token_url,
         auth_login_url: auth_login_url,
-        # tool_private_key: "#{Rails.root}/.ssh/#{key_dir}/priv_key",
-        tool_private_key: Rails.root.join(".ssh/#{key_dir}/priv_key"), # #{Rails.root}/.ssh/#{key_dir}/priv_key",
+        tool_private_key: Rails.root.join(".ssh/#{key_dir}/priv_key"),
       }
 
-      RailsLti2Provider::Tool.create(
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
+      tenant = RailsLti2Provider::Tenant.first if tenant.nil?
+      abort('Tenant not found. Tenant UID must be valid or Deafult Tenant must exist.') if tenant.nil?
+
+      abort("Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.") if RailsLti2Provider::Tool.exists?(uuid: issuer, tenant: tenant)
+
+      tool = RailsLti2Provider::Tool.create(
         uuid: issuer,
         shared_secret: client_id,
         tool_settings: reg.to_json,
-        lti_version: '1.3.0'
+        lti_version: '1.3.0',
+        tenant: tenant
       )
 
-      puts(jwk) if args[:type] == 'jwk'
-      puts(public_key) if args[:type] == 'key'
+      $stdout.puts("Tool:\n#{tool.to_json}")
+      $stdout.puts("\n")
+      $stdout.puts("Private Key:\n#{private_key}")
+      $stdout.puts("\n")
+      $stdout.puts("Public Key:\n#{public_key}")
+      $stdout.puts("\n")
+      $stdout.puts("JWK:\n#{jwk}")
+      $stdout.puts("\n")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -142,19 +175,18 @@ namespace :db do
       puts(public_key) if args[:type] == 'key'
     end
 
-    desc 'Lists the Registration Configuration URLs need to register an app'
-    task :url, [] => :environment do |_t|
+    desc 'Lists the Registration Configuration URLs need to register an app [app]'
+    task :url, [:app] => :environment do |_t, args|
       include Rails.application.routes.url_helpers
       default_url_options[:host] = ENV['URL_HOST']
 
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
 
-      $stdout.puts('What is the app you want to register with?')
-      requested_app = $stdin.gets.strip
-      app = Doorkeeper::Application.find_by(name: requested_app)
+      app_name = args[:app] || Rails.configuration.default_tool
+      app = Doorkeeper::Application.find_by(name: app_name)
       if app.nil?
-        puts("App '#{requested_app}' does not exist, no urls can be given.")
+        puts("App '#{app_name}' does not exist, no urls can be given.")
         exit(1)
       end
 
@@ -179,19 +211,21 @@ namespace :db do
       jwk['use'] = 'sig' unless jwk.key?('use')
       jwk = jwk.to_json
 
-      $stdout.puts("Tool URL: \n#{openid_launch_url(app: app.name)}")
+      $stdout.puts("Tool URL:\n#{openid_launch_url(protocol: 'https', app: app.name)}")
       $stdout.puts("\n")
-      $stdout.puts("Deep Link URL: \n#{deep_link_request_launch_url(app: app.name)}")
+      $stdout.puts("Deep Link URL:\n#{deep_link_request_launch_url(protocol: 'https', app: app.name)}")
       $stdout.puts("\n")
-      $stdout.puts("Initiate login URL URL: \n#{openid_login_url(app: app.name)}")
+      $stdout.puts("Initiate login URL:\n#{openid_login_url(protocol: 'https', app: app.name)}")
       $stdout.puts("\n")
-      $stdout.puts(format("Redirection URL(s):, \n#{openid_launch_url(app: app.name)}", "\n", deep_link_request_launch_url(app: app.name).to_s))
+      $stdout.puts(format("Redirection URI(s):\n#{openid_launch_url(protocol: 'https', app: app.name)}\n#{deep_link_request_launch_url(protocol: 'https', app: app.name)}"))
       $stdout.puts("\n")
-      $stdout.puts("Public Key: \n #{public_key}")
+      $stdout.puts("Private Key:\n#{private_key}")
       $stdout.puts("\n")
-      $stdout.puts("JWK: \n #{jwk}")
+      $stdout.puts("Public Key:\n#{public_key}")
       $stdout.puts("\n")
-      $stdout.puts("JSON Configuration URL: \n #{json_config_url(app: app.name, temp_key_token: temp_key_token)}")
+      $stdout.puts("JWK:\n#{jwk}")
+      $stdout.puts("\n")
+      $stdout.puts("JSON Configuration URL:\n#{json_config_url(protocol: 'https', app: app.name, temp_key_token: temp_key_token)}")
     end
 
     desc 'Deletes the registration keys inside the temporary bbb-lti folder'

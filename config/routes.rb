@@ -25,7 +25,17 @@ Rails.application.routes.draw do
   get '(:tenant)/tool(.xml)', to: 'tool_profile#xml_config_legacy', app: Rails.configuration.default_tool
   post '(:tenant)/tool', to: 'message#basic_lti_launch_request_legacy', as: 'blti_launch_legacy', app: Rails.configuration.default_tool
 
-  # rooms calls this api to validate launch from broker
+  # tool registration (broker -> tool)
+  use_doorkeeper do
+    # Including 'skip_controllers :application' disables the controller for managing external applications
+    #   [http://example.com/lti/oauth/applications]
+    skip_controllers :applications unless ENV['DEVELOPER_MODE_ENABLED'] == 'true'
+  end
+
+  # tool launch (responds only to post)
+  post ':app/launch', to: 'apps#launch', as: :app_launch
+
+  # tool calls this api to validate launch from broker
   namespace :api do
     namespace :v1 do
       get 'users/:id', to: 'users#show', as: :users
@@ -39,44 +49,28 @@ Rails.application.routes.draw do
   get 'grades/:grades_token/list', to: 'grades#grades_list', as: :grades_list
   post 'grades/:grades_token/change', to: 'grades#send_grades', as: :send_grades
 
-  # registration (LMS -> broker)
-  get 'registration/dynamic/:app', to: 'registration#dynamic', as: :registration_dynamic
-  get 'registration/list', to: 'registration#list', as: :registration_list
-  get 'registration/new', to: 'registration#new', as: :new_registration
-  get 'registration/edit', to: 'registration#edit', as: :edit_registration
-  post 'registration/submit', to: 'registration#submit', as: :submit_registration
-  get 'registration/delete', to: 'registration#delete', as: :delete_registration
-
-  # registration (broker -> rooms)
-  use_doorkeeper do
-    # Including 'skip_controllers :application' disables the controller for managing external applications
-    #   [http://example.com/lti/oauth/applications]
-    skip_controllers :applications unless ENV['DEVELOPER_MODE_ENABLED'] == 'true'
-  end
-
-  # lti 1.3 authenticate user through login
-  get ':app/auth/login', to: 'auth#login'
-  post ':app/auth/login', to: 'auth#login', as: 'openid_login'
-  post ':app/messages/oblti', to: 'message#openid_launch_request', as: 'openid_launch'
+  # lti 1.1
   # requests from tool consumer go through this path
   get ':app/messages/blti', to: 'tool_profile#xml_config', app: Rails.configuration.default_tool
   post ':app/messages/blti', to: 'message#basic_lti_launch_request', as: 'blti_launch'
 
-  # requests from xml_config go through these paths
-  post ':app/messages/content-item', to: 'message#content_item_selection', as: 'content_item_request_launch'
-  post ':app/messages/content-item', to: 'message#basic_lti_launch_request', as: 'content_item_launch'
-  post ':app/messages/deep-link', to: 'message#deep_link', as: 'deep_link_request_launch'
-  post ':app/messages/signed_content_item_request', to: 'message#signed_content_item_request'
-
-  # LTI LAUNCH URL (responds to get and post)
-  post ':app/launch', to: 'apps#launch', as: :app_launch
-
-  match ':app/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
-
-  # xml config and builder for lti 1.0/1.1
+  # xml config and builder (for Canvas)
   get ':app/xml_config', to: 'tool_profile#xml_config', app: Rails.configuration.default_tool, as: :xml_config
   get ':app/xml_builder', to: 'tool_profile#xml_builder', app: Rails.configuration.default_tool, as: :xml_builder
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
+  # lti 1.3
+  # authenticate user through login
+  # e.g. https://HOSTNAME/lti/tool/auth/login sends launch to default app unless deep_link is used
+  get 'tool/auth/login', to: 'auth#login'
+  post 'tool/auth/login', to: 'auth#login', as: 'openid_login'
+  post 'tool/messages/oblti', to: 'message#openid_launch_request', as: 'openid_launch'
+  # requests from xml_config go through these paths
+  post 'tool/messages/content-item', to: 'message#content_item_selection', as: 'content_item_request_launch'
+  post 'tool/messages/content-item', to: 'message#basic_lti_launch_request', as: 'content_item_launch'
+  post 'tool/messages/deep-link', to: 'message#deep_link', as: 'deep_link_request_launch'
+  post 'tool/messages/signed_content_item_request', to: 'message#signed_content_item_request'
+
+  match 'tool/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 
   get '/errors/:code', to: 'errors#index', as: :errors
 
