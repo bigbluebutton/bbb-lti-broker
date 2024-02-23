@@ -10,4 +10,4 @@ To add a settings for a specific tenant, use the following rake task: `rake db:t
 | handler_params | The launch parameters to use for creating the room ID. To add more than one parameter, use the following syntax: "param1\\,param2". For example: "context_id\\,resource_link_id" |
 | enable_shared_rooms | Whether or not to enable the shared rooms feature. The default is false. |
 | hide_build_tag | Whether or not to hide the build tag. The default is false. |
-
+| bigbluebutton_moderator_roles | Changes roles to be moderator. To change more than one moderator role, use the following syntax: "moderator1\\,moderator2". For example: "Learner\\,Teacher" |
