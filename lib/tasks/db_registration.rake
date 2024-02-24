@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'task_helpers'
+
 namespace :db do
   namespace :registration do
     desc 'Add new Tool configuration [issuer,client_id,keyset_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
@@ -235,5 +237,140 @@ namespace :db do
       # Removes everything inside the bbb-lti folder
       FileUtils.rm_rf(Dir["#{storage.temp_folder}/*"])
     end
+
+    namespace :enable do
+      desc 'Enable a registration by [key,value]'
+      task :by, [:key, :value] => :environment do |_t, args|
+        $stdout.puts("db:registration:enable:by[#{args[:key]},#{args[:value]}]")
+
+        # Key.
+        key = args[:key]
+        if key.blank?
+          $stdout.puts('What is the Key?')
+          key = $stdin.gets.strip
+        end
+        abort('The Key cannot be blank.') if key.blank?
+
+        # Value.
+        value = args[:value]
+        if value.blank?
+          $stdout.puts('What is the Value?')
+          value = $stdin.gets.strip
+        end
+        abort('The Value cannot be blank.') if value.blank?
+
+        TaskHelpers.tool_enable_by(key.to_sym, value)
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+
+      desc 'Enable all registrations'
+      task all: :environment do |_t|
+        $stdout.puts('db:registration:enable:all')
+
+        registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+        registrations.each do |registration|
+          TaskHelpers.tool_enable_by(:id, registration.id)
+        end
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+    end
+
+    desc 'Enable a registration by ID [id]'
+    task :enable, [:id] => :environment do |_t, args|
+      $stdout.puts("db:registration:enable[#{args[:id]}]")
+
+      # ID.
+      id = args[:id]
+      if id.blank?
+        $stdout.puts('What is the ID?')
+        id = $stdin.gets.strip
+      end
+      abort('The ID must be valid.') if id.blank?
+
+      TaskHelpers.tool_enable_by(:id, id)
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    namespace :disable do
+      desc 'Disable a registration by [key,value]'
+      task :by, [:key, :value] => :environment do |_t, args|
+        $stdout.puts("db:registration:disable:by[#{args[:key]},#{args[:value]}]")
+
+        # Key.
+        key = args[:key]
+        if key.blank?
+          $stdout.puts('What is the Key?')
+          key = $stdin.gets.strip
+        end
+        abort('The Key cannot be blank.') if key.blank?
+
+        # Value.
+        value = args[:value]
+        if value.blank?
+          $stdout.puts('What is the Value?')
+          value = $stdin.gets.strip
+        end
+        abort('The Value cannot be blank.') if value.blank?
+
+        TaskHelpers.tool_disable_by(key.to_sym, value)
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+
+      desc 'Disable all registrations'
+      task all: :environment do |_t|
+        $stdout.puts('db:registration:disable:all')
+
+        registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+        registrations.each do |registration|
+          TaskHelpers.tool_disable_by(:id, registration.id)
+        end
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+    end
+
+    desc 'Disable a registration by ID [id]'
+    task :disable, [:id] => :environment do |_t, args|
+      $stdout.puts("db:registration:disable[#{args[:id]}]")
+
+      # ID.
+      id = args[:id]
+      if id.blank?
+        $stdout.puts('What is the ID?')
+        id = $stdin.gets.strip
+      end
+      abort('The ID must be valid.') if id.blank?
+
+      TaskHelpers.tool_disable_by(:id, id)
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
+
+  desc 'Show all existent registrations'
+  task :registration, [] => :environment do |_t|
+    include BbbLtiBroker::Helpers
+    Rake::Task['environment'].invoke
+    ActiveRecord::Base.connection
+    registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+    registrations.each do |registration|
+      output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
+      output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
+      output += " is #{registration.status}"
+      puts(output)
+    end
+  rescue StandardError => e
+    puts(e.backtrace)
+    exit(1)
   end
 end

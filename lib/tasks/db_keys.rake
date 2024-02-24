@@ -97,21 +97,10 @@ namespace :db do
       exit(1)
     end
 
-    desc 'Show all existent blti keypairs'
-    task :showall, [] => :environment do |_t|
-      include BbbLtiBroker::Helpers
-      Rake::Task['environment'].invoke
-      ActiveRecord::Base.connection
-      blti_keys = RailsLti2Provider::Tool.all
-      blti_keys.each do |key|
-        for_teanat = ''
-        for_teanat = " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
-        puts("'#{key.uuid}'='#{key.shared_secret}'" +  for_teanat)
-      end
-    rescue StandardError => e
-      puts(e.backtrace)
-      exit(1)
-    end
+    # desc 'Show all existent blti keypairs for backward compatibil'
+    # task :showall, [] => :environment do |_t|
+    #   Rake::Task['db:keys'].invoke
+    # end
 
     desc 'Show a key-secret pair if it exists'
     task :show, [:key, :tenant] => :environment do |_t, args|
@@ -138,5 +127,142 @@ namespace :db do
       puts(e.backtrace)
       exit(1)
     end
+
+    namespace :enable do
+      desc 'Enable a key by [key,value]'
+      task :by, [:key, :value] => :environment do |_t, args|
+        $stdout.puts("db:key:enable:by[#{args[:key]},#{args[:value]}]")
+
+        # Key.
+        key = args[:key]
+        if key.blank?
+          $stdout.puts('What is the Key?')
+          key = $stdin.gets.strip
+        end
+        abort('The Key cannot be blank.') if key.blank?
+
+        # Value.
+        value = args[:value]
+        if value.blank?
+          $stdout.puts('What is the Value?')
+          value = $stdin.gets.strip
+        end
+        abort('The Value cannot be blank.') if value.blank?
+
+        TaskHelpers.tool_enable_by(key.to_sym, value)
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+
+      desc 'Enable all keys'
+      task all: :environment do |_t|
+        $stdout.puts('db:key:enable:all')
+
+        keys = RailsLti2Provider::Tool.where.not(lti_version: '1.3.0')
+        keys.each do |key|
+          TaskHelpers.tool_enable_by(:id, key.id)
+        end
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+    end
+
+    desc 'Enable a key by ID [id]'
+    task :enable, [:id] => :environment do |_t, args|
+      $stdout.puts("db:key:enable[#{args[:id]}]")
+
+      # ID.
+      id = args[:id]
+      if id.blank?
+        $stdout.puts('What is the ID?')
+        id = $stdin.gets.strip
+      end
+      abort('The ID must be valid.') if id.blank?
+
+      TaskHelpers.tool_enable_by(:id, id)
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    namespace :disable do
+      desc 'Disable a key by [key,value]'
+      task :by, [:key, :value] => :environment do |_t, args|
+        $stdout.puts("db:key:disable:by[#{args[:key]},#{args[:value]}]")
+
+        # Key.
+        key = args[:key]
+        if key.blank?
+          $stdout.puts('What is the Key?')
+          key = $stdin.gets.strip
+        end
+        abort('The Key cannot be blank.') if key.blank?
+
+        # Value.
+        value = args[:value]
+        if value.blank?
+          $stdout.puts('What is the Value?')
+          value = $stdin.gets.strip
+        end
+        abort('The Value cannot be blank.') if value.blank?
+
+        TaskHelpers.tool_disable_by(key.to_sym, value)
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+
+      desc 'Disable all keys'
+      task all: :environment do |_t|
+        $stdout.puts('db:key:disable:all')
+
+        keys = RailsLti2Provider::Tool.where.not(lti_version: '1.3.0')
+        keys.each do |key|
+          TaskHelpers.tool_disable_by(:id, key.id)
+        end
+      rescue StandardError => e
+        puts(e.backtrace)
+        exit(1)
+      end
+    end
+
+    desc 'Disable a key by ID [id]'
+    task :disable, [:id] => :environment do |_t, args|
+      $stdout.puts("db:key:disable[#{args[:id]}]")
+
+      # ID.
+      id = args[:id]
+      if id.blank?
+        $stdout.puts('What is the ID?')
+        id = $stdin.gets.strip
+      end
+      abort('The ID must be valid.') if id.blank?
+
+      TaskHelpers.tool_disable_by(:id, id)
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
+
+  desc 'Show all existent blti keypairs'
+  task :keys, [] => :environment do |_t|
+    include BbbLtiBroker::Helpers
+    Rake::Task['environment'].invoke
+    ActiveRecord::Base.connection
+    blti_keys = RailsLti2Provider::Tool.all
+    blti_keys.each do |key|
+      next if key.lti_version == '1.3.0'
+
+      output = "{'id': '#{key.id}', 'uuid': '#{key.uuid}', 'shared_secret': '#{key.shared_secret}'}"
+      output += " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
+      output += " is #{key.status}"
+      puts(output)
+    end
+  rescue StandardError => e
+    puts(e.backtrace)
+    exit(1)
   end
 end
