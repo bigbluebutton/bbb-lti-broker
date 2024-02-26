@@ -53,6 +53,8 @@ class MessageController < ApplicationController
                'The nonce has already been used'
              when :request_too_old
                'The request is too old'
+             when :disabled_key
+               'The key is disabled'
              else
                'Unknown Error'
              end

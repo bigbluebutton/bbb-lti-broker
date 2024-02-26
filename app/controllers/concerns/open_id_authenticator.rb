@@ -20,6 +20,7 @@ require 'open-uri'
 
 module OpenIdAuthenticator
   include ActiveSupport::Concern
+  include ExceptionHandler
 
   def verify_openid_launch
     validate_openid_message_state
@@ -70,6 +71,7 @@ module OpenIdAuthenticator
   def validate_registration(jwt_body)
     registration = RailsLti2Provider::Tool.find_by_issuer(jwt_body['iss'])
     raise CustomError, :not_registered if registration.nil?
+    raise CustomError, :disabled if registration.disabled?
 
     JSON.parse(registration.tool_settings)
   end
