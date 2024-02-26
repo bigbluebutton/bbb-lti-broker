@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
-  revision: ec9c4badd811378127b647ed94e9c3097d87dc41
+  revision: 5f31cf4deeddb5f0d948c865b94fcb7e757f7b50
   tag: 0.1.7
   specs:
     rails_lti2_provider (0.1.7)
