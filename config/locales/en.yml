@@ -78,10 +78,10 @@ en:
   error:
     header:         "Error"
     invalid:
-      token:       "The token does not exist."
+      token:        "The token does not exist."
     expired:
-      token:   "The token has expired."
-      request: "The request has expired."
+      token:        "The token has expired."
+      request:      "The request has expired."
     http:
       _401:
         code:       "Unauthorized"
@@ -91,3 +91,11 @@ en:
         code:       "Invalid Authenticity Token"
         message:    "Can't verify CSRF token authenticity"
         suggestion: "You may be facing this error because the plugin is not SSL secured, or because third party cookies are not enabled."
+      _520:
+        code:       "Unknown Error"
+        message:    "An error has occurred but it could not be idenfified"
+        suggestion: "If you are using this room through LTI try launching the app again by using the link or refreshing the browser"
+    app:
+      disabled:
+        message:    "The tool is disabled"
+        suggestion: "The tool needs to be enabled by the Tool Provider Administrator"

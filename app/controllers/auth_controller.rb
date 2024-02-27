@@ -30,7 +30,7 @@ class AuthController < ApplicationController
   # first touch point for lti 1.3
   # ensures platform is registered
   def login
-    logger.info('AuthController: login')
+    logger.debug('AuthController: login')
 
     state = "state#{SecureRandom.hex}"
 
