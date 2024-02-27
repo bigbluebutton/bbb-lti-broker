@@ -380,19 +380,19 @@ namespace :registration do
   end
 end
 
-  desc 'Show all existent registrations'
-  task :registration, [] => :environment do |_t|
-    include BbbLtiBroker::Helpers
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
-    registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
-    registrations.each do |registration|
-      output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
-      output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
-      output += " is #{registration.status}"
-      puts(output)
-    end
-  rescue StandardError => e
-    puts(e.backtrace)
-    exit(1)
+desc 'Show all existent registrations'
+task :registration, [] => :environment do |_t|
+  include BbbLtiBroker::Helpers
+  Rake::Task['environment'].invoke
+  ActiveRecord::Base.connection
+  registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+  registrations.each do |registration|
+    output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
+    output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
+    output += " is #{registration.status}"
+    puts(output)
   end
+rescue StandardError => e
+  puts(e.backtrace)
+  exit(1)
+end
