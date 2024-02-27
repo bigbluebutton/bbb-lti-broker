@@ -3,6 +3,18 @@
 # lib/tasks/task_helpers.rb
 
 module TaskHelpers
+  def self.tool_destroy_by(key, value)
+    reg = RailsLti2Provider::Tool.find_by(key.to_sym => value)
+
+    if JSON.parse(reg.tool_settings)['tool_private_key'].present?
+      key_dir = Pathname.new(JSON.parse(reg.tool_settings)['tool_private_key']).parent.to_s
+      FileUtils.remove_dir(key_dir, true) if Dir.exist?(key_dir)
+    end
+
+    reg.lti_launches.destroy_all
+    reg.destroy
+  end
+
   def self.tool_enable_by(key, value)
     tool_update_status_by(key, value, 'enabled')
   end
