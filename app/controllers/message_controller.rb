@@ -53,6 +53,8 @@ class MessageController < ApplicationController
                'The one-time number has already been used'
              when :request_too_old
                'The request is too old'
+             when :disabled_key
+               'The key is disabled'
              else
                'Unknown Error'
              end
@@ -68,6 +70,25 @@ class MessageController < ApplicationController
     end
   end
 
+  rescue_from ExceptionHandler::CustomError do |ex|
+    @error = case ex.error
+             when :disabled
+               { code: '401',
+                 key: t('error.http._401.code'),
+                 message: t('error.app.disabled.message'),
+                 suggestion: t('error.app.disabled.suggestion'),
+                 status: '401', }
+             else
+               { code: '520',
+                 key: t('error.http._520.code'),
+                 message: t('error.http._520.message'),
+                 suggestion: t('error.http._520.suggestion'),
+                 status: '520', }
+             end
+
+    render 'errors/index'
+  end
+
   # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.1
   def basic_lti_launch_request
     process_blti_message
@@ -81,6 +102,7 @@ class MessageController < ApplicationController
   end
 
   # monkey patch for backward compatibility of old bbb-lti tools.
+  # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.1 with a legacy URL.
   def basic_lti_launch_request_legacy
     # Inject the handler_legacy to the lti_launch.
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])

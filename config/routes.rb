@@ -72,7 +72,7 @@ Rails.application.routes.draw do
 
   match 'tool/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 
-  get '/errors/:code', to: 'errors#index', as: :errors
+  match 'errors/(:code)', to: 'errors#index', as: :errors, via: [:get, :post]
 
   mount RailsLti2Provider::Engine => '/rails_lti2_provider'
 end
