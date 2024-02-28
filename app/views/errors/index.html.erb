@@ -32,6 +32,6 @@
     <div class="container border border-danger " style="margin-top: 10%">
         <h1><%= t('error.header') %></h1>
 
-        <%= render 'error', key: @error[:key], message: @error[:message], suggestion: @error[:suggestion] %>
+        <%= render 'errors/error', key: @error[:key], message: @error[:message], suggestion: @error[:suggestion] %>
     </div>
 </body>

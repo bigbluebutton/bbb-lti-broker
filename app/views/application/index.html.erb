@@ -14,29 +14,35 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
-<div class="container">
+<%= render "layouts/header" %>
+<div class="wrapper">
+    <%= favicon_link_tag asset_path('favicon.ico') %>
 
-    <h1>Bigbluebutton LTI</h1>
+    <div class="container">
 
-    <h2>Configuration XML</h2>
+        <h1>Bigbluebutton LTI</h1>
 
-    <% if defined?(xml_builder_url) %>
-    <% xml_url = xml_builder_url %>
-    <% else %>
-    <% xml_url = "" %>
-    <% end %>
+        <h2>Configuration XML</h2>
 
-    <p>View the LTI configuration xml <%= link_to('here', xml_config_url, target: "_blank") %>.</p>
-    <% if ENV['DEVELOPER_MODE_ENABLED'] == 'true'%>
-        <p> Customize the configuration <%= link_to('here', xml_url) %>.</p>
-        <p>This configuration is used to install your LTI tool into an LSM.  This xml can be referenced by url or copied and pasted during the install process.</p>
-    <% end %>
+        <% if defined?(xml_builder_url) %>
+            <% xml_url = xml_builder_url %>
+        <% else %>
+            <% xml_url = "" %>
+        <% end %>
 
-    <h2>LTI Launch</h2>
+        <p>View the LTI configuration xml <%= link_to('here', xml_config_url, target: "_blank") %>.</p>
+        <% if ENV['DEVELOPER_MODE_ENABLED'] == 'true'%>
+            <p> Customize the configuration <%= link_to('here', xml_url) %>.</p>
+            <p>This configuration is used to install your LTI tool into an LSM.  This xml can be referenced by url or copied and pasted during the install process.</p>
+        <% end %>
 
-    <p>The LTI Launch endpoint is <%= link_to(blti_launch_url(app: Rails.configuration.default_tool), blti_launch_url(app: Rails.configuration.default_tool)) %>.</p>
+        <h2>LTI Launch</h2>
 
-    <p>Note, this url is typically sent a POST request with all sorts of LTI data.  If you access it directly, it'll display an error page indicating your request did not validate.</p>
+        <p>The LTI Launch endpoint is <%= link_to(blti_launch_url(app: Rails.configuration.default_tool), blti_launch_url(app: Rails.configuration.default_tool)) %>.</p>
 
-    <br>
+        <p>Note, this url is typically sent a POST request with all sorts of LTI data.  If you access it directly, it'll display an error page indicating your request did not validate.</p>
+
+        <br>
+    </div>
 </div>
+<%= render "layouts/footer" %>

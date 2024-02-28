@@ -17,14 +17,18 @@
 #  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class ErrorsController < ApplicationController
+  # skip rail default verify auth token - we use our own strategies
+  skip_before_action :verify_authenticity_token
+
   def index
-    @error = { code: params[:code],
-               key: t("error.http._#{params[:code]}.code"),
-               message: t("error.http._#{params[:code]}.message"),
-               suggestion: t("error.http._#{params[:code]}.suggestion"),
-               status: params[:code], }
+    code = params[:code] || '520'
+    @error = { code: code,
+               key: params[:key] || t("error.http._#{code}.code"),
+               message: params[:message] || t("error.http._#{code}.message"),
+               suggestion: params[:suggestion] || t("error.http._#{code}.suggestion"),
+               status: code, }
     respond_to do |format|
-      format.html { render(:index, layout: false, status: params[:code]) }
+      format.html { render(:index, layout: false, status: @error[:code]) }
       format.json { render(json: { error:  @error }, status: @error[:code]) }
     end
   end
