@@ -71,6 +71,7 @@ class MessageController < ApplicationController
   end
 
   rescue_from ExceptionHandler::CustomError do |ex|
+    clean_up_openid_launch
     @error = case ex.error
              when :disabled
                { code: '401',
