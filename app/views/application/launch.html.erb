@@ -14,9 +14,15 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
+<%= render "layouts/header" %>
+<div class="wrapper">
+
 <% if @response %>
 <%= render html: @response %>
 <% else %>
 <h1>LTI Launch Verified!</h1>
 <p>Note: You can see all the LTI params in your server console.</p>
 <% end %>
+
+</div>
+<%= render "layouts/footer" %>

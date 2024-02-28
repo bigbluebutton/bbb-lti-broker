@@ -13,25 +13,12 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 %>
 
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <title>BbbLtiBroker</title>
-    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-    <%= csrf_meta_tags %>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            hljs.initHighlightingOnLoad();
-        });
-    </script>
+<%= render "layouts/header_iframe" %>
 
-   
-</head>
-<body>
     <div class="container border border-danger " style="margin-top: 10%">
         <h1><%= t('error.header') %></h1>
 
         <%= render 'errors/error', key: @error[:key], message: @error[:message], suggestion: @error[:suggestion] %>
     </div>
-</body>
+
+<%= render "layouts/footer_iframe" %>
