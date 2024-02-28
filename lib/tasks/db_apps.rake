@@ -4,8 +4,6 @@ require 'securerandom'
 require 'uri'
 require 'bbb_lti_broker/helpers'
 
-# include BbbLtiBroker::Helpers
-
 namespace :db do
   namespace :apps do
     desc 'Add a new blti app - add[name,hostname,uid,secret]'

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'bbb_lti_broker/helpers'
-# include BbbLtiBroker::Helpers
 
 namespace :db do
   namespace :tenants do
