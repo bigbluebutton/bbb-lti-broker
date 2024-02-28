@@ -14,9 +14,13 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
+<%= render "layouts/header_iframe" %>
+
 <h1>Deep Link</h1>
 
 <%= form_tag(@deep_link_return_url) do %>
     <%= hidden_field_tag 'JWT', @deep_link_jwt_message %>
     <%= submit_tag(t('ui.submit')) %>
 <% end %>
+
+<%= render "layouts/footer_iframe" %>
