@@ -41,7 +41,7 @@ gem 'redis', '~> 4.2'
 gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
-gem 'doorkeeper', '~> 5.6.8'
+gem 'doorkeeper', '~> 5.6.9'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
@@ -56,7 +56,7 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store', '>= 2.1.0'
 
 # frontend
-gem 'bootstrap', '~> 4.5.0'
+gem 'bootstrap', '~> 4.6.0'
 gem 'font-awesome-sass', '~> 6.4.0'
 
 # Use Capistrano for deployment
@@ -65,7 +65,7 @@ gem 'font-awesome-sass', '~> 6.4.0'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'dotenv-rails'
+  gem 'dotenv-rails', '>= 3.0.0'
   gem 'rspec'
   gem 'rspec-rails', '>= 6.0.4'
 end
