@@ -149,7 +149,7 @@ class MessageController < ApplicationController
   end
 
   def deep_link
-    resource = deep_link_resource(openid_launch_url, { 'What\'s black and white and red all over?': 'A sunburnt panda' }, 'My room')
+    resource = deep_link_resource(openid_launch_url, 'My room', { 'key': 'value' })
     @deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss']), @jwt_header, @jwt_body, [resource])
     @deep_link_return_url = @jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['deep_link_return_url']
   end
