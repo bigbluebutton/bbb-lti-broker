@@ -3,6 +3,9 @@
 require_relative 'task_helpers'
 
 namespace :registration do
+  include Rails.application.routes.url_helpers
+  default_url_options[:host] = ENV['URL_HOST']
+
   desc 'Add new Tool configuration [issuer,client_id,keyset_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
   task :new, %i[issuer client_id key_set_url auth_token_url auth_login_url tenant_uid] => :environment do |_t, args|
     Rake::Task['environment'].invoke
@@ -15,6 +18,12 @@ namespace :registration do
       issuer = $stdin.gets.strip
     end
     abort('The Issuer must be valid.') if issuer.blank?
+
+    # Validate the tenant as it is a point of failure and if not valid, there is no point on continuing.
+    tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
+    tenant = RailsLti2Provider::Tenant.first if tenant.nil?
+    abort('Tenant not found. Tenant UID must be valid or Deafult Tenant must exist.') if tenant.nil?
+    abort("Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.") if RailsLti2Provider::Tool.exists?(uuid: issuer, tenant: tenant)
 
     # Client ID.
     client_id = args[:client_id]
@@ -76,12 +85,6 @@ namespace :registration do
       tool_private_key: Rails.root.join(".ssh/#{key_dir}/priv_key"),
     }
 
-    tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
-    tenant = RailsLti2Provider::Tenant.first if tenant.nil?
-    abort('Tenant not found. Tenant UID must be valid or Deafult Tenant must exist.') if tenant.nil?
-
-    abort("Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.") if RailsLti2Provider::Tool.exists?(uuid: issuer, tenant: tenant)
-
     tool = RailsLti2Provider::Tool.create(
       uuid: issuer,
       shared_secret: client_id,
@@ -97,6 +100,98 @@ namespace :registration do
     $stdout.puts("Public Key:\n#{public_key}")
     $stdout.puts("\n")
     $stdout.puts("JWK:\n#{jwk}")
+    $stdout.puts("\n")
+  rescue StandardError => e
+    puts(e.backtrace)
+    exit(1)
+  end
+
+  namespace :show do
+    desc 'Show a registration by [key,value]'
+    task :by, [:key, :value] => :environment do |_t, args|
+      $stdout.puts('registration:destroy:by[key,value]')
+
+      # Key.
+      key = args[:key]
+      if key.blank?
+        $stdout.puts('What is the Key?')
+        key = $stdin.gets.strip
+      end
+      abort('The Key cannot be blank.') if key.blank?
+
+      # Value.
+      value = args[:value]
+      if value.blank?
+        $stdout.puts('What is the Value?')
+        value = $stdin.gets.strip
+      end
+      abort('The Value cannot be blank.') if value.blank?
+
+      registration = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', key.to_sym => value)
+      abort("The registration with #{key} = #{value} does not exist") if registration.blank?
+
+      key_dir = Pathname.new(JSON.parse(registration.tool_settings)['tool_private_key']).parent.to_s
+      private_key = File.read("#{key_dir}/priv_key")
+      public_key = File.read("#{key_dir}/pub_key")
+
+      output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
+      output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
+      output += " is #{registration.status}"
+      puts(output)
+      $stdout.puts("\n")
+      $stdout.puts("Private Key:\n#{private_key}")
+      $stdout.puts("\n")
+      $stdout.puts("Public Key:\n#{public_key}")
+      $stdout.puts("\n")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Show all registrations'
+    task all: :environment do |_t|
+      $stdout.puts('registration:show:all')
+
+      registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+      registrations.each do |registration|
+        output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
+        output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
+        output += " is #{registration.status}"
+        puts(output)
+      end
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
+
+  desc 'Show a registration by ID [id]'
+  task :show, [:id] => :environment do |_t, args|
+    $stdout.puts('registration:show[id]')
+
+    # ID.
+    id = args[:id]
+    if id.blank?
+      $stdout.puts('What is the ID?')
+      id = $stdin.gets.strip
+    end
+    abort('The ID must be valid.') if id.blank?
+
+    registration = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+    abort("The registration with ID #{id} does not exist") if registration.blank?
+
+    key_dir = Pathname.new(JSON.parse(registration.tool_settings)['tool_private_key']).parent.to_s
+    private_key = File.read("#{key_dir}/priv_key")
+    public_key = File.read("#{key_dir}/pub_key")
+
+    output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
+    output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
+    output += " is #{registration.status}"
+    puts(output)
+    $stdout.puts("\n")
+    $stdout.puts("Private Key:\n#{private_key}")
+    $stdout.puts("\n")
+    $stdout.puts("Public Key:\n#{public_key}")
     $stdout.puts("\n")
   rescue StandardError => e
     puts(e.backtrace)
@@ -133,7 +228,7 @@ namespace :registration do
 
   desc 'Destroy a registration by ID [id]'
   task :destroy, [:id] => :environment do |_t, args|
-    $stdout.puts("registration:enable[#{args[:id]}]")
+    $stdout.puts("registration:destroy[#{args[:id]}]")
 
     # ID.
     id = args[:id]
@@ -151,9 +246,6 @@ namespace :registration do
 
   desc 'Generate new key pair for existing Tool configuration [key, jwk]'
   task :keygen, [:type] => :environment do |_t, args|
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
-
     abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
 
     $stdout.puts('What is the issuer for the registration?')
@@ -164,7 +256,6 @@ namespace :registration do
     options = {}
     options['client_id'] = client_id if client_id.present?
     registration = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
-
     abort('The registration must be valid.') if registration.blank?
 
     private_key = OpenSSL::PKey::RSA.generate(4096)
@@ -201,56 +292,15 @@ namespace :registration do
   end
 
   desc 'Lists the Registration Configuration URLs need to register an app [app]'
-  task :url, [:app] => :environment do |_t, args|
-    include Rails.application.routes.url_helpers
-    default_url_options[:host] = ENV['URL_HOST']
-
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
-
-    app_name = args[:app] || Rails.configuration.default_tool
-    app = Doorkeeper::Application.find_by(name: app_name)
-    if app.nil?
-      puts("App '#{app_name}' does not exist, no urls can be given.")
-      exit(1)
-    end
-
-    # Setting temp keys
-    private_key = OpenSSL::PKey::RSA.generate(4096)
-    public_key = private_key.public_key
-
-    # keep temp files in scope so they are not deleted
-    storage = TemporaryStorage.new
-    public_key_file = storage.store('bbb-lti-rsa-pub-', public_key.to_s)
-    private_key_file = storage.store('bbb-lti-rsa-pri-', private_key.to_s)
-
-    temp_key_token = SecureRandom.hex
-
-    ActiveRecord::Base.connection.cache do
-      Rails.cache.write(temp_key_token, public_key_path: public_key_file.path, private_key_path: private_key_file.path, timestamp: Time.now.to_i)
-    end
-
-    # Setting jwk with same private key
-    jwk = JWT::JWK.new(private_key).export
-    jwk['alg'] = 'RS256' unless jwk.key?('alg')
-    jwk['use'] = 'sig' unless jwk.key?('use')
-    jwk = jwk.to_json
-
-    $stdout.puts("Tool URL:\n#{openid_launch_url(protocol: 'https', app: app.name)}")
+  task :url, [] => :environment do |_t|
+    $stdout.puts("Tool URL:\n#{openid_launch_url(protocol: 'https')}")
     $stdout.puts("\n")
-    $stdout.puts("Deep Link URL:\n#{deep_link_request_launch_url(protocol: 'https', app: app.name)}")
+    $stdout.puts("Deep Link URL:\n#{deep_link_request_launch_url(protocol: 'https')}")
     $stdout.puts("\n")
-    $stdout.puts("Initiate login URL:\n#{openid_login_url(protocol: 'https', app: app.name)}")
+    $stdout.puts("Initiate login URL:\n#{openid_login_url(protocol: 'https')}")
     $stdout.puts("\n")
-    $stdout.puts(format("Redirection URI(s):\n#{openid_launch_url(protocol: 'https', app: app.name)}\n#{deep_link_request_launch_url(protocol: 'https', app: app.name)}"))
+    $stdout.puts(format("Redirection URI(s):\n#{openid_launch_url(protocol: 'https')}\n#{deep_link_request_launch_url(protocol: 'https')}"))
     $stdout.puts("\n")
-    $stdout.puts("Private Key:\n#{private_key}")
-    $stdout.puts("\n")
-    $stdout.puts("Public Key:\n#{public_key}")
-    $stdout.puts("\n")
-    $stdout.puts("JWK:\n#{jwk}")
-    $stdout.puts("\n")
-    $stdout.puts("JSON Configuration URL:\n#{json_config_url(protocol: 'https', app: app.name, temp_key_token: temp_key_token)}")
   end
 
   desc 'Deletes the registration keys inside the temporary bbb-lti folder'
@@ -378,21 +428,4 @@ namespace :registration do
     puts(e.backtrace)
     exit(1)
   end
-end
-
-desc 'Show all existent registrations'
-task :registration, [] => :environment do |_t|
-  include BbbLtiBroker::Helpers
-  Rake::Task['environment'].invoke
-  ActiveRecord::Base.connection
-  registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
-  registrations.each do |registration|
-    output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
-    output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
-    output += " is #{registration.status}"
-    puts(output)
-  end
-rescue StandardError => e
-  puts(e.backtrace)
-  exit(1)
 end
