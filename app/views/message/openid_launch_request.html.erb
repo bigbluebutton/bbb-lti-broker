@@ -16,13 +16,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
 <%= render "layouts/header_iframe" %>
 
-<h1>Tool selection</h1>
-
-<% @apps.each do |app| %>
-    <%= form_tag(@deep_link_return_url) do %>
-        <%= hidden_field_tag 'JWT', app[:deep_link_jwt_message] %>
-        <%= submit_tag(app[:app_name]) %>
-    <% end %>
-<% end %>
+<h1 style="text-align: center">OpenID Lti Launch Request</h1>
+<%= render "message_info" %>
 
 <%= render "layouts/footer_iframe" %>

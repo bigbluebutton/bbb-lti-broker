@@ -42,6 +42,7 @@ class MessageController < ApplicationController
 
   # fails lti_authentication in rails lti2 provider gem
   rescue_from RailsLti2Provider::LtiLaunch::Unauthorized do |ex|
+    clean_up_openid_launch
     output = case ex.error
              when :invalid_key
                'The LTI key used is invalid'
@@ -90,6 +91,17 @@ class MessageController < ApplicationController
     render 'errors/index'
   end
 
+  rescue_from StandardError do |ex|
+    logger.debug(ex)
+    clean_up_openid_launch
+    @error = { code: '520',
+               key: t('error.http._520.code'),
+               message: t('error.http._520.message'),
+               suggestion: t('error.http._520.suggestion'),
+               status: '520', }
+    render 'errors/index'
+  end
+
   # first touch point from tool consumer (moodle, canvas, etc) when using LTI 1.1
   def basic_lti_launch_request
     process_blti_message
@@ -127,11 +139,14 @@ class MessageController < ApplicationController
 
   # first touch point from platform (moodle, canvas, etc) when using LTI 1.3
   def openid_launch_request
-    ## TODO: as for now, the launch for LTI 1.3 sets params[:app] with the default tool (only). This should change once deep_linking is enabled.
-    params[:app] ||= Rails.configuration.default_tool
+    ## The launch for LTI 1.3 sets params[:app] and redirectos to the corresponding app. The default tool is assigned if the parameter is not included.
+    params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
+    return if params[:app] == 'default' || params[:broker_custom_app] == 'default'
+
     params[:oauth_nonce] = @jwt_body['nonce']
     params[:oauth_consumer_key] = @jwt_body['iss']
-    # Redirect to external application if configured
+
+    # Redirect to external application if configured.
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
     session[:user_id] = @current_user.id
     redirector = app_launch_path(params.to_unsafe_h.symbolize_keys)
@@ -149,8 +164,18 @@ class MessageController < ApplicationController
   end
 
   def deep_link
-    resource = deep_link_resource(openid_launch_url, 'My room', { 'key': 'value' })
-    @deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss']), @jwt_header, @jwt_body, [resource])
+    @apps = []
+
+    apps = lti_apps
+    # Remove the default tool unless working in development mode.
+    apps -= ['default'] unless Rails.configuration.developer_mode_enabled
+    apps.each do |app|
+      resource = deep_link_resource(openid_launch_url, "My #{app.singularize}", { 'broker_app': app })
+      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss']), @jwt_header, @jwt_body, [resource])
+      @apps << { app_name: app, deep_link_jwt_message: deep_link_jwt_message }
+    end
+
+    # This is constant
     @deep_link_return_url = @jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['deep_link_return_url']
   end
 
