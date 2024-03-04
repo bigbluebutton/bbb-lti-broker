@@ -75,6 +75,12 @@ en:
     resultmaximum:  "Maximum Score"
   permission:
     nonrps:         "The tool does not have permission to send grades or access student list."
+  deeplink:
+    title:          "Tool Selection"
+  basicltilaunch:
+    title:          "Basic LTI Launch Request"
+  openidlaunch:
+    title:          "OpenID Launch Request"
   error:
     header:         "Error"
     invalid:
