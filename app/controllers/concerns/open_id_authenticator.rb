@@ -220,5 +220,6 @@ module OpenIdAuthenticator
     }
     p[:lti_message_type] = 'basic-lti-launch-request' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiResourceLinkRequest'
     p[:lti_message_type] = 'ContentItemSelectionRequest' if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'] == 'LtiDeepLinkingRequest'
+    p
   end
 end

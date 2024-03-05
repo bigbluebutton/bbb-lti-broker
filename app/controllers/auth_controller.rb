@@ -57,7 +57,8 @@ class AuthController < ApplicationController
     auth_params[:lti_message_hint] = params[:lti_message_hint] if params.key?(:lti_message_hint)
 
     aparams = URI.encode_www_form(auth_params)
-    redirect_post("#{@registration['auth_login_url']}?#{aparams}", options: { authenticity_token: :auto })
+    redirector = "#{@registration['auth_login_url']}?#{aparams}"
+    redirect_post(redirector, options: { authenticity_token: :auto })
   end
 
   private
