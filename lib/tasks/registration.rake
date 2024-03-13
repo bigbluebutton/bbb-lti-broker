@@ -59,10 +59,6 @@ namespace :registration do
 
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
-    jwk = JWT::JWK.new(private_key).export
-    jwk['alg'] = 'RS256' unless jwk.key?('alg')
-    jwk['use'] = 'sig' unless jwk.key?('use')
-    jwk = jwk.to_json
 
     key_dir = Digest::MD5.hexdigest(issuer + client_id)
     Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
@@ -75,6 +71,12 @@ namespace :registration do
     File.open(Rails.root.join(".ssh/#{key_dir}/pub_key"), 'w') do |f|
       f.puts(public_key.to_s)
     end
+
+    # Only required for the output for cases when the private key is required as a token.
+    jwk = JWT::JWK.new(private_key).export
+    jwk['alg'] = 'RS256' unless jwk.key?('alg')
+    jwk['use'] = 'sig' unless jwk.key?('use')
+    jwk = jwk.to_json
 
     reg = {
       issuer: issuer,
