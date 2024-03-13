@@ -33,6 +33,8 @@ module DynamicRegistrationService
 
     jwks_uri = dynamic_registration_pubkeyset_url(key_token: key_token)
 
+    tool = Rails.configuration.default_tool
+
     {
       "application_type": 'web',
       "response_types": ['id_token'],
@@ -41,7 +43,7 @@ module DynamicRegistrationService
       "redirect_uris":
           [openid_launch_url(protocol: 'https'),
            deep_link_request_launch_url(protocol: 'https'),],
-      "client_name": 'BigBlueButton Apps',
+      "client_name": t("tool.#{tool}.name"),
       "jwks_uri": jwks_uri,
       # "logo_uri": 'https://client.example.org/logo.png',
       # "policy_uri": 'https://client.example.org/privacy',
@@ -53,17 +55,15 @@ module DynamicRegistrationService
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
-        "description": 'Learn Botany by tending to your little (virtual) garden.',
+        "description": t("tool.#{tool}.description"),
         "target_link_uri": openid_launch_url(protocol: 'https'),
-        "custom_parameters": {
-          "context_history": '$Context.id.history',
-        },
-        "claims": %w[iss sub name given_name family_name],
+        "custom_parameters": {},
+        "claims": %w[iss sub name given_name family_name email],
         "messages": [
           {
             "type": 'LtiDeepLinkingRequest',
             "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
-            "label": 'Add a virtual garden',
+            "label": 'Add a tool',
           },
         ],
       },

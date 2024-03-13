@@ -41,7 +41,7 @@ en:
     copypaste:     "Paste this url into your tool consumer to register this tool:"
   apps:
     default:
-      title:       "LTI Tool Provider"
+      title:       "Default"
       description: "General Tool Provider that allows users to test LTI 1.x and 2.x capabilities"
     rooms:
       title:       "Rooms"

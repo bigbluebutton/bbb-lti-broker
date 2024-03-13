@@ -70,7 +70,7 @@ Rails.application.routes.draw do
   post 'tool/messages/deep-link', to: 'message#deep_link', as: 'deep_link_request_launch'
   post 'tool/messages/signed_content_item_request', to: 'message#signed_content_item_request'
   # dynamic registration go through this paths
-  get 'tool/registration/dynamic', to: 'registration#dynamic', as: :dynamic_registration
+  get 'tool/registration', to: 'registration#dynamic', as: :dynamic_registration
   get 'tool/registration/pubkeyset/(:key_token)', to: 'registration#pubkeyset', as: :dynamic_registration_pubkeyset
   get 'tool/registration/token', to: 'registration#token', as: :dynamic_registration_token
 

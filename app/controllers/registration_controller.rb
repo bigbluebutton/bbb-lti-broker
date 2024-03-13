@@ -143,8 +143,13 @@ class RegistrationController < ApplicationController
       shared_secret: response['client_id'],
       tool_settings: reg.to_json,
       lti_version: '1.3.0',
-      tenant: tenant
+      tenant: tenant,
+      status: 'enabled'
     )
+
+    # 3.6.2 Client Registration Error Response
+    # IT should return with an error
+
     # 3.6.1 Successful Registration
     logger.debug(">>>>>>>>>> 3.6.1 Successful Registration:\n#{tool.to_json}")
   end
