@@ -52,7 +52,7 @@ module DynamicRegistrationService
       # "contacts": ['ve7jtb@example.org', 'mary@example.org'],
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
-        "domain": 'client.example.org',
+        "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
         "description": 'Learn Botany by tending to your little (virtual) garden.',
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {

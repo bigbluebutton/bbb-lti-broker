@@ -34,7 +34,12 @@ class RegistrationController < ApplicationController
   # validates message corresponds to a LTI request
   before_action :process_registration_initiation_request, only: %i[dynamic]
 
-  def dynamic; end
+  def dynamic
+    # 3.7 Step 4: Registration Completed and Activation
+    #   Once the registration is completed, successfully or not, the tool should notify the platform by sending an HTML5 Web Message
+    #   [webmessaging] indicating the window may be closed. Depending on whether the platform opened the registration in an IFrame or
+    #   a new tab, either window.parent or window.opener should be called.
+  end
 
   def token
     params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
@@ -89,6 +94,10 @@ class RegistrationController < ApplicationController
     openid_configuration = discover_openid_configuration(params['openid_configuration'])
     logger.debug(">>>>>>>>>> openid_configuration: \n#{openid_configuration.to_yaml}")
 
+    tenant = RailsLti2Provider::Tenant.first
+    logger.debug("Error: Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.")
+    return if RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant)
+
     # 3.5 Step 3: Client Registration
     uri = URI(openid_configuration['registration_endpoint'])
     # 3.5.1 Issuer and OpenID Configuration URL Match
@@ -98,7 +107,9 @@ class RegistrationController < ApplicationController
     logger.debug('>>>>>>>>>> 3.5.2 Client Registration Request')
     key_token = new_rsa_keypair
     header = client_registration_request_header(params[:registration_token])
-    body = client_registration_request_body(key_token).to_json
+    body = client_registration_request_body(key_token)
+    logger.debug(body)
+    body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == 'https')
@@ -107,21 +118,22 @@ class RegistrationController < ApplicationController
 
     response = http.request(request)
     response = JSON.parse(response.body)
+    logger.debug(response)
 
     # 3.6 Client Registration Response
     logger.debug(">>>>>>>>>> 3.6 Client Registration Response:\n#{response.to_yaml}")
     reg = {
       issuer: openid_configuration['issuer'],
       client_id: response['client_id'],
-      key_set_url: openid_configuration['jws_url'],
+      key_set_url: openid_configuration['jwks_uri'],
       auth_token_url: openid_configuration['token_endpoint'],
       auth_login_url: openid_configuration['authorization_endpoint'],
       tool_private_key: Rails.root.join(".ssh/#{key_token}/priv_key"),
     }
 
     tool = RailsLti2Provider::Tool.create(
-      uuid: issuer,
-      shared_secret: client_id,
+      uuid: openid_configuration['issuer'],
+      shared_secret: response['client_id'],
       tool_settings: reg.to_json,
       lti_version: '1.3.0',
       tenant: tenant
