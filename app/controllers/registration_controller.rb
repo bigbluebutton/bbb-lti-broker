@@ -68,10 +68,17 @@ class RegistrationController < ApplicationController
     tool_public_key = Rails.root.join(".ssh/#{params[:key_token]}/pub_key")
     pub = File.read(tool_public_key)
     pub_key = OpenSSL::PKey::RSA.new(pub)
+
     jwk = pub_key.to_jwk
     jwk['alg'] = 'RS256' unless jwk.key?('alg')
     jwk['use'] = 'sig' unless jwk.key?('use')
-    render(json: JSON.pretty_generate(jwk))
+
+    json_pubkeyset = {}
+    json_pubkeyset['keys'] = [
+      jwk,
+    ]
+
+    render(json: JSON.pretty_generate(json_pubkeyset))
   end
 
   private
