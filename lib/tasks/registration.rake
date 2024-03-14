@@ -60,7 +60,7 @@ namespace :registration do
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
 
-    key_dir = Digest::MD5.hexdigest(issuer + client_id)
+    key_dir = Digest::MD5.hexdigest(SecureRandom.uuid)
     Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
     Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 
@@ -267,7 +267,7 @@ namespace :registration do
     jwk['use'] = 'sig' unless jwk.key?('use')
     jwk = jwk.to_json
 
-    key_dir = Digest::MD5.hexdigest(issuer + client_id)
+    key_dir = Digest::MD5.hexdigest(SecureRandom.uuid)
     Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
     Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 

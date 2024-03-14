@@ -71,8 +71,7 @@ Rails.application.routes.draw do
   post 'tool/messages/signed_content_item_request', to: 'message#signed_content_item_request'
   # dynamic registration go through this paths
   get 'tool/registration', to: 'registration#dynamic', as: :dynamic_registration
-  get 'tool/registration/pubkeyset/(:key_token)', to: 'registration#pubkeyset', as: :dynamic_registration_pubkeyset
-  get 'tool/registration/token', to: 'registration#token', as: :dynamic_registration_token
+  get 'tool/registration/pubkeyset/(:key_token)', to: 'registration#pub_keyset', as: :dynamic_registration_pubkeyset
 
   match 'tool/json_config/:temp_key_token', to: 'tool_profile#json_config', via: [:get, :post], as: 'json_config' # , :defaults => {:format => 'json'}
 

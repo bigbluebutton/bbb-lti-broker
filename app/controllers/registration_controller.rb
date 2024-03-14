@@ -41,44 +41,33 @@ class RegistrationController < ApplicationController
     #   a new tab, either window.parent or window.opener should be called.
   end
 
-  def token
-    params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
-    return if params[:app] == 'default' || params[:custom_broker_app] == 'default'
-
-    # Setting temp keys
-    private_key = OpenSSL::PKey::RSA.generate(4096)
-    public_key = private_key.public_key
-
-    # keep temp files in scope so they are not deleted
-    storage = TemporaryStorage.new
-    public_key_file = storage.store('bbb-lti-rsa-pub-', public_key.to_s)
-    private_key_file = storage.store('bbb-lti-rsa-pri-', private_key.to_s)
-
-    temp_key_token = SecureRandom.hex
-
-    ActiveRecord::Base.connection.cache do
-      Rails.cache.write(temp_key_token, public_key_path: public_key_file.path, private_key_path: private_key_file.path, timestamp: Time.now.to_i)
-    end
-
-    redirect_to(json_config_url(app: params[:app], temp_key_token: temp_key_token))
-  end
-
-  def pubkeyset
+  def pub_keyset
     # The param :key_token is required. It should fail if not included. IT should also fail if not found.
-    tool_public_key = Rails.root.join(".ssh/#{params[:key_token]}/pub_key")
+    key_token = params[:key_token]
+    tool_public_key = Rails.root.join(".ssh/#{key_token}/pub_key")
     pub = File.read(tool_public_key)
     pub_key = OpenSSL::PKey::RSA.new(pub)
 
-    jwk = pub_key.to_jwk
-    jwk['alg'] = 'RS256' unless jwk.key?('alg')
-    jwk['use'] = 'sig' unless jwk.key?('use')
+    # lookup for the kid
+    tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%#{key_token}%").first
+    tool_settings = JSON.parse(tool.tool_settings)
+    jwt_parts = tool_settings['registration_token'].split('.')
+    jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
 
-    json_pubkeyset = {}
-    json_pubkeyset['keys'] = [
-      jwk,
+    # prepare the pub_keyset
+    json_pub_keyset = {}
+    json_pub_keyset['keys'] = [
+      {
+        kty: 'RSA',
+        e: Base64.urlsafe_encode64(pub_key.e.to_s(2)).delete('='), # Exponent
+        n: Base64.urlsafe_encode64(pub_key.n.to_s(2)).delete('='), # Modulus
+        kid: jwt_header['kid'],
+        alg: 'RS256',
+        use: 'sig',
+      },
     ]
 
-    render(json: JSON.pretty_generate(json_pubkeyset))
+    render(json: JSON.pretty_generate(json_pub_keyset))
   end
 
   private
@@ -136,6 +125,7 @@ class RegistrationController < ApplicationController
       auth_token_url: openid_configuration['token_endpoint'],
       auth_login_url: openid_configuration['authorization_endpoint'],
       tool_private_key: Rails.root.join(".ssh/#{key_token}/priv_key"),
+      registration_token: params[:registration_token],
     }
 
     tool = RailsLti2Provider::Tool.create(
