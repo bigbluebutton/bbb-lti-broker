@@ -43,7 +43,7 @@ module DynamicRegistrationService
       "redirect_uris":
           [openid_launch_url(protocol: 'https'),
            deep_link_request_launch_url(protocol: 'https'),],
-      "client_name": t("tool.#{tool}.name"),
+      "client_name": t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
       # "logo_uri": 'https://client.example.org/logo.png',
       # "policy_uri": 'https://client.example.org/privacy',
@@ -55,7 +55,7 @@ module DynamicRegistrationService
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
-        "description": t("tool.#{tool}.description"),
+        "description": t("apps.#{tool}.description"),
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
         "claims": %w[iss sub name given_name family_name email],
@@ -106,32 +106,27 @@ module DynamicRegistrationService
     JWT.encode(message, priv_key, 'RS256', kid: jwt_header['kid'])
   end
 
-  def verify_registration_initiation_request
+  def validate_registration_initiation_request
     # openid_configuration: the endpoint to the open id configuration to be used for this registration, encoded as per [RFC3986] Section 3.4.
     raise CustomError, :openid_configuration_not_found unless params.key?('openid_configuration')
     # registration_token (optional): the registration access token. If present, it must be used as the access token by the tool when making the registration request to the registration endpoint exposed in the openid configuration.
     raise CustomError, :registration_token_not_found unless params.key?('registration_token')
 
-    jwt_parts = validate_jwt_format
-    jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
-    jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
+    begin
+      jwt_parts = validate_jwt_format
+      jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
+      jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
-    logger.debug("jwt.header:\n#{jwt_header.inspect}")
-    logger.debug("jwt.body:\n#{jwt_body.inspect}")
+      logger.debug("jwt.header:\n#{jwt_header.inspect}")
+      logger.debug("jwt.body:\n#{jwt_body.inspect}")
+    rescue StandardError
+      raise CustomError, :jwt_error
+    end
 
     {
       header: jwt_header,
       body: jwt_body,
     }
-  end
-
-  private
-
-  def validate_jwt_format
-    jwt_parts = params[:registration_token].split('.')
-    raise CustomError, :invalid_id_token unless jwt_parts.length == 3
-
-    jwt_parts
   end
 
   # Generate a new RSA key pair and returnss the key_token as a reference.
@@ -153,5 +148,14 @@ module DynamicRegistrationService
     end
 
     key_token
+  end
+
+  private
+
+  def validate_jwt_format
+    jwt_parts = params[:registration_token].split('.')
+    raise CustomError, :invalid_id_token unless jwt_parts.length == 3
+
+    jwt_parts
   end
 end

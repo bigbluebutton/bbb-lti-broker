@@ -34,6 +34,28 @@ class RegistrationController < ApplicationController
   # validates message corresponds to a LTI request
   before_action :process_registration_initiation_request, only: %i[dynamic]
 
+  @error_message = ''
+  @error_suggestion = ''
+
+  rescue_from ExceptionHandler::CustomError do |ex|
+    @error = case ex.error
+             when :tenant_not_found, :tool_duplicated
+               { code: '406',
+                 key: t('error.http._406.code'),
+                 message: @error_message,
+                 suggestion: @error_suggestion || '',
+                 status: '406', }
+             else
+               { code: '520',
+                 key: t('error.http._520.code'),
+                 message: t('error.http._520.message'),
+                 suggestion: t('error.http._520.suggestion'),
+                 status: '520', }
+             end
+    logger.error("Registration error:\n#{@error.to_yaml}")
+    render 'errors/index'
+  end
+
   def dynamic
     # 3.7 Step 4: Registration Completed and Activation
     #   Once the registration is completed, successfully or not, the tool should notify the platform by sending an HTML5 Web Message
@@ -74,25 +96,36 @@ class RegistrationController < ApplicationController
 
   # verify lti 1.3 dynamic registration request
   def process_registration_initiation_request
-    logger.debug('>>>>>>>>>> process_registration_initiation_request')
-    # Step 1: Step 1: Registration Initiation Request
-    begin
-      jwt = verify_registration_initiation_request
-    rescue StandardError => e
-      logger.error("Error in registrtion initiation request verification: #{e}")
-      raise e
+    # Step 0: Validate the existent of the tenant
+    # TODO: There should be a onetime code that allows registration under specific tenant.
+    #       for now on first registration, the tool is linked to the 'default' tenant, which must exist.
+    tenant_uid = ''
+    # only works if the targeted tenant exists. By default it will lookup for uid=''
+    unless RailsLti2Provider::Tenant.exists?(uid: tenant_uid)
+      @error_message = "Tenant with uid = '#{tenant_uid}' does not exist"
+      raise CustomError, :tenant_not_found
     end
 
-    @jwt_header = jwt[:header]
-    @jwt_body = jwt[:body]
+    tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+
+    # 3.3 Step 1: Registration Initiation Request
+    begin
+      jwt = validate_registration_initiation_request
+      @jwt_header = jwt[:header]
+      @jwt_body = jwt[:body]
+    rescue StandardError => e
+      @error_message = "Error in registrtion initiation request verification: #{e}"
+      raise CustomError, :registration_verification_failed
+    end
 
     # 3.4 Step 2: Discovery and openid Configuration
     openid_configuration = discover_openid_configuration(params['openid_configuration'])
-    logger.debug(">>>>>>>>>> openid_configuration: \n#{openid_configuration.to_yaml}")
 
-    tenant = RailsLti2Provider::Tenant.first
-    logger.debug("Error: Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.")
-    return if RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant)
+    # scope can be @jwt_body['scope'] == 'reg' or @jwt_body['scope'] == 'reg-update'
+    if RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant) && @jwt_body['scope'] == 'reg'
+      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'"
+      raise CustomError, :tool_duplicated
+    end
 
     # 3.5 Step 3: Client Registration
     uri = URI(openid_configuration['registration_endpoint'])
@@ -100,11 +133,10 @@ class RegistrationController < ApplicationController
     # validate_issuer(jwt_body)
 
     # 3.5.2 Client Registration Request
-    logger.debug('>>>>>>>>>> 3.5.2 Client Registration Request')
+    # TODO: old keys should be removed when @jwt_body['scope'] == 'reg-update'
     key_token = new_rsa_keypair
     header = client_registration_request_header(params[:registration_token])
     body = client_registration_request_body(key_token)
-    logger.debug(body)
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -114,10 +146,8 @@ class RegistrationController < ApplicationController
 
     response = http.request(request)
     response = JSON.parse(response.body)
-    logger.debug(response)
 
     # 3.6 Client Registration Response
-    logger.debug(">>>>>>>>>> 3.6 Client Registration Response:\n#{response.to_yaml}")
     reg = {
       issuer: openid_configuration['issuer'],
       client_id: response['client_id'],
@@ -128,20 +158,16 @@ class RegistrationController < ApplicationController
       registration_token: params[:registration_token],
     }
 
-    tool = RailsLti2Provider::Tool.create(
-      uuid: openid_configuration['issuer'],
-      shared_secret: response['client_id'],
-      tool_settings: reg.to_json,
-      lti_version: '1.3.0',
-      tenant: tenant,
-      status: 'enabled'
-    )
-
+    tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
+    tool.shared_secret = response['client_id']
+    tool.tool_settings = reg.to_json
+    tool.lti_version = '1.3.0'
+    tool.status = 'enabled'
+    tool.save
     # 3.6.2 Client Registration Error Response
-    # IT should return with an error
 
     # 3.6.1 Successful Registration
-    logger.debug(">>>>>>>>>> 3.6.1 Successful Registration:\n#{tool.to_json}")
+    logger.debug(tool.to_yaml)
   end
 
   def discover_openid_configuration(url)
