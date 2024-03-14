@@ -109,7 +109,8 @@ module DynamicRegistrationService
   def validate_registration_initiation_request
     # openid_configuration: the endpoint to the open id configuration to be used for this registration, encoded as per [RFC3986] Section 3.4.
     raise CustomError, :openid_configuration_not_found unless params.key?('openid_configuration')
-    # registration_token (optional): the registration access token. If present, it must be used as the access token by the tool when making the registration request to the registration endpoint exposed in the openid configuration.
+    # registration_token (optional): the registration access token. If present, it must be used as the access token by the tool when making
+    #                                the registration request to the registration endpoint exposed in the openid configuration.
     raise CustomError, :registration_token_not_found unless params.key?('registration_token')
 
     begin
