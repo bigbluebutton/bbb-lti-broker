@@ -20,11 +20,17 @@ module DeepLinkService
   include ActiveSupport::Concern
 
   # custom_params are passed as a hash of {'key': 'value'} objects.
-  def deep_link_resource(url, title, custom_params = {})
+  def deep_link_resource(url, title, text, icon, custom_params = {})
     {
       'type' => 'ltiResourceLink',
-      'title' => title,
       'url' => url,
+      'title' => title,
+      'text' => text,
+      'icon' => {
+        "url": icon,
+        "width": 100,
+        "height": 100,
+      },
       'presentation' => {
         'documentTarget' => 'window',
       },
