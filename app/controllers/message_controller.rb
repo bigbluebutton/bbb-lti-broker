@@ -37,7 +37,7 @@ class MessageController < ApplicationController
   before_action :lti_authorized_application, only: %i[basic_lti_launch_request basic_lti_launch_request_legacy]
   # validates message with oauth in rails lti2 provider gem
   before_action :lti_authentication, only: %i[basic_lti_launch_request basic_lti_launch_request_legacy]
-  # validates message corresponds to a LTI launch
+  # validates message corresponds to a LTI request
   before_action :process_openid_message, only: %i[openid_launch_request deep_link]
 
   # fails lti_authentication in rails lti2 provider gem
@@ -141,7 +141,7 @@ class MessageController < ApplicationController
   def openid_launch_request
     ## The launch for LTI 1.3 sets params[:app] and redirectos to the corresponding app. The default tool is assigned if the parameter is not included.
     params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
-    return if params[:app] == 'default' || params[:broker_custom_app] == 'default'
+    return if params[:app] == 'default' || params[:custom_broker_app] == 'default'
 
     params[:oauth_nonce] = @jwt_body['nonce']
     params[:oauth_consumer_key] = @jwt_body['iss']

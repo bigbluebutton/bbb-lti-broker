@@ -41,7 +41,7 @@ en:
     copypaste:     "Paste this url into your tool consumer to register this tool:"
   apps:
     default:
-      title:       "LTI Tool Provider"
+      title:       "Default"
       description: "General Tool Provider that allows users to test LTI 1.x and 2.x capabilities"
     rooms:
       title:       "Rooms"
@@ -94,6 +94,10 @@ en:
         message:    "Unauthorized access"
         suggestion: "If you are using this room through LTI try launching the app again by using the link or refreshing the browser"
       _406:
+        code:       "Not Acceptable"
+        message:    "This request cannot be processed"
+        suggestion: "Contact Tool Administrator."
+      _406.1:
         code:       "Invalid Authenticity Token"
         message:    "Can't verify CSRF token authenticity"
         suggestion: "You may be facing this error because the plugin is not SSL secured, or because third party cookies are not enabled."
