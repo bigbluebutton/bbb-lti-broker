@@ -23,7 +23,7 @@ module OpenIdAuthenticator
   include ExceptionHandler
 
   def verify_openid_launch
-    validate_openid_message_state
+    validate_openid_message_state unless params.key?('registration_token')
 
     jwt_parts = validate_jwt_format
     jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))

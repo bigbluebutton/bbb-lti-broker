@@ -68,7 +68,7 @@ class ToolProfileController < ApplicationController
       @json_config['public_jwk'] = jwk
 
       @json_config['extensions'][0]['settings']['domain'] = request.base_url
-      @json_config['extensions'][0]['settings']['tool_id'] = Digest::MD5.hexdigest(request.base_url)
+      @json_config['extensions'][0]['settings']['tool_id'] = Digest::MD5.hexdigest(SecureRandom.uuid)
       @json_config['extensions'][0]['settings']['icon_url'] = lti_icon(params[:app])
 
       @json_config['extensions'][0]['settings']['placements'].each do |placement|
