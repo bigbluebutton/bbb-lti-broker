@@ -189,6 +189,32 @@ namespace :tool do
       puts(e.backtrace)
       exit(1)
     end
+
+    desc 'Show settings for tool by ID [id].'
+    task :settings, [:id] => :environment do |_t, args|
+      id = args[:id]
+      abort('The ID is required') if id.blank?
+
+      $stdout.puts('tool:show[id]')
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+      abort("The tool with ID #{id} does not exist") if tool.blank?
+
+      tool_settings = JSON.parse(tool.tool_settings)
+      key_dir = Pathname.new(tool_settings['tool_private_key']).parent.to_s
+      private_key = File.read("#{key_dir}/priv_key")
+      public_key = File.read("#{key_dir}/pub_key")
+
+      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
+      output += " is #{tool.status}"
+      output += " and linked to tenant '#{tool.tenant.uid}'"
+      puts(output)
+      $stdout.puts("\n")
+      $stdout.puts("tool_settings: \n#{tool_settings.to_yaml}")
+      $stdout.puts("\n")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
   end
 
   desc 'Show tools, by ID [id] if provided or all if it is not.'

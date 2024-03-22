@@ -147,7 +147,6 @@ class RegistrationController < ApplicationController
     # validate_issuer(jwt_body)
 
     # 3.5.2 Client Registration Request
-    # TODO: old keys should be removed when @jwt_body['scope'] == 'reg-update'
     key_token = new_rsa_keypair
     header = client_registration_request_header(params[:registration_token])
     body = client_registration_request_body(key_token)
@@ -172,15 +171,25 @@ class RegistrationController < ApplicationController
       registration_token: params[:registration_token],
     }
 
-    @tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
-    @tool.shared_secret = response['client_id']
-    @tool.tool_settings = reg.to_json
-    @tool.lti_version = '1.3.0'
-    @tool.status = 'enabled'
-    @tool.save
-    # 3.6.2 Client Registration Error Response
+    begin
+      @tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
+      @tool.shared_secret = response['client_id']
+      @tool.tool_settings = reg.to_json
+      @tool.lti_version = '1.3.0'
+      @tool.status = 'enabled'
+      @tool.save
+    rescue StandardError => e
+      # 3.6.2 Client Registration Error Response
+      @error_message = "Error in registrtion when persisting: #{e}"
+      raise CustomError, :registration_persitence_failed
+    end
 
     # 3.6.1 Successful Registration
+    # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
+    if @jwt_body['scope'] == 'reg-update'
+      tool_settings = JSON.parse(tool.tool_settings)
+      destroy_rsa_keypair(tool_settings['tool_private_key'].split('/')[-2])
+    end
     logger.debug(@tool.to_json)
   end
 

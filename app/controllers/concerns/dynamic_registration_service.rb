@@ -151,6 +151,11 @@ module DynamicRegistrationService
     key_token
   end
 
+  # Destroy a RSA key pair and returns the key_token as a reference.
+  def destroy_rsa_keypair(pgp_token)
+    Dir.remove_dir(".ssh/#{pgp_token}", true) if Dir.exist?(".ssh/#{pgp_token}")
+  end
+
   private
 
   def validate_jwt_format
