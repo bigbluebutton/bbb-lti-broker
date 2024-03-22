@@ -17,5 +17,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 <%= render "layouts/header_iframe" %>
 
 <h1>Dynamic registration</h1>
+<% if @error_code == 'activation_code_not_found' || @error_code == 'activation_code_expired' %>
+
+    <h3>Your registration is unlinked, the code utilized is invalid.</h3>
+
+<% elsif registration_unlinked?(@tool) %>
+
+  <h3>Your registration is unlinked, you need a registration code to link it to a tenant.</h3>
+
+  <%= form_with url: registration_link_path, method: :post do |f| %>
+    <%= f.hidden_field :tool_id, value: @tool.id %>
+
+    <%= f.label :activation_code %>
+    <%= f.text_field :activation_code %>
+
+    <%= f.submit "Submit" %>
+  <% end %>
+
+<% else %>
+
+  <h3>Your registration is linked, you are good to start using it.</h3>
+
+<% end %>
 
 <%= render "layouts/footer_iframe" %>

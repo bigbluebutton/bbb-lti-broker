@@ -6,9 +6,6 @@ require_relative 'task_helpers'
 namespace :tenant do
   desc 'Add a new tenant - new[uid]'
   task :new, [:uid] => :environment do |_t, args|
-    include BbbLtiBroker::Helpers
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
     unless args[:uid]
       puts('No uid provided')
       exit(1)
@@ -28,9 +25,6 @@ namespace :tenant do
   namespace :destroy do
     desc 'Destroy all existent tenants and all associated keys'
     task :all, [] => :environment do |_t|
-      include BbbLtiBroker::Helpers
-      Rake::Task['environment'].invoke
-      ActiveRecord::Base.connection
       tenants = RailsLti2Provider::Tenant.all
       tenants.each do |tenant|
         next if tenant.uid.empty?
@@ -48,9 +42,6 @@ namespace :tenant do
 
   desc "Destroy an existent tenant and associated keys if exists [uid]'"
   task :destroy, [:uid] => :environment do |_t, args|
-    include BbbLtiBroker::Helpers
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
     unless args[:uid]
       puts('No uid provided')
       puts("Tenant '#{args[:uid]}' can not be removed because it is used by default")
@@ -71,15 +62,42 @@ namespace :tenant do
   end
 
   namespace :show do
-    desc 'Show all existent tenants'
+    desc 'Show all tenants'
     task :all, [] => :environment do |_t|
-      include BbbLtiBroker::Helpers
-      Rake::Task['environment'].invoke
-      ActiveRecord::Base.connection
-      tenants = RailsLti2Provider::Tenant.all
+      $stdout.puts('tenant:show:all')
+      tenants = RailsLti2Provider::Tenant.select(:id, :uid, :settings, :metadata).all
       tenants.each do |tenant|
-        puts("Tenant with uid '#{tenant.uid}' has key '#{tenant.id}'")
+        puts(tenant.to_json)
       end
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Show a tenant by [key,value]'
+    task :by, [:key, :value] => :environment do |_t, args|
+      $stdout.puts('tenant:show:by[key,value]')
+
+      # Key.
+      key = args[:key]
+      if key.blank?
+        $stdout.puts('What is the Key?')
+        key = $stdin.gets.strip
+      end
+      abort('The Key cannot be blank.') if key.blank?
+
+      # Value.
+      value = args[:value]
+      if value.blank?
+        $stdout.puts('What is the Value?')
+        value = $stdin.gets.strip
+      end
+      abort('The Value cannot be blank.') if value.blank?
+
+      tenant = RailsLti2Provider::Tenant.select(:id, :uid, :settings, :metadata).find_by(key.to_sym => value)
+      abort("The tenant with #{key} = #{value} does not exist") if tenant.blank?
+
+      puts(tenant.to_json)
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -87,14 +105,17 @@ namespace :tenant do
   end
 
   desc 'Show all existent tenants'
-  task :show, [] => :environment do |_t|
-    include BbbLtiBroker::Helpers
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
-    tenants = RailsLti2Provider::Tenant.all
-    tenants.each do |tenant|
-      puts("Tenant with uid '#{tenant.uid}' has key '#{tenant.id}'")
+  task :show, [:id] => :environment do |_t, args|
+    # ID. Default to all if blank.
+    id = args[:id]
+    if id.blank?
+      Rake::Task["tenant:show:all"].invoke
+      exit(0)
     end
+
+    $stdout.puts('tenant:show[id]')
+    tenant = RailsLti2Provider::Tenant.select(:id, :uid, :settings, :metadata).find(id)
+    puts(tenant.to_json)
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -182,10 +203,37 @@ namespace :tenant do
         puts(TaskHelpers.tenant_all('metadata').to_yaml)
       end
     end
+
+    desc 'Destroy a metadata'
+    task :destroy, [:uid, :key] => :environment do |_t, args|
+      tenant_uid = args[:uid] || ''
+      key = args[:key]
+
+      if key.blank?
+        puts('Error: The setting key is required to delete a tenant metadata')
+        exit(1)
+      end
+
+      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      if tenant.nil?
+        puts("Tenant '#{tenant_uid}' does not exist.")
+        exit(1)
+      end
+
+      puts("Key '#{key}' not found for tenant #{tenant}") unless tenant.metadata[key]
+
+      tenant.metadata.delete(key)
+      tenant.save!
+
+      puts("Metadata #{key} for tenant '#{tenant_uid}' has been deleted")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
   end
 
-  namespace :registration_token do
-    desc 'New registration_token for a tenant'
+  namespace :activation_code do
+    desc 'New activation_code for a tenant'
     task :new, [:uid] => :environment do |_t, args|
       tenant_uid = args[:uid] || ''
 
@@ -203,14 +251,14 @@ namespace :tenant do
         exit(1)
       end
 
-      # Add the registration_token
-      tenant.metadata['registration_token'] = Digest::MD5.hexdigest(SecureRandom.uuid)
-      tenant.metadata['registration_token_expire'] = 1.hour.from_now
+      # Add the activation_code
+      tenant.metadata['activation_code'] = Digest::MD5.hexdigest(SecureRandom.uuid)
+      tenant.metadata['activation_code_expire'] = 1.hour.from_now
       tenant.save!
       puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
     end
 
-    desc 'Expire registration_token for a tenant'
+    desc 'Expire activation_code for a tenant'
     task :expire, [:uid] => :environment do |_t, args|
       tenant_uid = args[:uid] || ''
 
@@ -228,8 +276,8 @@ namespace :tenant do
         exit(1)
       end
 
-      # Expire the registration_token
-      tenant.metadata['registration_token_expire'] = Time.current
+      # Expire the activation_code
+      tenant.metadata['activation_code_expire'] = Time.current
       tenant.save!
       puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
     end

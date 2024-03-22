@@ -54,4 +54,17 @@ module TaskHelpers
     $stdout.puts("tenant with #{key}=#{value} does not exist") && return if tenant.nil?
     tenant
   end
+
+  def self.tenant_destroy_by(key, value)
+    reg = RailsLti2Provider::Tenant.find_by(key.to_sym => value)
+
+    if JSON.parse(reg.tool_settings)['tool_private_key'].present?
+      key_dir = Pathname.new(JSON.parse(reg.tool_settings)['tool_private_key']).parent.to_s
+      FileUtils.remove_dir(key_dir, true) if Dir.exist?(key_dir)
+    end
+
+    reg.lti_launches.destroy_all
+    reg.destroy
+  end
+
 end
