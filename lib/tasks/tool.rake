@@ -166,16 +166,16 @@ namespace :tool do
     desc 'Show keys for tool by ID [id].'
     task :keys, [:id] => :environment do |_t, args|
       id = args[:id]
-      abort("The ID is required") if id.blank?
-  
+      abort('The ID is required') if id.blank?
+
       $stdout.puts('tool:show[id]')
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
       abort("The tool with ID #{id} does not exist") if tool.blank?
-  
+
       key_dir = Pathname.new(JSON.parse(tool.tool_settings)['tool_private_key']).parent.to_s
       private_key = File.read("#{key_dir}/priv_key")
       public_key = File.read("#{key_dir}/pub_key")
-  
+
       output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
       output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
       output += " is #{tool.status}"
@@ -189,7 +189,6 @@ namespace :tool do
       puts(e.backtrace)
       exit(1)
     end
-  
   end
 
   desc 'Show tools, by ID [id] if provided or all if it is not.'
@@ -197,7 +196,7 @@ namespace :tool do
     # ID. Default to all if blank.
     id = args[:id]
     if id.blank?
-      Rake::Task["tool:show:all"].invoke
+      Rake::Task['tool:show:all'].invoke
       exit(0)
     end
 
@@ -444,8 +443,8 @@ namespace :tool do
 end
 
 desc 'Registration taks'
-task :tool => :environment do |_t|
-  Rake::Task["tool:show"].invoke
+task tool: :environment do |_t|
+  Rake::Task['tool:show'].invoke
 rescue StandardError => e
   puts(e.backtrace)
   exit(1)

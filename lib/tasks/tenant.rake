@@ -28,7 +28,7 @@ namespace :tenant do
       tenants = RailsLti2Provider::Tenant.all
       tenants.each do |tenant|
         next if tenant.uid.empty?
-  
+
         puts("Deleting keys for tenant '#{tenant.uid}'")
         RailsLti2Provider::Tool.delete_all(tenant: tenant)
         puts("Deleting tenant '#{tenant.uid}'")
@@ -109,7 +109,7 @@ namespace :tenant do
     # ID. Default to all if blank.
     id = args[:id]
     if id.blank?
-      Rake::Task["tenant:show:all"].invoke
+      Rake::Task['tenant:show:all'].invoke
       exit(0)
     end
 
@@ -124,11 +124,11 @@ namespace :tenant do
   namespace :settings do
     desc 'Show settings for a tenant. If no id is specified, settings for all tenants will be shown'
     task :show, [:uid] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
+      uid = args[:uid]
 
-      if tenant_uid.present?
-        tenant = TaskHelpers.tenant_by('uid', tenant_uid)
-        
+      if uid.present?
+        tenant = TaskHelpers.tenant_by('uid', uid)
+
         puts("Settings for tenant #{tenant.uid}: \n #{tenant.settings.to_yaml}") unless tenant.nil?
       else
         puts(TaskHelpers.tenant_all('settings').to_yaml)
@@ -137,7 +137,7 @@ namespace :tenant do
 
     desc 'Add a new tenant setting'
     task :upsert, [:uid, :key, :value] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
+      uid = args[:uid]
       key = args[:key]
       value = args[:value]
 
@@ -146,9 +146,9 @@ namespace :tenant do
         exit(1)
       end
 
-      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
       if tenant.nil?
-        puts("Tenant '#{tenant_uid}' does not exist.")
+        puts("Tenant '#{uid}' does not exist.")
         exit(1)
       end
 
@@ -156,7 +156,7 @@ namespace :tenant do
       tenant.settings[key] = value
       tenant.save!
 
-      puts("Added setting #{key}=#{value} to tenant #{tenant_uid}")
+      puts("Added setting #{key}=#{value} to tenant #{uid}")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -164,7 +164,7 @@ namespace :tenant do
 
     desc 'Destroy a setting'
     task :destroy, [:uid, :key] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
+      uid = args[:uid]
       key = args[:key]
 
       if key.blank?
@@ -172,9 +172,9 @@ namespace :tenant do
         exit(1)
       end
 
-      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
       if tenant.nil?
-        puts("Tenant '#{tenant_uid}' does not exist.")
+        puts("Tenant '#{uid}' does not exist.")
         exit(1)
       end
 
@@ -183,7 +183,7 @@ namespace :tenant do
       tenant.settings.delete(key)
       tenant.save!
 
-      puts("Setting #{key} for tenant '#{tenant_uid}' has been deleted")
+      puts("Setting #{key} for tenant '#{uid}' has been deleted")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -193,11 +193,11 @@ namespace :tenant do
   namespace :metadata do
     desc 'Show metadata for a tenant. If no id is specified, metadata for all tenants will be shown'
     task :show, [:uid] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
+      uid = args[:uid]
 
-      if tenant_uid.present?
-        tenant = TaskHelpers.tenant_by('uid', tenant_uid)
-        
+      if uid.present?
+        tenant = TaskHelpers.tenant_by('uid', uid)
+
         puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
       else
         puts(TaskHelpers.tenant_all('metadata').to_yaml)
@@ -206,7 +206,7 @@ namespace :tenant do
 
     desc 'Destroy a metadata'
     task :destroy, [:uid, :key] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
+      uid = args[:uid]
       key = args[:key]
 
       if key.blank?
@@ -214,9 +214,9 @@ namespace :tenant do
         exit(1)
       end
 
-      tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+      tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
       if tenant.nil?
-        puts("Tenant '#{tenant_uid}' does not exist.")
+        puts("Tenant '#{uid}' does not exist.")
         exit(1)
       end
 
@@ -225,7 +225,7 @@ namespace :tenant do
       tenant.metadata.delete(key)
       tenant.save!
 
-      puts("Metadata #{key} for tenant '#{tenant_uid}' has been deleted")
+      puts("Metadata #{key} for tenant '#{uid}' has been deleted")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -235,8 +235,6 @@ namespace :tenant do
   namespace :activation_code do
     desc 'New activation_code for a tenant'
     task :new, [:uid] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
-
       # Key.
       uid = args[:uid]
       if uid.blank?
@@ -260,8 +258,6 @@ namespace :tenant do
 
     desc 'Expire activation_code for a tenant'
     task :expire, [:uid] => :environment do |_t, args|
-      tenant_uid = args[:uid] || ''
-
       # Key.
       uid = args[:uid]
       if uid.blank?

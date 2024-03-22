@@ -52,6 +52,7 @@ module TaskHelpers
   def self.tenant_by(key, value)
     tenant = RailsLti2Provider::Tenant.find_by(key.to_sym => value)
     $stdout.puts("tenant with #{key}=#{value} does not exist") && return if tenant.nil?
+
     tenant
   end
 
@@ -66,5 +67,4 @@ module TaskHelpers
     reg.lti_launches.destroy_all
     reg.destroy
   end
-
 end
