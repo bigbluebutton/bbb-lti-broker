@@ -50,7 +50,7 @@ class MessageController < ApplicationController
              when :invalid_signature
                'The OAuth Signature was Invalid'
              when :invalid_nonce
-               'The nonce has already been used'
+               'The one-time number has already been used'
              when :request_too_old
                'The request is too old'
              else
