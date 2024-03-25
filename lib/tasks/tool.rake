@@ -19,7 +19,6 @@ namespace :tool do
     end
     abort('The Issuer must be valid.') if issuer.blank?
 
-    puts("tenant is: #{args[:tenant_uid]}")
     # Validate the tenant as it is a point of failure and if not valid, there is no point on continuing.
     tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
     tenant = RailsLti2Provider::Tenant.first if tenant.nil?
