@@ -72,7 +72,7 @@ class RegistrationController < ApplicationController
       pub_key = OpenSSL::PKey::RSA.new(pub)
     rescue StandardError => e
       logger.debug("Erro pub_keyset\n#{e}")
-      render(json: JSON.pretty_generate({error: {code: 404, message: 'not found'}}), status: :not_found) && return
+      render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
 
     # lookup for the kid
@@ -80,13 +80,13 @@ class RegistrationController < ApplicationController
     logger.debug("HERE: \n#{key_token}\n#{tool.to_json}\n")
     if tool.nil?
       logger.debug("Erro pub_keyset\n Tool with key_token=#{key_token} was not found")
-      render(json: JSON.pretty_generate({error: {code: 404, message: 'not found'}}), status: :not_found) && return
+      render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
     tool_settings = JSON.parse(tool.tool_settings)
     registration_token = tool_settings['registration_token']
     if registration_token.nil?
       logger.debug("Erro pub_keyset\n registration_token was not found")
-      render(json: JSON.pretty_generate({error: {code: 404, message: 'not found'}}), status: :not_found) && return
+      render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
 
     jwt_parts = registration_token.split('.')
