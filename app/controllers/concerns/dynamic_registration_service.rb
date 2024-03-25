@@ -31,7 +31,7 @@ module DynamicRegistrationService
     params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
     return if params[:app] == 'default' || params[:custom_broker_app] == 'default'
 
-    jwks_uri = dynamic_registration_pubkeyset_url(key_token: key_token)
+    jwks_uri = registration_pubkeyset_url(key_token: key_token)
 
     tool = Rails.configuration.default_tool
 
@@ -149,6 +149,11 @@ module DynamicRegistrationService
     end
 
     key_token
+  end
+
+  # Destroy a RSA key pair and returns the key_token as a reference.
+  def destroy_rsa_keypair(pgp_token)
+    Dir.remove_dir(".ssh/#{pgp_token}", true) if Dir.exist?(".ssh/#{pgp_token}")
   end
 
   private

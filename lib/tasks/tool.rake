@@ -2,7 +2,7 @@
 
 require_relative 'task_helpers'
 
-namespace :registration do
+namespace :tool do
   include Rails.application.routes.url_helpers
   default_url_options[:host] = ENV['URL_HOST']
 
@@ -109,9 +109,9 @@ namespace :registration do
   end
 
   namespace :show do
-    desc 'Show a registration by [key,value]'
+    desc 'Show a tool by [key,value]'
     task :by, [:key, :value] => :environment do |_t, args|
-      $stdout.puts('registration:destroy:by[key,value]')
+      $stdout.puts('tool:destroy:by[key,value]')
 
       # Key.
       key = args[:key]
@@ -129,16 +129,16 @@ namespace :registration do
       end
       abort('The Value cannot be blank.') if value.blank?
 
-      registration = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', key.to_sym => value)
-      abort("The registration with #{key} = #{value} does not exist") if registration.blank?
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', key.to_sym => value)
+      abort("The tool with #{key} = #{value} does not exist") if tool.blank?
 
-      key_dir = Pathname.new(JSON.parse(registration.tool_settings)['tool_private_key']).parent.to_s
+      key_dir = Pathname.new(JSON.parse(tool.tool_settings)['tool_private_key']).parent.to_s
       private_key = File.read("#{key_dir}/priv_key")
       public_key = File.read("#{key_dir}/pub_key")
 
-      output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
-      output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
-      output += " is #{registration.status}"
+      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
+      output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
+      output += " is #{tool.status}"
       puts(output)
       $stdout.puts("\n")
       $stdout.puts("Private Key:\n#{private_key}")
@@ -150,60 +150,91 @@ namespace :registration do
       exit(1)
     end
 
-    desc 'Show all registrations'
+    desc 'Show all tools'
     task all: :environment do |_t|
-      $stdout.puts('registration:show:all')
+      $stdout.puts('tool:show:all')
 
-      registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
-      registrations.each do |registration|
-        output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
-        output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
-        output += " is #{registration.status}"
-        puts(output)
+      tools = RailsLti2Provider::Tool.select(:id, :uuid, :shared_secret, :status).where(lti_version: '1.3.0')
+      tools.each do |tool|
+        puts(tool.to_json)
       end
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Show keys for tool by ID [id].'
+    task :keys, [:id] => :environment do |_t, args|
+      id = args[:id]
+      abort('The ID is required') if id.blank?
+
+      $stdout.puts('tool:show[id]')
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+      abort("The tool with ID #{id} does not exist") if tool.blank?
+
+      key_dir = Pathname.new(JSON.parse(tool.tool_settings)['tool_private_key']).parent.to_s
+      private_key = File.read("#{key_dir}/priv_key")
+      public_key = File.read("#{key_dir}/pub_key")
+
+      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
+      output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
+      output += " is #{tool.status}"
+      puts(output)
+      $stdout.puts("\n")
+      $stdout.puts("Private Key:\n#{private_key}")
+      $stdout.puts("\n")
+      $stdout.puts("Public Key:\n#{public_key}")
+      $stdout.puts("\n")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Show settings for tool by ID [id].'
+    task :settings, [:id] => :environment do |_t, args|
+      id = args[:id]
+      abort('The ID is required') if id.blank?
+
+      $stdout.puts('tool:show[id]')
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+      abort("The tool with ID #{id} does not exist") if tool.blank?
+
+      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
+      output += " is #{tool.status}"
+      output += " and linked to tenant '#{tool.tenant.uid}'"
+      puts(output)
+      $stdout.puts("\n")
+      $stdout.puts("tool_settings: \n#{JSON.parse(tool.tool_settings).to_yaml}")
+      $stdout.puts("\n")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
     end
   end
 
-  desc 'Show a registration by ID [id]'
+  desc 'Show tools, by ID [id] if provided or all if it is not.'
   task :show, [:id] => :environment do |_t, args|
-    $stdout.puts('registration:show[id]')
-
-    # ID.
+    # ID. Default to all if blank.
     id = args[:id]
     if id.blank?
-      $stdout.puts('What is the ID?')
-      id = $stdin.gets.strip
+      Rake::Task['tool:show:all'].invoke
+      exit(0)
     end
-    abort('The ID must be valid.') if id.blank?
 
-    registration = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
-    abort("The registration with ID #{id} does not exist") if registration.blank?
+    $stdout.puts('tool:show[id]')
+    tool = RailsLti2Provider::Tool.select(:id, :uuid, :shared_secret, :status, :tenant_id).find_by(lti_version: '1.3.0', id: id)
+    abort("The tool with ID #{id} does not exist") if tool.blank?
 
-    key_dir = Pathname.new(JSON.parse(registration.tool_settings)['tool_private_key']).parent.to_s
-    private_key = File.read("#{key_dir}/priv_key")
-    public_key = File.read("#{key_dir}/pub_key")
-
-    output = "{'id': '#{registration.id}', 'uuid': '#{registration.uuid}', 'shared_secret': '#{registration.shared_secret}'}"
-    output += " for tenant '#{registration.tenant.uid}'" unless registration.tenant.uid.empty?
-    output += " is #{registration.status}"
-    puts(output)
-    $stdout.puts("\n")
-    $stdout.puts("Private Key:\n#{private_key}")
-    $stdout.puts("\n")
-    $stdout.puts("Public Key:\n#{public_key}")
-    $stdout.puts("\n")
+    puts(tool.to_json)
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
   end
 
   namespace :destroy do
-    desc 'Destroy a registration by [key,value]'
+    desc 'Destroy a tool by [key,value]'
     task :by, [:key, :value] => :environment do |_t, args|
-      $stdout.puts("registration:destroy:by[#{args[:key]},#{args[:value]}]")
+      $stdout.puts("tool:destroy:by[#{args[:key]},#{args[:value]}]")
 
       # Key.
       key = args[:key]
@@ -228,9 +259,9 @@ namespace :registration do
     end
   end
 
-  desc 'Destroy a registration by ID [id]'
+  desc 'Destroy a tool by ID [id]'
   task :destroy, [:id] => :environment do |_t, args|
-    $stdout.puts("registration:destroy[#{args[:id]}]")
+    $stdout.puts("tool:destroy[#{args[:id]}]")
 
     # ID.
     id = args[:id]
@@ -250,15 +281,15 @@ namespace :registration do
   task :keygen, [:type] => :environment do |_t, args|
     abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
 
-    $stdout.puts('What is the issuer for the registration?')
+    $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
-    $stdout.puts('What is the client ID for the registration?')
+    $stdout.puts('What is the client ID for the tool?')
     client_id = $stdin.gets.strip
 
     options = {}
     options['client_id'] = client_id if client_id.present?
-    registration = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
-    abort('The registration must be valid.') if registration.blank?
+    tool = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
+    abort('The tool must be valid.') if tool.blank?
 
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
@@ -285,9 +316,9 @@ namespace :registration do
       f.puts(public_key.to_s)
     end
 
-    tool_settings = JSON.parse(registration.tool_settings)
+    tool_settings = JSON.parse(tool.tool_settings)
     tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_dir}/priv_key") # "#{Rails.root}/.ssh/#{key_dir}/priv_key"
-    registration.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
+    tool.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
 
     puts(jwk) if args[:type] == 'jwk'
     puts(public_key) if args[:type] == 'key'
@@ -305,7 +336,7 @@ namespace :registration do
     $stdout.puts("\n")
   end
 
-  desc 'Deletes the registration keys inside the temporary bbb-lti folder'
+  desc 'Deletes the tool keys inside the temporary bbb-lti folder'
   task :clear_tmp, [] => :environment do |_t|
     storage = TemporaryStorage.new
 
@@ -314,9 +345,9 @@ namespace :registration do
   end
 
   namespace :enable do
-    desc 'Enable a registration by [key,value]'
+    desc 'Enable a tool by [key,value]'
     task :by, [:key, :value] => :environment do |_t, args|
-      $stdout.puts("registration:enable:by[#{args[:key]},#{args[:value]}]")
+      $stdout.puts("tool:enable:by[#{args[:key]},#{args[:value]}]")
 
       # Key.
       key = args[:key]
@@ -340,13 +371,13 @@ namespace :registration do
       exit(1)
     end
 
-    desc 'Enable all registrations'
+    desc 'Enable all tools'
     task all: :environment do |_t|
-      $stdout.puts('registration:enable:all')
+      $stdout.puts('tool:enable:all')
 
-      registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
-      registrations.each do |registration|
-        TaskHelpers.tool_enable_by(:id, registration.id)
+      tools = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+      tools.each do |tool|
+        TaskHelpers.tool_enable_by(:id, tool.id)
       end
     rescue StandardError => e
       puts(e.backtrace)
@@ -354,9 +385,9 @@ namespace :registration do
     end
   end
 
-  desc 'Enable a registration by ID [id]'
+  desc 'Enable a tool by ID [id]'
   task :enable, [:id] => :environment do |_t, args|
-    $stdout.puts("registration:enable[#{args[:id]}]")
+    $stdout.puts("tool:enable[#{args[:id]}]")
 
     # ID.
     id = args[:id]
@@ -373,9 +404,9 @@ namespace :registration do
   end
 
   namespace :disable do
-    desc 'Disable a registration by [key,value]'
+    desc 'Disable a tool by [key,value]'
     task :by, [:key, :value] => :environment do |_t, args|
-      $stdout.puts("registration:disable:by[#{args[:key]},#{args[:value]}]")
+      $stdout.puts("tool:disable:by[#{args[:key]},#{args[:value]}]")
 
       # Key.
       key = args[:key]
@@ -399,13 +430,13 @@ namespace :registration do
       exit(1)
     end
 
-    desc 'Disable all registrations'
+    desc 'Disable all tools'
     task all: :environment do |_t|
-      $stdout.puts('registration:disable:all')
+      $stdout.puts('tool:disable:all')
 
-      registrations = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
-      registrations.each do |registration|
-        TaskHelpers.tool_disable_by(:id, registration.id)
+      tools = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
+      tools.each do |tool|
+        TaskHelpers.tool_disable_by(:id, tool.id)
       end
     rescue StandardError => e
       puts(e.backtrace)
@@ -413,9 +444,9 @@ namespace :registration do
     end
   end
 
-  desc 'Disable a registration by ID [id]'
+  desc 'Disable a tool by ID [id]'
   task :disable, [:id] => :environment do |_t, args|
-    $stdout.puts("registration:disable[#{args[:id]}]")
+    $stdout.puts("tool:disable[#{args[:id]}]")
 
     # ID.
     id = args[:id]
@@ -430,4 +461,12 @@ namespace :registration do
     puts(e.backtrace)
     exit(1)
   end
+end
+
+desc 'Registration taks'
+task tool: :environment do |_t|
+  Rake::Task['tool:show'].invoke
+rescue StandardError => e
+  puts(e.backtrace)
+  exit(1)
 end
