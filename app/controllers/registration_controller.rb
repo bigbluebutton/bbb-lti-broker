@@ -64,16 +64,32 @@ class RegistrationController < ApplicationController
   end
 
   def pub_keyset
-    # The param :key_token is required. It should fail if not included. IT should also fail if not found.
+    # The param :key_token is required. It should fail if not included. It should also fail if not found.
     key_token = params[:key_token]
     tool_public_key = Rails.root.join(".ssh/#{key_token}/pub_key")
-    pub = File.read(tool_public_key)
-    pub_key = OpenSSL::PKey::RSA.new(pub)
+    begin
+      pub = File.read(tool_public_key)
+      pub_key = OpenSSL::PKey::RSA.new(pub)
+    rescue StandardError => e
+      logger.debug("Erro pub_keyset\n#{e}")
+      render(json: JSON.pretty_generate({error: {code: 404, message: 'not found'}}), status: :not_found) && return
+    end
 
     # lookup for the kid
     tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%#{key_token}%").first
+    logger.debug("HERE: \n#{key_token}\n#{tool.to_json}\n")
+    if tool.nil?
+      logger.debug("Erro pub_keyset\n Tool with key_token=#{key_token} was not found")
+      render(json: JSON.pretty_generate({error: {code: 404, message: 'not found'}}), status: :not_found) && return
+    end
     tool_settings = JSON.parse(tool.tool_settings)
-    jwt_parts = tool_settings['registration_token'].split('.')
+    registration_token = tool_settings['registration_token']
+    if registration_token.nil?
+      logger.debug("Erro pub_keyset\n registration_token was not found")
+      render(json: JSON.pretty_generate({error: {code: 404, message: 'not found'}}), status: :not_found) && return
+    end
+
+    jwt_parts = registration_token.split('.')
     jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
 
     # prepare the pub_keyset
