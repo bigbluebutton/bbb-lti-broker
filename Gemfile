@@ -67,7 +67,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'dotenv-rails', '>= 3.0.0'
   gem 'rspec'
-  gem 'rspec-rails', '>= 6.0.4'
+  gem 'rspec-rails', '>= 6.1.2'
 end
 
 group :development do
