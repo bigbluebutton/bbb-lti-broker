@@ -89,8 +89,6 @@ namespace :tool do
     $stdout.puts("\n")
     $stdout.puts("Public Key:\n#{public_key}")
     $stdout.puts("\n")
-    $stdout.puts("JWK:\n#{jwk}")
-    $stdout.puts("\n")
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -265,10 +263,8 @@ namespace :tool do
     exit(1)
   end
 
-  desc 'Generate new key pair for existing Tool configuration [key, jwk]'
-  task :keygen, [:type] => :environment do |_t, args|
-    abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
-
+  desc 'Generate new key pair for existing Tool configuration'
+  task keygen: :environment do |_t|
     $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
     $stdout.puts('What is the client ID for the tool?')
@@ -287,11 +283,7 @@ namespace :tool do
 
     old_keys_obj.update({ private_key: private_key, public_key: public_key })
 
-    tool_settings = JSON.parse(tool.tool_settings)
-    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_dir}/priv_key") # "#{Rails.root}/.ssh/#{key_dir}/priv_key"
-    tool.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
-
-    puts(public_key) if args[:type] == 'key'
+    puts(public_key)
   end
 
   desc 'Lists the Registration Configuration URLs need to register an app [app]'
