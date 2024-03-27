@@ -72,7 +72,7 @@ end
 
 group :development do
   gem 'rubocop', '~> 1.54', require: false
-  gem 'rubocop-rails', '~> 2.21', '>= 2.21.0', require: false
+  gem 'rubocop-rails', '~> 2.24', '>= 2.24.0', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.1'
