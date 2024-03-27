@@ -60,23 +60,11 @@ namespace :tool do
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
 
-    key_dir = Digest::MD5.hexdigest(SecureRandom.uuid)
-    Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-    Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
-
-    File.open(Rails.root.join(".ssh/#{key_dir}/priv_key"), 'w') do |f|
-      f.puts(private_key.to_s)
-    end
-
-    File.open(Rails.root.join(".ssh/#{key_dir}/pub_key"), 'w') do |f|
-      f.puts(public_key.to_s)
-    end
-
-    # Only required for the output for cases when the private key is required as a token.
-    jwk = JWT::JWK.new(private_key).export
-    jwk['alg'] = 'RS256' unless jwk.key?('alg')
-    jwk['use'] = 'sig' unless jwk.key?('use')
-    jwk = jwk.to_json
+    rsa_key_pair = RsaKeyPair.create(
+      private_key: private_key.to_s,
+      public_key: public_key.to_s,
+      tool_id: issuer
+    )
 
     reg = {
       issuer: issuer,
@@ -84,7 +72,7 @@ namespace :tool do
       key_set_url: key_set_url,
       auth_token_url: auth_token_url,
       auth_login_url: auth_login_url,
-      tool_private_key: Rails.root.join(".ssh/#{key_dir}/priv_key"),
+      rsa_key_pair_id: rsa_key_pair.id,
     }
 
     tool = RailsLti2Provider::Tool.create(
@@ -101,8 +89,6 @@ namespace :tool do
     $stdout.puts("\n")
     $stdout.puts("Public Key:\n#{public_key}")
     $stdout.puts("\n")
-    $stdout.puts("JWK:\n#{jwk}")
-    $stdout.puts("\n")
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -111,7 +97,7 @@ namespace :tool do
   namespace :show do
     desc 'Show a tool by [key,value]'
     task :by, [:key, :value] => :environment do |_t, args|
-      $stdout.puts('tool:destroy:by[key,value]')
+      $stdout.puts('tool:show:by[key,value]')
 
       # Key.
       key = args[:key]
@@ -132,18 +118,18 @@ namespace :tool do
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', key.to_sym => value)
       abort("The tool with #{key} = #{value} does not exist") if tool.blank?
 
-      key_dir = Pathname.new(JSON.parse(tool.tool_settings)['tool_private_key']).parent.to_s
-      private_key = File.read("#{key_dir}/priv_key")
-      public_key = File.read("#{key_dir}/pub_key")
+      if (key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id'])
+        keys = RsaKeyPair.find(key_pair_id)
+      end
 
       output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
       output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
       output += " is #{tool.status}"
       puts(output)
       $stdout.puts("\n")
-      $stdout.puts("Private Key:\n#{private_key}")
+      $stdout.puts("Private Key:\n#{keys.private_key}")
       $stdout.puts("\n")
-      $stdout.puts("Public Key:\n#{public_key}")
+      $stdout.puts("Public Key:\n#{keys.public_key}")
       $stdout.puts("\n")
     rescue StandardError => e
       puts(e.backtrace)
@@ -172,18 +158,18 @@ namespace :tool do
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
       abort("The tool with ID #{id} does not exist") if tool.blank?
 
-      key_dir = Pathname.new(JSON.parse(tool.tool_settings)['tool_private_key']).parent.to_s
-      private_key = File.read("#{key_dir}/priv_key")
-      public_key = File.read("#{key_dir}/pub_key")
+      if (key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id'])
+        keys = RsaKeyPair.find(key_pair_id)
+      end
 
       output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
       output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
       output += " is #{tool.status}"
       puts(output)
       $stdout.puts("\n")
-      $stdout.puts("Private Key:\n#{private_key}")
+      $stdout.puts("Private Key:\n#{keys.private_key}")
       $stdout.puts("\n")
-      $stdout.puts("Public Key:\n#{public_key}")
+      $stdout.puts("Public Key:\n#{keys.public_key}")
       $stdout.puts("\n")
     rescue StandardError => e
       puts(e.backtrace)
@@ -277,10 +263,8 @@ namespace :tool do
     exit(1)
   end
 
-  desc 'Generate new key pair for existing Tool configuration [key, jwk]'
-  task :keygen, [:type] => :environment do |_t, args|
-    abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
-
+  desc 'Generate new key pair for existing Tool configuration'
+  task keygen: :environment do |_t|
     $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
     $stdout.puts('What is the client ID for the tool?')
@@ -293,35 +277,13 @@ namespace :tool do
 
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
-    jwk = JWT::JWK.new(private_key).export
-    jwk['alg'] = 'RS256' unless jwk.key?('alg')
-    jwk['use'] = 'sig' unless jwk.key?('use')
-    jwk = jwk.to_json
 
-    key_dir = Digest::MD5.hexdigest(SecureRandom.uuid)
-    Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-    Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
+    key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
+    old_keys_obj = RsaKeyPair.find(key_pair_id)
 
-    # File.open(File.join(Rails.root, '.ssh', key_dir, 'priv_key'), 'w') do |f|
-    #   f.puts(private_key.to_s)
-    # end
-    File.open(Rails.root.join(".ssh/#{key_dir}/priv_key"), 'w') do |f|
-      f.puts(private_key.to_s)
-    end
+    old_keys_obj.update({ private_key: private_key, public_key: public_key })
 
-    # File.open(File.join(Rails.root, '.ssh', key_dir, 'pub_key'), 'w') do |f|
-    #   f.puts(public_key.to_s)
-    # end
-    File.open(Rails.root.join(".ssh/#{key_dir}/pub_key"), 'w') do |f|
-      f.puts(public_key.to_s)
-    end
-
-    tool_settings = JSON.parse(tool.tool_settings)
-    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_dir}/priv_key") # "#{Rails.root}/.ssh/#{key_dir}/priv_key"
-    tool.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
-
-    puts(jwk) if args[:type] == 'jwk'
-    puts(public_key) if args[:type] == 'key'
+    puts(public_key)
   end
 
   desc 'Lists the Registration Configuration URLs need to register an app [app]'
