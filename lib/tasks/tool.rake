@@ -320,21 +320,10 @@ namespace :tool do
     public_key = private_key.public_key
 
     key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
-    old_keys_obj = RsaKeyPair.find(key_pair_id)
+    key_pairs = RsaKeyPair.find(key_pair_id)
+    key_pairs.update({ private_key: private_key, public_key: public_key })
 
-    old_keys_obj.update({ private_key: private_key, public_key: public_key })
-
-    tool_settings = JSON.parse(tool.tool_settings)
-    # Destroy old RSA key pair.
-    logger.debug("Deleting .ssh/#{key_token}/")
-    FileUtils.rm_rf(".ssh/#{key_token}")
-    # Update tool_settings with the new RSA key pair.
-    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_token}/priv_key")
-    tool.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
-    tool.save
-    tool_settings = JSON.parse(tool.tool_settings)
-
-    puts(public_key) if args[:type] == 'key'
+    puts(public_key)
   end
 
   desc 'Lists the Registration Configuration URLs need to register an app [app]'
