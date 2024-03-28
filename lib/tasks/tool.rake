@@ -154,7 +154,7 @@ namespace :tool do
     task all: :environment do |_t|
       $stdout.puts('tool:show:all')
 
-      tools = RailsLti2Provider::Tool.select(:id, :uuid, :shared_secret, :status).where(lti_version: '1.3.0')
+      tools = RailsLti2Provider::Tool.select(:id, :uuid, :shared_secret, :status, :tenant_id).where(lti_version: '1.3.0')
       tools.each do |tool|
         puts(tool.to_json)
       end
