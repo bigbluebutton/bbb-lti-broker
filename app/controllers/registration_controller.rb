@@ -147,8 +147,8 @@ class RegistrationController < ApplicationController
     if @jwt_body['scope'] == 'reg-update' # update
       tool = RailsLti2Provider::Tool.where(uuid: openid_configuration['issuer']).where.not(tenant_id: 1).first
       tenant_uid = tool.tenant.uid unless tool.nil? # it is linked
-    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant) # new
-      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'"
+    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant_uid) # new
+      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant_uid}'"
       raise CustomError, :tool_duplicated
     end
     tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
