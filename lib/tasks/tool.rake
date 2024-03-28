@@ -277,6 +277,44 @@ namespace :tool do
     exit(1)
   end
 
+  desc 'Update a tool by ID with Key and Value [id,key,value]'
+  task :update, [:id, :key, :value] => :environment do |_t, args|
+    $stdout.puts('tool:update[id,key,value]')
+
+    # ID.
+    id = args[:id]
+    if id.blank?
+      $stdout.puts('What is the ID?')
+      id = $stdin.gets.strip
+    end
+    abort('The ID cannot be blank.') if id.blank?
+
+    # Key.
+    key = args[:key]
+    if key.blank?
+      $stdout.puts('What is the Key?')
+      key = $stdin.gets.strip
+    end
+    abort('The Key cannot be blank.') if key.blank?
+
+    # Value.
+    value = args[:value]
+    if value.blank?
+      $stdout.puts('What is the Value?')
+      value = $stdin.gets.strip
+    end
+    abort('The Value cannot be blank.') if value.blank?
+
+    tool = RailsLti2Provider::Tool.find(id)
+    abort("The tool with id = #{id} does not exist") if tool.blank?
+    tool[key.to_sym] = value
+    tool.save
+    Rake::Task['tool:show'].invoke(id)
+  rescue StandardError => e
+    puts(e.backtrace)
+    exit(1)
+  end
+
   desc 'Generate new key pair for existing Tool configuration [key, jwk]'
   task :keygen, [:type] => :environment do |_t, args|
     abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
