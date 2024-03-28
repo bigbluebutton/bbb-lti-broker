@@ -110,8 +110,19 @@ class RegistrationController < ApplicationController
 
   def link
     @tenant = RailsLti2Provider::Tenant.find_by('metadata ->> :key = :value', key: 'activation_code', value: params[:activation_code])
-    @error_code = 'activation_code_not_found' && render(:dynamic) if @tenant.nil? # It should trigger an error of invalid_activation_code as it was not found
-    @error_code = 'activation_code_expired' && render(:dynamic) if @tenant.metadata['activation_code_expire'] <= Time.current # It should trigger an error of invalid_activation_code as it is expired
+    logger.debug(@tenant.to_json)
+    # Trigger invalid_activation_code error as it was not found
+    if @tenant.nil?
+      @error_code = 'activation_code_not_found'
+      logger.debug(@error_code)
+      render(:dynamic) && return
+    end
+    # Trigger invalid_activation_code error as it is expired
+    if @tenant.metadata['activation_code_expire'].nil? || @tenant.metadata['activation_code_expire'] <= Time.current
+      @error_code = 'activation_code_expired'
+      logger.debug(@error_code)
+      render(:dynamic) && return
+    end
 
     @tool = RailsLti2Provider::Tool.find(params[:tool_id])
 
