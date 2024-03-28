@@ -63,6 +63,7 @@ class MessageController < ApplicationController
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
                                                                                 consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
+    logger.debug("ERROR: #{@error}")
     if request.request_parameters.key?('launch_presentation_return_url')
       launch_presentation_return_url = "#{request.request_parameters['launch_presentation_return_url']}&lti_errormsg=#{@error}"
       redirect_post(launch_presentation_return_url, options: { authenticity_token: :auto })
@@ -87,18 +88,28 @@ class MessageController < ApplicationController
                  suggestion: t('error.http._520.suggestion'),
                  status: '520', }
              end
-
+    logger.debug("ExceptionHandler::CustomError #{ex.error}")
     render 'errors/index'
   end
 
   rescue_from StandardError do |ex|
     logger.debug(ex)
     clean_up_openid_launch
-    @error = { code: '520',
-               key: t('error.http._520.code'),
-               message: t('error.http._520.message'),
-               suggestion: t('error.http._520.suggestion'),
-               status: '520', }
+    @error = case ex.error
+             when :disabled_key
+               { code: '401',
+                 key: t('error.http._401.code'),
+                 message: t('error.app.disabled.message'),
+                 suggestion: t('error.app.disabled.suggestion'),
+                 status: '401', }
+             else
+               { code: '520',
+                 key: t('error.http._520.code'),
+                 message: t('error.http._520.message'),
+                 suggestion: t('error.http._520.suggestion'),
+                 status: '520', }
+             end
+    logger.debug("StandardError #{ex.error}")
     render 'errors/index'
   end
 
