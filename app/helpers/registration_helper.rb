@@ -18,7 +18,7 @@
 
 module RegistrationHelper
   def registration_unlinked?(tool)
-    return false unless tool.nil? # tool does not exist, probably the token used to find it was incorrect or does not exist.
+    return false if tool.nil? # tool does not exist, probably the token used to find it was incorrect or does not exist.
     return false if tool.tenant.metadata['activation_code_expire'] <= Time.current # the activation_code is expired.
 
     tool.tenant.uid == '' && RailsLti2Provider::Tenant.count > 1
