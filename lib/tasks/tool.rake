@@ -463,7 +463,7 @@ namespace :tool do
   end
 end
 
-desc 'Registration taks'
+desc 'Tool taks'
 task tool: :environment do |_t|
   Rake::Task['tool:show'].invoke
 rescue StandardError => e
