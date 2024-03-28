@@ -203,7 +203,7 @@ class RegistrationController < ApplicationController
     # 3.6.1 Successful Registration
     # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
     if @jwt_body['scope'] == 'reg-update'
-      tool_settings = JSON.parse(tool.tool_settings)
+      tool_settings = JSON.parse(@tool.tool_settings)
       destroy_rsa_keypair(tool_settings['tool_private_key'].split('/')[-2])
     end
     logger.debug(@tool.to_json)
