@@ -154,7 +154,7 @@ namespace :tool do
     task all: :environment do |_t|
       $stdout.puts('tool:show:all')
 
-      tools = RailsLti2Provider::Tool.select(:id, :uuid, :shared_secret, :status).where(lti_version: '1.3.0')
+      tools = RailsLti2Provider::Tool.select(:id, :uuid, :shared_secret, :status, :tenant_id).where(lti_version: '1.3.0')
       tools.each do |tool|
         puts(tool.to_json)
       end
@@ -272,6 +272,44 @@ namespace :tool do
     abort('The ID must be valid.') if id.blank?
 
     TaskHelpers.tool_destroy_by(:id, id)
+  rescue StandardError => e
+    puts(e.backtrace)
+    exit(1)
+  end
+
+  desc 'Update a tool by ID with Key and Value [id,key,value]'
+  task :update, [:id, :key, :value] => :environment do |_t, args|
+    $stdout.puts('tool:update[id,key,value]')
+
+    # ID.
+    id = args[:id]
+    if id.blank?
+      $stdout.puts('What is the ID?')
+      id = $stdin.gets.strip
+    end
+    abort('The ID cannot be blank.') if id.blank?
+
+    # Key.
+    key = args[:key]
+    if key.blank?
+      $stdout.puts('What is the Key?')
+      key = $stdin.gets.strip
+    end
+    abort('The Key cannot be blank.') if key.blank?
+
+    # Value.
+    value = args[:value]
+    if value.blank?
+      $stdout.puts('What is the Value?')
+      value = $stdin.gets.strip
+    end
+    abort('The Value cannot be blank.') if value.blank?
+
+    tool = RailsLti2Provider::Tool.find(id)
+    abort("The tool with id = #{id} does not exist") if tool.blank?
+    tool[key.to_sym] = value
+    tool.save
+    Rake::Task['tool:show'].invoke(id)
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -463,7 +501,7 @@ namespace :tool do
   end
 end
 
-desc 'Registration taks'
+desc 'Tool taks'
 task tool: :environment do |_t|
   Rake::Task['tool:show'].invoke
 rescue StandardError => e

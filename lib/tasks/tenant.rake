@@ -279,3 +279,11 @@ namespace :tenant do
     end
   end
 end
+
+desc 'Tenant taks'
+task tenant: :environment do |_t|
+  Rake::Task['tenant:show'].invoke
+rescue StandardError => e
+  puts(e.backtrace)
+  exit(1)
+end

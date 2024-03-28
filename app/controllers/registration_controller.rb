@@ -110,8 +110,19 @@ class RegistrationController < ApplicationController
 
   def link
     @tenant = RailsLti2Provider::Tenant.find_by('metadata ->> :key = :value', key: 'activation_code', value: params[:activation_code])
-    @error_code = 'activation_code_not_found' && render(:dynamic) if @tenant.nil? # It should trigger an error of invalid_activation_code as it was not found
-    @error_code = 'activation_code_expired' && render(:dynamic) if @tenant.metadata['activation_code_expire'] <= Time.current # It should trigger an error of invalid_activation_code as it is expired
+    logger.debug(@tenant.to_json)
+    # Trigger invalid_activation_code error as it was not found
+    if @tenant.nil?
+      @error_code = 'activation_code_not_found'
+      logger.debug(@error_code)
+      render(:dynamic) && return
+    end
+    # Trigger invalid_activation_code error as it is expired
+    if @tenant.metadata['activation_code_expire'].nil? || @tenant.metadata['activation_code_expire'] <= Time.current
+      @error_code = 'activation_code_expired'
+      logger.debug(@error_code)
+      render(:dynamic) && return
+    end
 
     @tool = RailsLti2Provider::Tool.find(params[:tool_id])
 
@@ -147,8 +158,8 @@ class RegistrationController < ApplicationController
     if @jwt_body['scope'] == 'reg-update' # update
       tool = RailsLti2Provider::Tool.where(uuid: openid_configuration['issuer']).where.not(tenant_id: 1).first
       tenant_uid = tool.tenant.uid unless tool.nil? # it is linked
-    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant) # new
-      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'"
+    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant_uid) # new
+      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant_uid}'"
       raise CustomError, :tool_duplicated
     end
     tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
@@ -203,7 +214,7 @@ class RegistrationController < ApplicationController
     # 3.6.1 Successful Registration
     # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
     if @jwt_body['scope'] == 'reg-update'
-      tool_settings = JSON.parse(tool.tool_settings)
+      tool_settings = JSON.parse(@tool.tool_settings)
       destroy_rsa_keypair(tool_settings['tool_private_key'].split('/')[-2])
     end
     logger.debug(@tool.to_json)
