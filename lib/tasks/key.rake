@@ -3,7 +3,7 @@
 require 'bbb_lti_broker/helpers'
 require 'securerandom'
 
-namespace :keys do
+namespace :key do
   desc 'Add a new blti keypair - add[key,secret,tenant]. If "key" or "secret" are empty, a value will be generated for you'
   task :add, [:key, :secret, :tenant] => :environment do |_t, args|
     include BbbLtiBroker::Helpers
@@ -246,7 +246,7 @@ namespace :keys do
 end
 
 desc 'Show all existent blti keypairs'
-task :keys, [] => :environment do |_t|
+task :key, [] => :environment do |_t|
   include BbbLtiBroker::Helpers
   Rake::Task['environment'].invoke
   ActiveRecord::Base.connection

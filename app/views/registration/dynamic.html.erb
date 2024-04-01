@@ -19,7 +19,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 <h1>Dynamic registration</h1>
 <% if @error_code == 'activation_code_not_found' || @error_code == 'activation_code_expired' %>
 
-    <h3>Your registration is unlinked, the code utilized is invalid.</h3>
+  <h3>Your registration is unlinked, the code utilized is invalid.</h3>
 
 <% elsif registration_unlinked?(@tool) %>
 

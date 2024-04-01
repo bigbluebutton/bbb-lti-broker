@@ -277,5 +277,31 @@ namespace :tenant do
       tenant.save!
       puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
     end
+
+    desc 'Show activation_code for a tenant'
+    task :show, [:uid] => :environment do |_t, args|
+      # Key.
+      uid = args[:uid]
+      if uid.blank?
+        $stdout.puts('What is the UID for the tenant?')
+        uid = $stdin.gets.strip
+      end
+      abort('The UID cannot be blank.') if uid.blank?
+
+      Rake::Task['tenant:metadata:show'].invoke(uid)
+    end
   end
+
+  desc 'Show activation_code for a tenant'
+  task :activation_code, [:uid] => :environment do |_t, args|
+    Rake::Task['tenant:activation_code:show'].invoke(args[:uid])
+  end
+end
+
+desc 'Tenant taks'
+task tenant: :environment do |_t|
+  Rake::Task['tenant:show'].invoke
+rescue StandardError => e
+  puts(e.backtrace)
+  exit(1)
 end
