@@ -13,17 +13,19 @@ GIT
       simple_oauth (~> 0.3.1.1)
 
 GIT
+  remote: https://github.com/blindsidenetworks/rails_lti2_provider.git
+  revision: 6a900295aa5a4414eadfbd10f2bd7e6611c457a4
+  tag: 0.1.9
+  specs:
+    rails_lti2_provider (0.1.9)
+      ims-lti (~> 2.3.2.1)
+
+GIT
   remote: https://github.com/blindsidenetworks/simple_oauth.git
   revision: 7f8e49ea7891c431424ddd53a659ebb569cd3947
   tag: v0.3.1.1
   specs:
     simple_oauth (0.3.1.1)
-
-PATH
-  remote: ../rails_lti2_provider
-  specs:
-    rails_lti2_provider (0.1.9)
-      ims-lti (~> 2.3.2.1)
 
 GEM
   remote: http://rubygems.org/
