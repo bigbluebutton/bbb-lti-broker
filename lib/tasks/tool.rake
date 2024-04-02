@@ -301,10 +301,8 @@ namespace :tool do
     exit(1)
   end
 
-  desc 'Generate new key pair for existing Tool configuration [key, jwk]'
-  task :keygen, [:type] => :environment do |_t, args|
-    abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
-
+  desc 'Generate new key pair for existing Tool configuration'
+  task keygen: :environment do |_t|
     $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
     $stdout.puts('What is the client ID for the tool?')
