@@ -67,7 +67,7 @@ class RegistrationController < ApplicationController
     # The param :key_token is required. It should fail if not included. It should also fail if not found.
     rsa_key_pair = RsaKeyPair.find(params[:key_pair_id])
     if rsa_key_pair.nil?
-      logger.debug("Error pub_keyset")
+      logger.debug('Error pub_keyset')
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
     public_key = OpenSSL::PKey::RSA.new(rsa_key_pair.public_key)
