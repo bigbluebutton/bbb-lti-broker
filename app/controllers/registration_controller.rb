@@ -65,21 +65,18 @@ class RegistrationController < ApplicationController
 
   def pub_keyset
     # The param :key_token is required. It should fail if not included. It should also fail if not found.
-    key_token = params[:key_token]
-    tool_public_key = Rails.root.join(".ssh/#{key_token}/pub_key")
-    begin
-      pub = File.read(tool_public_key)
-      pub_key = OpenSSL::PKey::RSA.new(pub)
-    rescue StandardError => e
-      logger.debug("Error pub_keyset\n#{e}")
+    rsa_key_pair = RsaKeyPair.find(params[:key_pair_id])
+    if rsa_key_pair.nil?
+      logger.debug("Error pub_keyset")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
+    public_key = OpenSSL::PKey::RSA.new(rsa_key_pair.public_key)
 
     # lookup for the kid
-    tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%#{key_token}%").first
-    logger.debug("HERE: \n#{key_token}\n#{tool.to_json}\n")
+    tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%\"rsa_key_pair_id\":\"#{rsa_key_pair.id}\"%").first
+    logger.debug("HERE: \n#{rsa_key_pair.id}\n#{tool.to_json}\n")
     if tool.nil?
-      logger.debug("Error pub_keyset\n Tool with key_token=#{key_token} was not found")
+      logger.debug("Error pub_keyset\n Tool with rsa_key_pair_id=#{rsa_key_pair.id} was not found")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
     tool_settings = JSON.parse(tool.tool_settings)
@@ -97,8 +94,8 @@ class RegistrationController < ApplicationController
     json_pub_keyset['keys'] = [
       {
         kty: 'RSA',
-        e: Base64.urlsafe_encode64(pub_key.e.to_s(2)).delete('='), # Exponent
-        n: Base64.urlsafe_encode64(pub_key.n.to_s(2)).delete('='), # Modulus
+        e: Base64.urlsafe_encode64(public_key.e.to_s(2)).delete('='), # Exponent
+        n: Base64.urlsafe_encode64(public_key.n.to_s(2)).delete('='), # Modulus
         kid: jwt_header['kid'],
         alg: 'RS256',
         use: 'sig',
@@ -174,9 +171,9 @@ class RegistrationController < ApplicationController
     # validate_issuer(jwt_body)
 
     # 3.5.2 Client Registration Request
-    key_token = new_rsa_keypair
+    key_id = new_rsa_keypair(openid_configuration['issuer'])
     header = client_registration_request_header(params[:registration_token])
-    body = client_registration_request_body(key_token)
+    body = client_registration_request_body(key_id)
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -194,7 +191,7 @@ class RegistrationController < ApplicationController
       key_set_url: openid_configuration['jwks_uri'],
       auth_token_url: openid_configuration['token_endpoint'],
       auth_login_url: openid_configuration['authorization_endpoint'],
-      tool_private_key: Rails.root.join(".ssh/#{key_token}/priv_key"),
+      rsa_key_pair_id: key_id,
       registration_token: params[:registration_token],
     }
 
@@ -214,8 +211,9 @@ class RegistrationController < ApplicationController
     # 3.6.1 Successful Registration
     # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
     if @jwt_body['scope'] == 'reg-update'
-      tool_settings = JSON.parse(@tool.tool_settings)
-      destroy_rsa_keypair(tool_settings['tool_private_key'].split('/')[-2])
+      key_pair_id = JSON.parse(@tool.tool_settings)['rsa_key_pair_id']
+      key_pairs = RsaKeyPair.find(key_pair_id)
+      key_pairs.destroy
     end
     logger.debug(@tool.to_json)
   end
