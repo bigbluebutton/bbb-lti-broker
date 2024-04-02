@@ -89,8 +89,6 @@ namespace :tool do
     $stdout.puts("\n")
     $stdout.puts("Public Key:\n#{public_key}")
     $stdout.puts("\n")
-    $stdout.puts("JWK:\n#{jwk}")
-    $stdout.puts("\n")
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -317,6 +315,7 @@ namespace :tool do
     tool = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
     abort('The tool must be valid.') if tool.blank?
 
+    # Setting keys
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
 
@@ -326,8 +325,14 @@ namespace :tool do
     old_keys_obj.update({ private_key: private_key, public_key: public_key })
 
     tool_settings = JSON.parse(tool.tool_settings)
-    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_dir}/priv_key") # "#{Rails.root}/.ssh/#{key_dir}/priv_key"
+    # Destroy old RSA key pair.
+    logger.debug("Deleting .ssh/#{key_token}/")
+    FileUtils.rm_rf(".ssh/#{key_token}")
+    # Update tool_settings with the new RSA key pair.
+    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_token}/priv_key")
     tool.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
+    tool.save
+    tool_settings = JSON.parse(tool.tool_settings)
 
     puts(public_key) if args[:type] == 'key'
   end
@@ -341,6 +346,8 @@ namespace :tool do
     $stdout.puts("Initiate login URL:\n#{openid_login_url(protocol: 'https')}")
     $stdout.puts("\n")
     $stdout.puts(format("Redirection URI(s):\n#{openid_launch_url(protocol: 'https')}\n#{deep_link_request_launch_url(protocol: 'https')}"))
+    $stdout.puts("\n")
+    $stdout.puts("Dynamic Registration URL:\n#{registration_url(protocol: 'https')}")
     $stdout.puts("\n")
   end
 

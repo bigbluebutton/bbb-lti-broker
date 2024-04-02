@@ -151,10 +151,10 @@ module DynamicRegistrationService
     key_token
   end
 
-  # Destroy a RSA key pair and returns the key_token as a reference.
-  def destroy_rsa_keypair(pgp_token)
-    logger.debug("Deleting .ssh/#{pgp_token}/")
-    FileUtils.rm_rf(".ssh/#{pgp_token}")
+  # Destroy a RSA key pair.
+  def destroy_rsa_keypair(key_token)
+    logger.debug("Deleting .ssh/#{key_token}/")
+    FileUtils.rm_rf(".ssh/#{key_token}")
   end
 
   private

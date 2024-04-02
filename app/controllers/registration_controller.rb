@@ -71,7 +71,7 @@ class RegistrationController < ApplicationController
       pub = File.read(tool_public_key)
       pub_key = OpenSSL::PKey::RSA.new(pub)
     rescue StandardError => e
-      logger.debug("Erro pub_keyset\n#{e}")
+      logger.debug("Error pub_keyset\n#{e}")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
 
@@ -79,13 +79,13 @@ class RegistrationController < ApplicationController
     tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%#{key_token}%").first
     logger.debug("HERE: \n#{key_token}\n#{tool.to_json}\n")
     if tool.nil?
-      logger.debug("Erro pub_keyset\n Tool with key_token=#{key_token} was not found")
+      logger.debug("Error pub_keyset\n Tool with key_token=#{key_token} was not found")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
     tool_settings = JSON.parse(tool.tool_settings)
     registration_token = tool_settings['registration_token']
     if registration_token.nil?
-      logger.debug("Erro pub_keyset\n registration_token was not found")
+      logger.debug("Error pub_keyset\n The 'registration_token' was not found. This tool was registered manually.")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
 
