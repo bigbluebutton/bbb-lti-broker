@@ -189,27 +189,6 @@ namespace :tool do
       puts(e.backtrace)
       exit(1)
     end
-
-    desc 'Show settings for tool by ID [id].'
-    task :settings, [:id] => :environment do |_t, args|
-      id = args[:id]
-      abort('The ID is required') if id.blank?
-
-      $stdout.puts('tool:show[id]')
-      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
-      abort("The tool with ID #{id} does not exist") if tool.blank?
-
-      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
-      output += " is #{tool.status}"
-      output += " and linked to tenant '#{tool.tenant.uid}'"
-      puts(output)
-      $stdout.puts("\n")
-      $stdout.puts("tool_settings: \n#{JSON.parse(tool.tool_settings).to_yaml}")
-      $stdout.puts("\n")
-    rescue StandardError => e
-      puts(e.backtrace)
-      exit(1)
-    end
   end
 
   desc 'Show tools, by ID [id] if provided or all if it is not.'
@@ -277,6 +256,37 @@ namespace :tool do
     exit(1)
   end
 
+  namespace :settings do
+    desc 'Show settings for tool by ID [id].'
+    task :show, [:id] => :environment do |_t, args|
+      id = args[:id]
+      abort('The ID is required') if id.blank?
+
+      $stdout.puts('tool:settings:show[id]')
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+      abort("The tool with ID #{id} does not exist") if tool.blank?
+
+      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
+      output += " is #{tool.status}"
+      output += " and linked to tenant '#{tool.tenant.uid}'"
+      puts(output)
+      $stdout.puts("\n")
+      $stdout.puts("tool_settings: \n#{JSON.parse(tool.tool_settings).to_yaml}")
+      $stdout.puts("\n")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
+
+  desc 'Show settings for tool by ID [id].'
+  task :settings, [:id] => :environment do |_t, args|
+    id = args[:id]
+    abort('The ID is required') if id.blank?
+
+    Rake::Task['tool:settings:show'].invoke(id)
+  end
+
   desc 'Update a tool by ID with Key and Value [id,key,value]'
   task :update, [:id, :key, :value] => :environment do |_t, args|
     $stdout.puts('tool:update[id,key,value]')
@@ -315,12 +325,11 @@ namespace :tool do
     exit(1)
   end
 
-  desc 'Generate new key pair for existing Tool configuration [key, jwk]'
-  task :keygen, [:type] => :environment do |_t, args|
-    abort('Type must be one of [key, jwk]') unless %w[key jwk].include?(args[:type])
-
+  desc 'Generate new key pair for existing Tool configuration'
+  task :keygen => :environment do |_t|
     $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
+
     $stdout.puts('What is the client ID for the tool?')
     client_id = $stdin.gets.strip
 
@@ -331,35 +340,24 @@ namespace :tool do
 
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
-    jwk = JWT::JWK.new(private_key).export
-    jwk['alg'] = 'RS256' unless jwk.key?('alg')
-    jwk['use'] = 'sig' unless jwk.key?('use')
-    jwk = jwk.to_json
 
     key_dir = Digest::MD5.hexdigest(SecureRandom.uuid)
     Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
     Dir.mkdir(".ssh/#{key_dir}") unless Dir.exist?(".ssh/#{key_dir}")
 
-    # File.open(File.join(Rails.root, '.ssh', key_dir, 'priv_key'), 'w') do |f|
-    #   f.puts(private_key.to_s)
-    # end
     File.open(Rails.root.join(".ssh/#{key_dir}/priv_key"), 'w') do |f|
       f.puts(private_key.to_s)
     end
 
-    # File.open(File.join(Rails.root, '.ssh', key_dir, 'pub_key'), 'w') do |f|
-    #   f.puts(public_key.to_s)
-    # end
     File.open(Rails.root.join(".ssh/#{key_dir}/pub_key"), 'w') do |f|
       f.puts(public_key.to_s)
     end
 
     tool_settings = JSON.parse(tool.tool_settings)
-    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_dir}/priv_key") # "#{Rails.root}/.ssh/#{key_dir}/priv_key"
+    tool_settings['tool_private_key'] = Rails.root.join(".ssh/#{key_dir}/priv_key")
     tool.update(tool_settings: tool_settings.to_json, shared_secret: client_id)
 
-    puts(jwk) if args[:type] == 'jwk'
-    puts(public_key) if args[:type] == 'key'
+    puts(public_key)
   end
 
   desc 'Lists the Registration Configuration URLs need to register an app [app]'
