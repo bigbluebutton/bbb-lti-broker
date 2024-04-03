@@ -56,7 +56,8 @@ module DeepLinkService
       message[key] = '' if value.nil?
     end
 
-    key_pair_id = JSON.parse(registration['tool_settings'])['rsa_key_pair_id']
+    tool = RailsLti2Provider::Tool.find_by_shared_secret(registration['client_id'])
+    key_pair_id = JSON.parse(tool['tool_settings'])['rsa_key_pair_id']
     priv = RsaKeyPair.find(key_pair_id).private_key
     priv_key = OpenSSL::PKey::RSA.new(priv)
 
