@@ -115,7 +115,6 @@ module DynamicRegistrationService
     rsa_key_pair = RsaKeyPair.create(
       private_key: private_key.to_s,
       public_key: public_key.to_s,
-      tool_id: issuer
     )
 
     rsa_key_pair.id

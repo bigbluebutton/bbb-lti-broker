@@ -198,7 +198,7 @@ class RegistrationController < ApplicationController
     begin
       @tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
       @tool.shared_secret = response['client_id']
-      @tool.tool_settings = reg.to_json
+      @tool.tool_settings = reg.to_json.to_s
       @tool.lti_version = '1.3.0'
       @tool.status = 'enabled'
       @tool.save

@@ -63,7 +63,6 @@ namespace :tool do
     rsa_key_pair = RsaKeyPair.create(
       private_key: private_key.to_s,
       public_key: public_key.to_s,
-      tool_id: issuer
     )
 
     reg = {

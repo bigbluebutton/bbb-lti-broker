@@ -17,7 +17,4 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class RsaKeyPair < ApplicationRecord
-  def tool
-    RailsLti2Provider::Tool.find_by_issuer(tool_id)
-  end
 end
