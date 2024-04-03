@@ -137,8 +137,8 @@ module DynamicRegistrationService
     public_key = private_key.public_key
 
     key_token = Digest::MD5.hexdigest(SecureRandom.uuid)
-    Dir.mkdir('.ssh/') unless Dir.exist?('.ssh/')
-    Dir.mkdir(".ssh/#{key_token}") unless Dir.exist?(".ssh/#{key_token}")
+    Dir.mkdir(Rails.root.join('.ssh/')) unless Dir.exist?(Rails.root.join('.ssh/'))
+    Dir.mkdir(Rails.root.join(".ssh/#{key_token}")) unless Dir.exist?(Rails.root.join(".ssh/#{key_token}"))
 
     File.open(Rails.root.join(".ssh/#{key_token}/priv_key"), 'w') do |f|
       f.puts(private_key.to_s)
