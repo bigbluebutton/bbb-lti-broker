@@ -175,27 +175,6 @@ namespace :tool do
       puts(e.backtrace)
       exit(1)
     end
-
-    desc 'Show settings for tool by ID [id].'
-    task :settings, [:id] => :environment do |_t, args|
-      id = args[:id]
-      abort('The ID is required') if id.blank?
-
-      $stdout.puts('tool:show[id]')
-      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
-      abort("The tool with ID #{id} does not exist") if tool.blank?
-
-      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
-      output += " is #{tool.status}"
-      output += " and linked to tenant '#{tool.tenant.uid}'"
-      puts(output)
-      $stdout.puts("\n")
-      $stdout.puts("tool_settings: \n#{JSON.parse(tool.tool_settings).to_yaml}")
-      $stdout.puts("\n")
-    rescue StandardError => e
-      puts(e.backtrace)
-      exit(1)
-    end
   end
 
   desc 'Show tools, by ID [id] if provided or all if it is not.'
@@ -263,6 +242,37 @@ namespace :tool do
     exit(1)
   end
 
+  namespace :settings do
+    desc 'Show settings for tool by ID [id].'
+    task :show, [:id] => :environment do |_t, args|
+      id = args[:id]
+      abort('The ID is required') if id.blank?
+
+      $stdout.puts('tool:settings:show[id]')
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+      abort("The tool with ID #{id} does not exist") if tool.blank?
+
+      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
+      output += " is #{tool.status}"
+      output += " and linked to tenant '#{tool.tenant.uid}'"
+      puts(output)
+      $stdout.puts("\n")
+      $stdout.puts("tool_settings: \n#{JSON.parse(tool.tool_settings).to_yaml}")
+      $stdout.puts("\n")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
+
+  desc 'Show settings for tool by ID [id].'
+  task :settings, [:id] => :environment do |_t, args|
+    id = args[:id]
+    abort('The ID is required') if id.blank?
+
+    Rake::Task['tool:settings:show'].invoke(id)
+  end
+
   desc 'Update a tool by ID with Key and Value [id,key,value]'
   task :update, [:id, :key, :value] => :environment do |_t, args|
     $stdout.puts('tool:update[id,key,value]')
@@ -302,9 +312,10 @@ namespace :tool do
   end
 
   desc 'Generate new key pair for existing Tool configuration'
-  task keygen: :environment do |_t|
+  task :keygen => :environment do |_t|
     $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
+
     $stdout.puts('What is the client ID for the tool?')
     client_id = $stdin.gets.strip
 
