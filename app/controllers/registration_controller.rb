@@ -197,6 +197,15 @@ class RegistrationController < ApplicationController
 
     begin
       @tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
+
+      # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
+      if @jwt_body['scope'] == 'reg-update'
+        key_pair_id = JSON.parse(@tool.tool_settings)['rsa_key_pair_id']
+        key_pairs = RsaKeyPair.find(key_pair_id)
+        key_pairs.destroy
+      end
+
+      # new keys are set
       @tool.shared_secret = response['client_id']
       @tool.tool_settings = reg.to_json.to_s
       @tool.lti_version = '1.3.0'
@@ -209,12 +218,6 @@ class RegistrationController < ApplicationController
     end
 
     # 3.6.1 Successful Registration
-    # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
-    if @jwt_body['scope'] == 'reg-update'
-      key_pair_id = JSON.parse(@tool.tool_settings)['rsa_key_pair_id']
-      key_pairs = RsaKeyPair.find(key_pair_id)
-      key_pairs.destroy
-    end
     logger.debug(@tool.to_json)
   end
 
