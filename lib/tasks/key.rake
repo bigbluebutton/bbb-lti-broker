@@ -5,7 +5,7 @@ require 'securerandom'
 
 namespace :key do
   desc 'Add a new blti keypair - add[key,secret,tenant]. If "key" or "secret" are empty, a value will be generated for you'
-  task :add, [:key, :secret, :tenant] => :environment do |_t, args|
+  task :new, [:key, :secret, :tenant] => :environment do |_t, args|
     include BbbLtiBroker::Helpers
     Rake::Task['environment'].invoke
     ActiveRecord::Base.connection
@@ -95,32 +95,56 @@ namespace :key do
     exit(1)
   end
 
-  # desc 'Show all existent blti keypairs for backward compatibil'
-  # task :showall, [] => :environment do |_t|
-  #   Rake::Task['db:keys'].invoke
-  # end
-
-  desc 'Show a key-secret pair if it exists'
-  task :show, [:key, :tenant] => :environment do |_t, args|
-    Rake::Task['environment'].invoke
-    ActiveRecord::Base.connection
-    unless args[:key]
-      puts('No key provided')
+  namespace :show do
+    desc 'Show all existent blti keypairs'
+    task :all, [] => :environment do |_t|
+      $stdout.puts('key:show:all')
+      blti_keys = RailsLti2Provider::Tool.where(lti_version: 'LTI-1p0')
+      blti_keys.each do |key|
+        output = "{'id': '#{key.id}', 'uuid': '#{key.uuid}', 'shared_secret': '#{key.shared_secret}'}"
+        output += " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
+        output += " is #{key.status}"
+        puts(output)
+      end
+    rescue StandardError => e
+      puts(e.backtrace)
       exit(1)
     end
-    tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
-    tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
-    for_tenant = tenant.uid.empty? ? '' : tenant.uid
-    abort("Key '#{args[:key]}' does not exist for tenant '#{for_tenant}'.") if tool.nil?
 
-    tool_name = Rails.configuration.default_tool
-    url = Rails.configuration.url_host
-    url_root = Rails.configuration.relative_url_root[1..] # remove leading '/'
-    url = "https://#{url}" unless url.first(4) == 'http'
-    url += '/' unless url.last(1) == '/'
-    url += "#{url_root}/#{tool_name}/messages/blti"
+    desc 'Show a blti key-secret pair and its url if it exists'
+    task :url, [:key, :tenant] => :environment do |_t, args|
+      $stdout.puts('key:url[key,tenant]')
+      tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant] || '')
+      tool = RailsLti2Provider::Tool.find_by(uuid: args[:key], tenant: tenant)
+      for_tenant = tenant.uid.empty? ? '' : tenant.uid
+      abort("Key '#{args[:key]}' does not exist for tenant '#{for_tenant}'.") if tool.nil?
 
-    puts("Key:\t#{tool.uuid}\nSecret:\t#{tool.shared_secret}\nURL:\t#{url}")
+      tool_name = Rails.configuration.default_tool
+      url = Rails.configuration.url_host
+      url_root = Rails.configuration.relative_url_root[1..] # remove leading '/'
+      url = "https://#{url}" unless url.first(4) == 'http'
+      url += '/' unless url.last(1) == '/'
+      url += "#{url_root}/#{tool_name}/messages/blti"
+
+      puts("Key:\t#{tool.uuid}\nSecret:\t#{tool.shared_secret}\nURL:\t#{url}")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
+
+  desc 'Show a existent blti keypairs'
+  task :show, [:id] => :environment do |_t, args|
+    unless args[:id]
+      Rake::Task['key:show:all'].invoke
+      exit(1)
+    end
+    $stdout.puts('key:show[id]')
+    key = RailsLti2Provider::Tool.find(args[:id])
+    output = "{'id': '#{key.id}', 'uuid': '#{key.uuid}', 'shared_secret': '#{key.shared_secret}'}"
+    output += " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
+    output += " is #{key.status}"
+    puts(output)
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -245,20 +269,9 @@ namespace :key do
   end
 end
 
-desc 'Show all existent blti keypairs'
-task :key, [] => :environment do |_t|
-  include BbbLtiBroker::Helpers
-  Rake::Task['environment'].invoke
-  ActiveRecord::Base.connection
-  blti_keys = RailsLti2Provider::Tool.all
-  blti_keys.each do |key|
-    next if key.lti_version == '1.3.0'
-
-    output = "{'id': '#{key.id}', 'uuid': '#{key.uuid}', 'shared_secret': '#{key.shared_secret}'}"
-    output += " for tenant '#{key.tenant.uid}'" unless key.tenant.uid.empty?
-    output += " is #{key.status}"
-    puts(output)
-  end
+desc 'Key tasks, by default show all existent blti keypairs'
+task key: :environment do |_t|
+  Rake::Task['key:show'].invoke
 rescue StandardError => e
   puts(e.backtrace)
   exit(1)

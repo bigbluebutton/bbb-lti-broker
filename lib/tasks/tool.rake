@@ -501,7 +501,7 @@ namespace :tool do
   end
 end
 
-desc 'Tool taks'
+desc 'Tool tasks'
 task tool: :environment do |_t|
   Rake::Task['tool:show'].invoke
 rescue StandardError => e
