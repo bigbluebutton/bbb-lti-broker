@@ -171,7 +171,7 @@ class RegistrationController < ApplicationController
     # validate_issuer(jwt_body)
 
     # 3.5.2 Client Registration Request
-    key_id = new_rsa_keypair(openid_configuration['issuer'])
+    key_id = new_rsa_keypair
     header = client_registration_request_header(params[:registration_token])
     body = client_registration_request_body(key_id)
     body = body.to_json

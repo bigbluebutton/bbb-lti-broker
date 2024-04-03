@@ -107,14 +107,14 @@ module DynamicRegistrationService
   end
 
   # Generate a new RSA key pair and returnss the key_token as a reference.
-  def new_rsa_keypair(issuer)
+  def new_rsa_keypair
     # Setting keys
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
 
     rsa_key_pair = RsaKeyPair.create(
       private_key: private_key.to_s,
-      public_key: public_key.to_s,
+      public_key: public_key.to_s
     )
 
     rsa_key_pair.id

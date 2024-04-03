@@ -62,7 +62,7 @@ namespace :tool do
 
     rsa_key_pair = RsaKeyPair.create(
       private_key: private_key.to_s,
-      public_key: public_key.to_s,
+      public_key: public_key.to_s
     )
 
     reg = {
@@ -311,7 +311,7 @@ namespace :tool do
   end
 
   desc 'Generate new key pair for existing Tool configuration'
-  task :keygen => :environment do |_t|
+  task :keygen, [] => :environment do |_t|
     $stdout.puts('What is the issuer for the tool?')
     issuer = $stdin.gets.strip
 
