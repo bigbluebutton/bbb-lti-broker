@@ -102,6 +102,13 @@ ActiveRecord::Schema.define(version: 2024_03_19_175531) do
     t.index ["tenant_id"], name: "index_tenant_id"
   end
 
+  create_table "rsa_key_pairs", force: :cascade do |t|
+    t.text "private_key"
+    t.text "public_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.string "session_id", null: false
     t.text "data"

@@ -82,30 +82,6 @@ module DynamicRegistrationService
     }
   end
 
-  def dynamic_registration_jwt_response(registration, jwt_header, jwt_body, resources)
-    message = {
-      'iss' => registration['client_id'],
-      'aud' => [registration['issuer']],
-      'exp' => Time.now.to_i + 600,
-      'iat' => Time.now.to_i,
-      'nonce' => "nonce#{SecureRandom.hex}",
-      'https://purl.imsglobal.org/spec/lti/claim/deployment_id' => jwt_body['https://purl.imsglobal.org/spec/lti/claim/deployment_id'],
-      'https://purl.imsglobal.org/spec/lti/claim/message_type' => 'LtiDeepLinkingResponse',
-      'https://purl.imsglobal.org/spec/lti/claim/version' => '1.3.0',
-      'https://purl.imsglobal.org/spec/lti-dl/claim/content_items' => resources,
-      'https://purl.imsglobal.org/spec/lti-dl/claim/data' => jwt_body['https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings']['data'],
-    }
-
-    message.each do |key, value|
-      message[key] = '' if value.nil?
-    end
-
-    priv = File.read(registration['tool_private_key'])
-    priv_key = OpenSSL::PKey::RSA.new(priv)
-
-    JWT.encode(message, priv_key, 'RS256', kid: jwt_header['kid'])
-  end
-
   def validate_registration_initiation_request
     # openid_configuration: the endpoint to the open id configuration to be used for this registration, encoded as per [RFC3986] Section 3.4.
     raise CustomError, :openid_configuration_not_found unless params.key?('openid_configuration')
@@ -136,25 +112,12 @@ module DynamicRegistrationService
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
 
-    key_token = Digest::MD5.hexdigest(SecureRandom.uuid)
-    Dir.mkdir(Rails.root.join('.ssh/')) unless Dir.exist?(Rails.root.join('.ssh/'))
-    Dir.mkdir(Rails.root.join(".ssh/#{key_token}")) unless Dir.exist?(Rails.root.join(".ssh/#{key_token}"))
+    rsa_key_pair = RsaKeyPair.create(
+      private_key: private_key.to_s,
+      public_key: public_key.to_s
+    )
 
-    File.open(Rails.root.join(".ssh/#{key_token}/priv_key"), 'w') do |f|
-      f.puts(private_key.to_s)
-    end
-
-    File.open(Rails.root.join(".ssh/#{key_token}/pub_key"), 'w') do |f|
-      f.puts(public_key.to_s)
-    end
-
-    key_token
-  end
-
-  # Destroy a RSA key pair and returns the key_token as a reference.
-  def destroy_rsa_keypair(pgp_token)
-    logger.debug("Deleting .ssh/#{pgp_token}/")
-    FileUtils.rm_rf(".ssh/#{pgp_token}")
+    rsa_key_pair.id
   end
 
   private
