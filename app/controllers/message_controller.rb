@@ -221,7 +221,9 @@ class MessageController < ApplicationController
 
     tool = lti_registration(@jwt_body['iss'])
     tool.lti_launches.where('created_at < ?', 1.day.ago).delete_all
-    @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header))
+    nonce = @jwt_body['nonce']
+    message = @jwt_body.merge(@jwt_header)
+    @lti_launch = tool.lti_launches.create(nonce: nonce, message: message)
 
     @message = IMS::LTI::Models::Messages::Message.generate(params)
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)

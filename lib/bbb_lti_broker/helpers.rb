@@ -51,23 +51,22 @@ module BbbLtiBroker
     end
 
     def standarized_message(message_json)
-      message = JSON.parse(message_json)
       if message['user_id'].blank?
-        message['user_id'] = message['unknown_params']['sub']
-        message['lis_person_name_full'] = message['unknown_params']['name']
-        message['lis_person_name_given'] = message['unknown_params']['given_name']
-        message['lis_person_name_family'] = message['unknown_params']['family_name']
-        message['lis_person_contact_email_primary'] = message['unknown_params']['email']
-        message['user_image'] = message['unknown_params']['picture']
-        message['roles'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/roles'].join(',')
-        message['tool_consumer_instance_guid'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['guid']
-        message['tool_consumer_instance_url'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['url']
-        message['resource_link_id'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id']
-        message['resource_link_title'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['title']
-        message['resource_link_description'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/resource_link']['description']
-        message['launch_presentation_locale'] = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/launch_presentation']['locale']
+        migration_map.each do |param, claim|
+          claims = claim.split('#')
+          value = message['unknown_params'][claims[0]]
+          value = message['unknown_params'][claims[0]][claims[1]] unless claims[1].nil?
+          value = value.join(',') if value.kind_of?(Array)
+          logger.debug(">> message['#{param.to_s}'] = '#{value}' is #{value.class}")
+          message[param.to_s] = value unless value.nil?
+        end
+        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom']       #custom_keyname: 'https://purl.imsglobal.org/spec/lti/claim/custom#keyname',
+        custom_params.each do |param, value|
+          message["custom_#{param.to_s}"] = value
+        end
       end
-      custom_overrides(message).to_json
+      curated_message = custom_overrides(message)
+      curated_message.to_json
     end
 
     def user_params(tc_instance_guid, params)
@@ -106,6 +105,44 @@ module BbbLtiBroker
         message[custom_param] = message[pattern[1]] if pattern[0] == 'param'
       end
       message
+    end
+
+    def migration_map
+      {
+        lti_message_type: 'https://purl.imsglobal.org/spec/lti/claim/message_type',
+        lti_version: 'https://purl.imsglobal.org/spec/lti/claim/version',
+        user_id: 'sub',
+        lis_person_name_given: 'given_name',
+        lis_person_name_family: 'family_name',
+        lis_person_name_full: 'name',
+        lis_person_contact_email_primary: 'email',
+        user_image: 'picture',
+        lis_person_sourcedid: 'https://purl.imsglobal.org/spec/lti/claim/lis#person_sourcedid',
+        lis_course_offering_sourcedid: 'https://purl.imsglobal.org/spec/lti/claim/lis#course_offering_sourcedid',
+        lis_course_section_sourcedid: 'https://purl.imsglobal.org/spec/lti/claim/lis#course_section_sourcedid',
+        resource_link_id: 'https://purl.imsglobal.org/spec/lti/claim/resource_link#id',
+        resource_link_title: 'https://purl.imsglobal.org/spec/lti/claim/resource_link#title',
+        resource_link_description: 'https://purl.imsglobal.org/spec/lti/claim/resource_link#description',
+        roles: 'https://purl.imsglobal.org/spec/lti/claim/roles',
+        context_id: 'https://purl.imsglobal.org/spec/lti/claim/context#id',
+        context_type: 'https://purl.imsglobal.org/spec/lti/claim/context#type',
+        context_title: 'https://purl.imsglobal.org/spec/lti/claim/context#title',
+        context_label: 'https://purl.imsglobal.org/spec/lti/claim/context#label',
+        launch_presentation_locale: 'https://purl.imsglobal.org/spec/lti/claim/launch_presentation#locale',
+        launch_presentation_document_target: 'https://purl.imsglobal.org/spec/lti/claim/launch_presentation#document_target',
+        launch_presentation_width: 'https://purl.imsglobal.org/spec/lti/claim/launch_presentation#width',
+        launch_presentation_height: 'https://purl.imsglobal.org/spec/lti/claim/launch_presentation#height',
+        launch_presentation_return_url: 'https://purl.imsglobal.org/spec/lti/claim/launch_presentation#return_url',
+        tool_consumer_info_product_family: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#product_family_code',
+        tool_consumer_info_version: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#version',
+        tool_consumer_instance_guid: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#guid',
+        tool_consumer_instance_name: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#name',
+        tool_consumer_instance_description: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#description',
+        tool_consumer_instance_url: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#url',
+        tool_consumer_instance_contact_email: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#email',
+        custom_keyname: 'https://purl.imsglobal.org/spec/lti/claim/custom#keyname',
+        role_scope_mentor: 'https://purlimsglobal.org/spec/lti/claim/role_scope_mentor'
+      }
     end
   end
 end

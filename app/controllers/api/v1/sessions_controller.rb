@@ -18,14 +18,15 @@
 
 class Api::V1::SessionsController < Api::V1::BaseController
   include LtiHelper
+  include OpenIdAuthenticator
 
   before_action :doorkeeper_authorize!
 
   def validate_launch
     lti_launch = RailsLti2Provider::LtiLaunch.find_by_nonce(params[:token])
     render(json: { token: params[:token], valid: false }.to_json) unless lti_launch
-    tenant = lti_launch.tool.tenant.uid unless lti_launch.tool.tenant_id.nil?
-    message = JSON.parse(standarized_message(lti_launch.message.to_json))
-    render(json: { token: params[:token], valid: true, tenant: tenant || '', message: message }.to_json)
+    tenant = lti_launch.tool.tenant
+    message = standarized_message(lti_launch.message.to_json)
+    render(json: { token: params[:token], valid: true, tenant: tenant.uid, message: JSON.parse(message) }.to_json)
   end
 end
