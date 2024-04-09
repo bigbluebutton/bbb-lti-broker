@@ -51,18 +51,18 @@ module BbbLtiBroker
     end
 
     def standarized_message(message_json)
+      message = JSON.parse(message_json)
       if message['user_id'].blank?
         migration_map.each do |param, claim|
           claims = claim.split('#')
           value = message['unknown_params'][claims[0]]
           value = message['unknown_params'][claims[0]][claims[1]] unless claims[1].nil?
-          value = value.join(',') if value.kind_of?(Array)
-          logger.debug(">> message['#{param.to_s}'] = '#{value}' is #{value.class}")
+          value = value.join(',') if value.is_a?(Array)
           message[param.to_s] = value unless value.nil?
         end
-        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom']       #custom_keyname: 'https://purl.imsglobal.org/spec/lti/claim/custom#keyname',
+        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom']
         custom_params.each do |param, value|
-          message["custom_#{param.to_s}"] = value
+          message["custom_#{param}"] = value
         end
       end
       curated_message = custom_overrides(message)
@@ -141,7 +141,7 @@ module BbbLtiBroker
         tool_consumer_instance_url: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#url',
         tool_consumer_instance_contact_email: 'https://purl.imsglobal.org/spec/lti/claim/tool_platform#email',
         custom_keyname: 'https://purl.imsglobal.org/spec/lti/claim/custom#keyname',
-        role_scope_mentor: 'https://purlimsglobal.org/spec/lti/claim/role_scope_mentor'
+        role_scope_mentor: 'https://purlimsglobal.org/spec/lti/claim/role_scope_mentor',
       }
     end
   end
