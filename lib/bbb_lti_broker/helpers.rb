@@ -50,6 +50,14 @@ module BbbLtiBroker
       uri.to_s
     end
 
+    ##
+    # Standardize a message to be sent to the registered app for backward compativility with LTI 1.1.
+    #
+    # The message is transformed to a custom JSON file that includes a list of the parameters received in the
+    # old LTI 1.1 format. When the message comes from an LTI 1.3 launch, all the LTI 1.3 params are wrapped in a
+    # 'unknown_params' object. With this method we extract those parameters and place them to the root level
+    # with the naming and format LTI 1.1 used to have.
+    #
     def standarized_message(message_json)
       message = JSON.parse(message_json)
       if message['user_id'].blank?
@@ -64,6 +72,7 @@ module BbbLtiBroker
         custom_params.each do |param, value|
           message["custom_#{param}"] = value
         end
+        # TODO: this standardization does not consider the ext_ parameters
       end
       curated_message = custom_overrides(message)
       curated_message.to_json
