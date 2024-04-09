@@ -18,7 +18,6 @@
 
 class Api::V1::SessionsController < Api::V1::BaseController
   include LtiHelper
-  include OpenIdAuthenticator
 
   before_action :doorkeeper_authorize!
 
