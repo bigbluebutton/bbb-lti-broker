@@ -64,7 +64,8 @@ class RegistrationController < ApplicationController
   end
 
   def pub_keyset
-    # The param :key_token is required. It should fail if not included. It should also fail if not found.
+    # The param :key_pair_id is required. It should fail if not included. It should also fail if not found.
+    # TODO: the search should fall back to key_token since the key_pair_id is a sequential number and it is predictable
     rsa_key_pair = RsaKeyPair.find(params[:key_pair_id])
     if rsa_key_pair.nil?
       logger.debug('Error pub_keyset')
@@ -73,7 +74,7 @@ class RegistrationController < ApplicationController
     public_key = OpenSSL::PKey::RSA.new(rsa_key_pair.public_key)
 
     # lookup for the kid
-    tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%\"rsa_key_pair_id\":\"#{rsa_key_pair.id}\"%").first
+    tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%\"rsa_key_pair_id\":#{rsa_key_pair.id}%").first
     logger.debug("HERE: \n#{rsa_key_pair.id}\n#{tool.to_json}\n")
     if tool.nil?
       logger.debug("Error pub_keyset\n Tool with rsa_key_pair_id=#{rsa_key_pair.id} was not found")
