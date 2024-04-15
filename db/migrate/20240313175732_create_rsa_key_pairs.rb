@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateRsaKeyPairs < ActiveRecord::Migration[6.1]
   def self.up
     create_table :rsa_key_pairs do |t|

@@ -59,10 +59,12 @@ namespace :tool do
 
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
+    key_pair_token = Digest::MD5.hexdigest(SecureRandom.uuid)
 
     rsa_key_pair = RsaKeyPair.create(
       private_key: private_key.to_s,
-      public_key: public_key.to_s
+      public_key: public_key.to_s,
+      token: key_pair_token
     )
 
     reg = {
@@ -72,6 +74,7 @@ namespace :tool do
       auth_token_url: auth_token_url,
       auth_login_url: auth_login_url,
       rsa_key_pair_id: rsa_key_pair.id,
+      rsa_key_pair_token: rsa_key_pair.token,
     }
 
     tool = RailsLti2Provider::Tool.create(
@@ -87,6 +90,8 @@ namespace :tool do
     $stdout.puts("Private Key:\n#{private_key}")
     $stdout.puts("\n")
     $stdout.puts("Public Key:\n#{public_key}")
+    $stdout.puts("\n")
+    $stdout.puts("Public Key URL:\n#{registration_pub_keyset_url(protocol: 'https', key_token: key_pair_token)}")
     $stdout.puts("\n")
   rescue StandardError => e
     puts(e.backtrace)
@@ -117,19 +122,7 @@ namespace :tool do
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', key.to_sym => value)
       abort("The tool with #{key} = #{value} does not exist") if tool.blank?
 
-      if (key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id'])
-        keys = RsaKeyPair.find(key_pair_id)
-      end
-
-      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
-      output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
-      output += " is #{tool.status}"
-      puts(output)
-      $stdout.puts("\n")
-      $stdout.puts("Private Key:\n#{keys.private_key}")
-      $stdout.puts("\n")
-      $stdout.puts("Public Key:\n#{keys.public_key}")
-      $stdout.puts("\n")
+      Rake::Task['tool:show'].invoke(tool.id)
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -222,7 +215,6 @@ namespace :tool do
 
       $stdout.puts("tool:settings:show[#{args[:id]}]")
 
-      $stdout.puts('tool:settings:show[id]')
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
       abort("The tool with ID #{id} does not exist") if tool.blank?
 
@@ -240,8 +232,6 @@ namespace :tool do
 
     desc 'Update a tool by ID with Key and Value [id,key,value]'
     task :update, [:id, :key, :value] => :environment do |_t, args|
-      $stdout.puts('tool:settings:update[id,key,value]')
-
       # ID.
       id = args[:id]
       if id.blank?
@@ -265,6 +255,8 @@ namespace :tool do
         value = $stdin.gets.strip
       end
       abort('The Value cannot be blank.') if value.blank?
+
+      $stdout.puts("tool:settings:update[#{id},#{key},#{value}]")
 
       tool = RailsLti2Provider::Tool.find(id)
       abort("The tool with id = #{id} does not exist") if tool.blank?
@@ -301,21 +293,19 @@ namespace :tool do
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
       abort("The tool with ID #{id} does not exist") if tool.blank?
 
-      key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
-      abort("The key_pair_id for #{id} does not exist") if key_pair_id.blank?
+      key_pair_token = JSON.parse(tool.tool_settings)['rsa_key_pair_token']
+      abort("The key_pair_token for #{id} does not exist") if key_pair_token.blank?
 
-      keys = RsaKeyPair.find(key_pair_id)
+      keys = RsaKeyPair.find_by(token: key_pair_token)
 
-      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
-      output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
-      output += " is #{tool.status}"
-      puts(output)
+      puts(tool.to_json)
+
       $stdout.puts("\n")
       $stdout.puts("Private Key:\n#{keys.private_key}")
       $stdout.puts("\n")
       $stdout.puts("Public Key:\n#{keys.public_key}")
       $stdout.puts("\n")
-      $stdout.puts("Public Key URL:\n#{registration_pub_keyset_url(protocol: 'https', key_pair_id: key_pair_id)}")
+      $stdout.puts("Public Key URL:\n#{registration_pub_keyset_url(protocol: 'https', key_token: key_pair_token)}")
       $stdout.puts("\n")
     rescue StandardError => e
       puts(e.backtrace)

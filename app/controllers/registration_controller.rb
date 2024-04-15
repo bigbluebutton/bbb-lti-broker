@@ -64,9 +64,8 @@ class RegistrationController < ApplicationController
   end
 
   def pub_keyset
-    # The param :key_pair_id is required. It should fail if not included. It should also fail if not found.
-    # TODO: the search should fall back to key_token since the key_pair_id is a sequential number and it is predictable
-    rsa_key_pair = RsaKeyPair.find(params[:key_pair_id])
+    # The param :key_token is required. It should fail if not included. It should also fail if not found.
+    rsa_key_pair = RsaKeyPair.find_by(token: params[:key_token])
     if rsa_key_pair.nil?
       logger.debug('Error pub_keyset')
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
@@ -75,7 +74,7 @@ class RegistrationController < ApplicationController
 
     # lookup for the kid
     tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%\"rsa_key_pair_id\":#{rsa_key_pair.id}%").first
-    logger.debug("HERE: \n#{rsa_key_pair.id}\n#{tool.to_json}\n")
+    logger.debug("#{rsa_key_pair.id}\n#{tool.to_json}\n")
     if tool.nil?
       logger.debug("Error pub_keyset\n Tool with rsa_key_pair_id=#{rsa_key_pair.id} was not found")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
