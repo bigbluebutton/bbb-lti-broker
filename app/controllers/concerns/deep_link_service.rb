@@ -56,8 +56,8 @@ module DeepLinkService
       message[key] = '' if value.nil?
     end
 
-    key_pair_id = JSON.parse(registration['tool_settings'])['rsa_key_pair_id']
-    priv = RsaKeyPair.find(key_pair_id).private_key
+    priv = RsaKeyPair.find(registration['rsa_key_pair_id']).private_key
+
     priv_key = OpenSSL::PKey::RSA.new(priv)
 
     JWT.encode(message, priv_key, 'RS256', kid: jwt_header['kid'])

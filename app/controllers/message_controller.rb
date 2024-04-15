@@ -185,7 +185,7 @@ class MessageController < ApplicationController
 
       options = {}
       options['client_id'] =  @jwt_body['aud']
-      deep_link_jwt_message = deep_link_jwt_response(lti_registration(@jwt_body['iss'], options), @jwt_header, @jwt_body, [resource])
+      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss'], options), @jwt_header, @jwt_body, [resource])
 
       @apps << { app_name: app, deep_link_jwt_message: deep_link_jwt_message }
     end
