@@ -64,11 +64,11 @@ module BbbLtiBroker
         migration_map.each do |param, claim|
           claims = claim.split('#')
           value = message['unknown_params'][claims[0]]
-          value = message['unknown_params'][claims[0]][claims[1]] unless claims[1].nil?
+          value = message['unknown_params'][claims[0]][claims[1]] unless value.nil? || claims[1].nil?
           value = value.join(',') if value.is_a?(Array)
           message[param.to_s] = value unless value.nil?
         end
-        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom']
+        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || []
         custom_params.each do |param, value|
           message["custom_#{param}"] = value
         end
