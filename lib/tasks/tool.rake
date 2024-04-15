@@ -291,38 +291,6 @@ namespace :tool do
 
   namespace :keys do
     desc 'Show keys for tool by ID [id].'
-    task :showfile, [:id] => :environment do |_t, args|
-      id = args[:id]
-      abort('The ID is required') if id.blank?
-
-      $stdout.puts("tool:keys:showfile[#{args[:id]}]")
-
-      $stdout.puts('tool:show[id]')
-      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
-      abort("The tool with ID #{id} does not exist") if tool.blank?
-
-      tool_private_key = JSON.parse(tool.tool_settings)['tool_private_key']
-      abort("The tool_private_key for #{id} does not exist") if tool_private_key.blank?
-
-      key_dir = Pathname.new(tool_private_key).parent.to_s
-      private_key = File.read("#{key_dir}/priv_key")
-      public_key = File.read("#{key_dir}/pub_key")
-
-      output = "{'id': '#{tool.id}', 'uuid': '#{tool.uuid}', 'shared_secret': '#{tool.shared_secret}'}"
-      output += " for tenant '#{tool.tenant.uid}'" unless tool.tenant.uid.empty?
-      output += " is #{tool.status}"
-      puts(output)
-      $stdout.puts("\n")
-      $stdout.puts("Private Key:\n#{private_key}")
-      $stdout.puts("\n")
-      $stdout.puts("Public Key:\n#{public_key}")
-      $stdout.puts("\n")
-    rescue StandardError => e
-      puts(e.backtrace)
-      exit(1)
-    end
-
-    desc 'Show keys for tool by ID [id].'
     task :show, [:id] => :environment do |_t, args|
       id = args[:id]
       abort('The ID is required') if id.blank?
