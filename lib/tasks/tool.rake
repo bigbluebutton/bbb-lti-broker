@@ -315,6 +315,8 @@ namespace :tool do
       $stdout.puts("\n")
       $stdout.puts("Public Key:\n#{keys.public_key}")
       $stdout.puts("\n")
+      $stdout.puts("Public Key URL:\n#{registration_pub_keyset_url(protocol: 'https', key_pair_id: key_pair_id)}")
+      $stdout.puts("\n")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
