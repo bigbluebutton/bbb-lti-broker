@@ -323,7 +323,7 @@ namespace :tool do
     end
 
     desc 'Show keys for tool by ID [id].'
-    task :keys, [:id] => :environment do |_t, args|
+    task :show, [:id] => :environment do |_t, args|
       id = args[:id]
       abort('The ID is required') if id.blank?
 
