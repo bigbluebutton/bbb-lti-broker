@@ -60,6 +60,7 @@ module BbbLtiBroker
     #
     def standarized_message(message_json)
       message = JSON.parse(message_json)
+      # Consider for conversion all 1.3 launches, which even though , b) launches that did not come in common format
       if message['user_id'].blank?
         migration_map.each do |param, claim|
           claims = claim.split('#')
@@ -68,12 +69,14 @@ module BbbLtiBroker
           value = value.join(',') if value.is_a?(Array)
           message[param.to_s] = value unless value.nil?
         end
+
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || []
-        custom_params.each do |param, value|
-          message["custom_#{param}"] = value
-        end
-        # TODO: this standardization does not consider the ext_ parameters
+        message['custom_params'] = custom_params
+
+        ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || []
+        message['ext_params'] = ext_params
       end
+
       curated_message = custom_overrides(message)
       curated_message.to_json
     end
@@ -101,17 +104,22 @@ module BbbLtiBroker
     # Core parameters may have to be overriden in order to make the applications behave differently
     # for that, the LTI link in the tool consumer would need to include a custom parameter in the form:
     #
-    # custom_resource_link_id=static:"some value" -> resource_link_id="some value"
-    # custom_resource_link_id=param:contenxt_id   -> resource_link_id=<value obtained from context_id>
-    # custom_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
+    # custom_override_resource_link_id=static:"some value" -> resource_link_id="some value"
+    # custom_override_resource_link_id=param:contenxt_id   -> resource_link_id=<value obtained from context_id>
+    # custom_override_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
     #
     def custom_overrides(message)
+      override_custom_params = safe_override_custom_params
       custom_params = message['custom_params'].to_h
-      custom_params.each do |key, value|
-        custom_param = key.delete_prefix('custom_')
+      custom_params.each do |custom_param_name, value|
+        next unless custom_param_name.start_with?('custom_override_')
+
+        param_name = custom_param_name.delete_prefix('custom_override_')
+        next unless override_custom_params.include?(param_name)
+
         pattern = value.split(':')
-        message[custom_param] = pattern[1] if pattern[0] == 'static'
-        message[custom_param] = message[pattern[1]] if pattern[0] == 'param'
+        message[param_name] = pattern[1] if pattern[0] == 'static'
+        message[param_name] = message['custom_params'][pattern[1]] if pattern[0] == 'param'
       end
       message
     end
@@ -152,6 +160,14 @@ module BbbLtiBroker
         custom_keyname: 'https://purl.imsglobal.org/spec/lti/claim/custom#keyname',
         role_scope_mentor: 'https://purlimsglobal.org/spec/lti/claim/role_scope_mentor',
       }
+    end
+
+    # parameters that are safe for custom overriding.
+    def safe_override_custom_params
+      # TODO: Only safe params should be allowed to be overriden, there are two approaches for this.
+      # 1) set them through a tenant setting
+      # 2) set the overriding rules through tenant settings (safest)
+      ['user_image']
     end
   end
 end
