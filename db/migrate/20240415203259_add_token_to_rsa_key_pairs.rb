@@ -16,7 +16,7 @@ class AddTokenToRsaKeyPairs < ActiveRecord::Migration[6.1]
       tool_settings = JSON.parse(tool.tool_settings)
       tool_private_key = tool_settings['tool_private_key']
       rsa_key_pair_id = tool_settings['rsa_key_pair_id']
-      rsa_key_pair_token = tool_private_key.split('/')[-2]
+      rsa_key_pair_token = tool_private_key.split('/')[-2] unless tool_private_key.nil?
       rsa_key_pair_token = Digest::MD5.hexdigest(SecureRandom.uuid) unless rsa_key_pair_token
             
       # update existing RsaKeyPair
