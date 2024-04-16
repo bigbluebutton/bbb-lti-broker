@@ -108,6 +108,8 @@ ActiveRecord::Schema.define(version: 2024_04_15_203259) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "token"
+    t.index ["id"], name: "index_rsa_key_pairs_on_id", unique: true
+    t.index ["token"], name: "index_rsa_key_pairs_on_token", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|

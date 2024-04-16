@@ -6,9 +6,10 @@ class AddTokenToRsaKeyPairs < ActiveRecord::Migration[6.1]
 
     unless column_exists?(:rsa_key_pairs, :token)
       add_column(:rsa_key_pairs, :token, :string)
-
-      #change_column(:rsa_key_pairs, :token, :string, null: false)
     end
+
+    add_index(:rsa_key_pairs, :id, unique: true, if_not_exists: true)
+    add_index(:rsa_key_pairs, :token, unique: true, if_not_exists: true)
 
     # data migration
     tools = RailsLti2Provider::Tool.where(lti_version: '1.3.0')
@@ -33,6 +34,8 @@ class AddTokenToRsaKeyPairs < ActiveRecord::Migration[6.1]
   def down
     return unless table_exists?(:rsa_key_pairs)
 
-    remove_column(:rsa_key_pairs, :rsa_key_pair_token)
+    remove_index(:rsa_key_pairs, :token) if index_exists?(:rsa_key_pairs, :token)
+
+    remove_column(:rsa_key_pairs, :token)
   end
 end
