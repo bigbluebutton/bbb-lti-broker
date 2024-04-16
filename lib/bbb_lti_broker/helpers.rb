@@ -70,10 +70,10 @@ module BbbLtiBroker
           message[param.to_s] = value unless value.nil?
         end
 
-        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || []
+        custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
         message['custom_params'] = custom_params
 
-        ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || []
+        ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
         message['ext_params'] = ext_params
       end
 
