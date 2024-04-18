@@ -138,7 +138,7 @@ Rails.application.configure do
                          [:file_store, Rails.root.join('tmp/cache_store')]
                        end
 
-  config.hosts = ENV['WHITELIST_HOST'].presence || nil
+  config.hosts = ENV['WHITELIST_HOST']&.split(',') || nil
 
   config.react.variant = :production
 
