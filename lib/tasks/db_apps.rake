@@ -40,8 +40,8 @@ namespace :db do
       exit(1)
     end
 
-    desc 'Update an existent blti app if exists - update[name,hostname,uid,secret]'
-    task :update, [:name, :hostname, :uid, :secret] => :environment do |_t, args|
+    desc 'Update an existent blti app if exists - update[name,redirect_uris,uid,secret]. redirect_uris is a list of callback uris separated by "\,"'
+    task :update, [:name, :redirect_uris, :uid, :secret] => :environment do |_t, args|
       include BbbLtiBroker::Helpers
       Rake::Task['environment'].invoke
       ActiveRecord::Base.connection
@@ -58,10 +58,11 @@ namespace :db do
       app.update!(uid: args[:uid]) if args.[](:uid)
       app.update!(secret: args[:secret]) if args.[](:secret)
 
-      redirect_uri = (args[:hostname]).to_s
-      app.update!(redirect_uri: redirect_uri) if args.[](:hostname)
-      app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
-      puts("Updated '#{app1.to_json}'")
+      redirect_uri = (args[:redirect_uris]).gsub(',', "\r\n")
+      puts("redirect_uri:\n#{redirect_uri}")
+      app.update!(redirect_uri: redirect_uri) if args.[](:redirect_uris)
+      app_updated = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
+      puts("Updated '#{app_updated.to_json}'")
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
