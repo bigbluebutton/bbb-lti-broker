@@ -76,7 +76,7 @@ class MessageController < ApplicationController
     # Redirect to external application if configured
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: params[:oauth_timestamp] })
     session[:user_id] = @current_user.id
-    redirector = app_launch_path(params.to_unsafe_h)
+    redirector = app_launch_url(params.to_unsafe_h.symbolize_keys)
     redirect_post(redirector, options: { authenticity_token: :auto })
   end
 
@@ -111,7 +111,7 @@ class MessageController < ApplicationController
     # Redirect to external application if configured
     Rails.cache.write(params[:oauth_nonce], message: @message, oauth: { consumer_key: params[:oauth_consumer_key], timestamp: @jwt_body['exp'] })
     session[:user_id] = @current_user.id
-    redirector = app_launch_path(params.to_unsafe_h)
+    redirector = app_launch_url(params.to_unsafe_h.symbolize_keys)
     redirect_post(redirector, options: { authenticity_token: :auto })
   end
 

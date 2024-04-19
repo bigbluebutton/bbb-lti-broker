@@ -86,6 +86,7 @@ Rails.application.configure do
   config.assets.quiet = true
 
   config.hosts = nil
+
   config.web_console.whiny_requests = false
 
   config.react.variant = :development
