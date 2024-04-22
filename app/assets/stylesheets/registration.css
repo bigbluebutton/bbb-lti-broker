@@ -48,18 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. */
     color: red;
 }
 
-input[type="submit"] {
-    background-color: #3eb343;
-    border: none;
-    color: white;
-    padding: 0.5em 1.3em;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    margin: 4px 2px;
-    cursor: pointer;
-}
-
 input[value="Go Back"] {
     background-color: #575f58;
 }

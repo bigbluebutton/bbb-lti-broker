@@ -14,15 +14,36 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
-<%= render "layouts/header_iframe" %>
 
-<h1><%= t('deeplink.title') %></h1>
+<div class="deeplink-container-background">
+	<%= render "layouts/header_iframe" %>
 
-<% @apps.each do |app| %>
-    <%= form_tag(@deep_link_return_url) do %>
-        <%= hidden_field_tag 'JWT', app[:deep_link_jwt_message] %>
-        <%= submit_tag(app[:app_name]) %>
-    <% end %>
-<% end %>
+	<div class="deeplink-container">
+			<% @apps.each_with_index do |app, index| %>
+				<%= form_tag(@deep_link_return_url, class: "card-link-form") do %>
+					<div class="card tool-card clickable">
+						<div class="card-body text-center">
+							<div class="tool-logo-background">
+								<%= image_tag("bbb_logo.png", alt: "Icon", size: "35", class: "img-fluid") %>
+							</div>
+							<h5 class="card-title mt-3"><%= app[:app_name] %></h5>
+							
+							<!-- Info icon -->
+							<a class="info-icon mt-3" 
+								tabindex="0" 
+								role="button"
+								data-bs-toggle="popover"
+								title="<%= app[:app_name].capitalize %>" 
+								data-content="<%= t("apps.#{app[:app_name]}.description", default: t("apps.notfound.description")) %>">
+									<i class="fas fa-info-circle"></i>
+							</a>
+						</div>
+					</div>
+					<%= hidden_field_tag 'JWT', app[:deep_link_jwt_message] %>
+				<% end %>
+			<% end %>
+	</div>
 
-<%= render "layouts/footer_iframe" %>
+	<%= render "layouts/footer_iframe" %>
+
+</div>

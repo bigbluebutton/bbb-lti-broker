@@ -46,6 +46,9 @@ en:
     rooms:
       title:       "Rooms"
       description: "Rooms allows the creation and use of BigBlueButton Rooms through LTI"
+    notfound:
+      title:        "Unknown App"
+      description:  "This is a BBB app registered with the broker."
   registration:
     goback:         "Go Back"
     issuer:         "Issuer"

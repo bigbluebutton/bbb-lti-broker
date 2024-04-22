@@ -34,3 +34,22 @@
 //= require react_ujs
 //= require components
 //= require_tree .
+//= require popper
+//= require bootstrap
+
+// initialize all bootstrap popovers on a page
+$(document).ready(function(){
+	$('[data-bs-toggle="popover"]').popover({
+		trigger: 'focus'
+	});
+
+	 // Prevent form submission when clicking on the popover trigger (info icon)
+	 $('.info-icon').click(function(event){
+		event.stopPropagation(); // Stop the click from bubbling up to the card
+	});
+
+	$('.clickable').click(function(){
+		console.log("looking for form...")
+		$(this).parents('form').first().submit(); // Find the first parent form and submit it
+	});
+});
