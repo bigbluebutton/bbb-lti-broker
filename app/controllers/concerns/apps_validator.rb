@@ -64,19 +64,27 @@ module AppsValidator
   end
 
   def lti_icon(app_name)
-    return "http://#{request.host_with_port}#{Rails.configuration.assets.prefix}/icon.svg" if app_name == 'default'
+    lti_app_icon_url(app_name)
+  end
 
+  def lti_app_icon_url(name)
+    "#{request.base_url}#{lti_app_icon_path(name)}"
+  end
+
+  def lti_app_icon_path(name)
     begin
-      app = lti_app(app_name)
-      uri = URI.parse(app['redirect_uri'].sub('https', 'http'))
-      site = "#{uri.scheme}://#{uri.host}#{uri.port != 80 ? ":#{uri.port}" : ''}/"
+      app = Doorkeeper::Application.where(name: name).first
+      app_redirect_uris = app.redirect_uri.lines(chomp: true)
+
+      uri = URI.parse(app_redirect_uris[0])
       path = uri.path.split('/')
-      path_base = "#{(path[0].chomp(' ') == '' ? path[1] : path[0]).gsub('/', '')}/"
+      path.delete_at(0)
+      path = path.first(path.size - 3) unless path.size < 3
     rescue StandardError
       # TODO: handle exception
       logger.error("App #{app_name} is not registered.")
       return
     end
-    "#{site}#{"#{path_base}#{app_name}/assets/icon.svg"}"
+    "/#{path.join('/')}/assets/icon.svg"
   end
 end
