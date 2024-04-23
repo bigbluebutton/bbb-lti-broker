@@ -69,11 +69,11 @@ class ToolProfileController < ApplicationController
 
       @json_config['extensions'][0]['settings']['domain'] = request.base_url
       @json_config['extensions'][0]['settings']['tool_id'] = Digest::MD5.hexdigest(SecureRandom.uuid)
-      @json_config['extensions'][0]['settings']['icon_url'] = lti_icon(params[:app])
+      @json_config['extensions'][0]['settings']['icon_url'] = lti_app_icon_url(params[:app])
 
       @json_config['extensions'][0]['settings']['placements'].each do |placement|
         placement['target_link_uri'] = openid_launch_url
-        placement['icon_url'] = lti_icon(params[:app])
+        placement['icon_url'] = lti_app_icon_url(params[:app])
       end
     end
     render(json: JSON.pretty_generate(@json_config))
@@ -119,7 +119,7 @@ class ToolProfileController < ApplicationController
     description = t("apps.#{params[:app]}.description", default: "#{t('apps.default.title')} provider powered by BBB LTI Broker.")
     tc = IMS::LTI::Services::ToolConfig.new(title: title, launch_url: launch_url) # "#{location}/#{year}/#{id}"
     tc.secure_launch_url = secure_url(tc.launch_url)
-    tc.icon = lti_icon(params[:app])
+    tc.icon = lti_app_icon_url(params[:app])
     tc.secure_icon = secure_url(tc.icon)
     tc.description = description
     request.query_parameters.each { |key, value| tc.set_ext_param(CanvasExtensions::PLATFORM, key, value) }

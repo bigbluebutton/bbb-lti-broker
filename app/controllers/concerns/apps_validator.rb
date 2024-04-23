@@ -45,11 +45,11 @@ module AppsValidator
     Doorkeeper::Application.all.pluck(:name)
   end
 
-  def lti_app_url(name)
-    "#{request.base_url}#{lti_app_path(name)}"
+  def lti_app_url(name, path = '')
+    "#{request.base_url}#{lti_app_path(name, path)}"
   end
 
-  def lti_app_path(name)
+  def lti_app_path(name, path)
     # The launch target is always in the form [schema://hostname/app_prefix/launch]. Since the callback endpoint
     # registered for the app in Doorkeeper is as [schema://hostname/app_prefix/auth/bbbltibroker/callback],
     # it is safe to remove the last 2 segments from the path.
@@ -57,14 +57,10 @@ module AppsValidator
     app_redirect_uris = app.redirect_uri.lines(chomp: true)
 
     uri = URI.parse(app_redirect_uris[0])
-    path = uri.path.split('/')
-    path.delete_at(0)
-    path = path.first(path.size - 3) unless path.size < 3
-    "/#{path.join('/')}/launch"
-  end
-
-  def lti_icon(app_name)
-    lti_app_icon_url(app_name)
+    uri_path = uri.path.split('/')
+    uri_path.delete_at(0)
+    uri_path = uri_path.first(uri_path.size - 3) unless uri_path.size < 3
+    "/#{uri_path.join('/')}#{path}"
   end
 
   def lti_app_icon_url(name)
@@ -72,19 +68,6 @@ module AppsValidator
   end
 
   def lti_app_icon_path(name)
-    begin
-      app = Doorkeeper::Application.where(name: name).first
-      app_redirect_uris = app.redirect_uri.lines(chomp: true)
-
-      uri = URI.parse(app_redirect_uris[0])
-      path = uri.path.split('/')
-      path.delete_at(0)
-      path = path.first(path.size - 3) unless path.size < 3
-    rescue StandardError
-      # TODO: handle exception
-      logger.error("App #{app_name} is not registered.")
-      return
-    end
-    "/#{path.join('/')}/assets/icon.svg"
+    lti_app_path(name, '/assets/icon.svg')
   end
 end

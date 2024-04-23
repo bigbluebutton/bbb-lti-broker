@@ -45,7 +45,7 @@ module DynamicRegistrationService
            deep_link_request_launch_url(protocol: 'https'),],
       "client_name": t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
-      "logo_uri": secure_url(lti_icon(params[:app])),
+      "logo_uri": secure_url(lti_app_icon_url(params[:app])),
       # "policy_uri": 'https://client.example.org/privacy',
       # "policy_uri#ja": 'https://client.example.org/privacy?lang=ja',
       # "tos_uri": 'https://client.example.org/tos',
