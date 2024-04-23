@@ -181,7 +181,7 @@ class MessageController < ApplicationController
     # Remove the default tool unless working in development mode.
     apps -= ['default'] unless Rails.configuration.developer_mode_enabled
     apps.each do |app|
-      resource = deep_link_resource(openid_launch_url, "My #{app.singularize}", '', secure_url(lti_icon(app)), { 'broker_app': app })
+      resource = deep_link_resource(openid_launch_url, "My #{app.singularize}", '', secure_url(lti_app_icon_url(app)), { 'broker_app': app })
 
       options = {}
       options['client_id'] =  @jwt_body['aud']
