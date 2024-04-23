@@ -58,6 +58,7 @@ gem 'activerecord-session_store', '>= 2.1.0'
 # frontend
 gem 'bootstrap', '~> 4.6.0'
 gem 'font-awesome-sass', '~> 6.4.0'
+gem 'popper_js', '>= 1.16'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
