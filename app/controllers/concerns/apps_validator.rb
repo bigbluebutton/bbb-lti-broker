@@ -60,6 +60,8 @@ module AppsValidator
     uri_path = uri.path.split('/')
     uri_path.delete_at(0)
     uri_path = uri_path.first(uri_path.size - 3) unless uri_path.size < 3
+    uri_path = Rails.configuration.relative_url_root.sub(%r{^/}, '').split('/') if name == 'default'
+
     "/#{uri_path.join('/')}#{path}"
   end
 
