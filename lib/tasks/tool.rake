@@ -67,7 +67,7 @@ namespace :tool do
       token: key_pair_token
     )
 
-    reg = {
+    tool_settings = {
       issuer: issuer,
       client_id: client_id,
       key_set_url: key_set_url,
@@ -80,7 +80,7 @@ namespace :tool do
     tool = RailsLti2Provider::Tool.create(
       uuid: issuer,
       shared_secret: client_id,
-      tool_settings: reg.to_json,
+      tool_settings: tool_settings.to_json,
       lti_version: '1.3.0',
       tenant: tenant
     )
@@ -289,7 +289,6 @@ namespace :tool do
 
       $stdout.puts("tool:keys:show[#{args[:id]}]")
 
-      $stdout.puts('tool:show[id]')
       tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
       abort("The tool with ID #{id} does not exist") if tool.blank?
 
@@ -307,6 +306,36 @@ namespace :tool do
       $stdout.puts("\n")
       $stdout.puts("Public Key URL:\n#{registration_pub_keyset_url(protocol: 'https', key_token: key_pair_token)}")
       $stdout.puts("\n")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Generate new key pair for existing Tool configuration'
+    task :reset, [:id] => :environment do |_t, args|
+      id = args[:id]
+      abort('The ID is required') if id.blank?
+
+      $stdout.puts("tool:keys:reset[#{args[:id]}]")
+
+      tool = RailsLti2Provider::Tool.find_by(lti_version: '1.3.0', id: id)
+      abort("The tool with ID #{id} does not exist") if tool.blank?
+
+      # Setting keys
+      private_key = OpenSSL::PKey::RSA.generate(4096)
+      public_key = private_key.public_key
+      key_pair_token = Digest::MD5.hexdigest(SecureRandom.uuid)
+
+      tool_settings = JSON.parse(tool.tool_settings)
+      key_pair_id = tool_settings['rsa_key_pair_id']
+      key_pairs = RsaKeyPair.find(key_pair_id)
+      key_pairs.update({ private_key: private_key, public_key: public_key, token: key_pair_token })
+
+      tool_settings['rsa_key_pair_token'] = key_pair_token
+      tool.update(tool_settings: tool_settings.to_json)
+      tool.save
+
+      Rake::Task['tool:keys:show'].invoke(id)
     rescue StandardError => e
       puts(e.backtrace)
       exit(1)
@@ -360,30 +389,6 @@ namespace :tool do
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
-  end
-
-  desc 'Generate new key pair for existing Tool configuration'
-  task :keygen, [] => :environment do |_t|
-    $stdout.puts('What is the issuer for the tool?')
-    issuer = $stdin.gets.strip
-
-    $stdout.puts('What is the client ID for the tool?')
-    client_id = $stdin.gets.strip
-
-    options = {}
-    options['client_id'] = client_id if client_id.present?
-    tool = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
-    abort('The tool must be valid.') if tool.blank?
-
-    # Setting keys
-    private_key = OpenSSL::PKey::RSA.generate(4096)
-    public_key = private_key.public_key
-
-    key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
-    key_pairs = RsaKeyPair.find(key_pair_id)
-    key_pairs.update({ private_key: private_key, public_key: public_key })
-
-    puts(public_key)
   end
 
   desc 'Lists the Registration Configuration URLs need to register an app [app]'
