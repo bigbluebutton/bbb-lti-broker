@@ -111,13 +111,13 @@ module DynamicRegistrationService
     # Setting keys
     private_key = OpenSSL::PKey::RSA.generate(4096)
     public_key = private_key.public_key
+    key_pair_token = Digest::MD5.hexdigest(SecureRandom.uuid)
 
-    rsa_key_pair = RsaKeyPair.create(
+    RsaKeyPair.create(
       private_key: private_key.to_s,
-      public_key: public_key.to_s
+      public_key: public_key.to_s,
+      token: key_pair_token
     )
-
-    rsa_key_pair.id
   end
 
   private
