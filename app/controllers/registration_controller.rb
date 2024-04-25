@@ -173,7 +173,7 @@ class RegistrationController < ApplicationController
     # 3.5.2 Client Registration Request
     key_pair = new_rsa_keypair
     header = client_registration_request_header(params[:registration_token])
-    body = client_registration_request_body(key_pair.id)
+    body = client_registration_request_body(key_pair.token)
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
