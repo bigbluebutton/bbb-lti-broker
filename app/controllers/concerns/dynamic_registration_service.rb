@@ -114,8 +114,8 @@ module DynamicRegistrationService
     key_pair_token = Digest::MD5.hexdigest(SecureRandom.uuid)
 
     RsaKeyPair.create(
-      private_key: private_key.to_s,
-      public_key: public_key.to_s,
+      private_key: private_key,
+      public_key: public_key,
       token: key_pair_token
     )
   end
