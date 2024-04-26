@@ -329,7 +329,7 @@ namespace :tool do
       tool_settings = JSON.parse(tool.tool_settings)
       key_pair_id = tool_settings['rsa_key_pair_id']
       key_pairs = RsaKeyPair.find(key_pair_id)
-      key_pairs.update({ private_key: private_key.to_s, public_key: public_key.to_s, token: key_pair_token })
+      key_pairs.update({ private_key: private_key, public_key: public_key, token: key_pair_token })
 
       tool_settings['rsa_key_pair_token'] = key_pair_token
       tool.update(tool_settings: tool_settings.to_json)
