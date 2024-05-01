@@ -137,7 +137,7 @@ namespace :tenant do
 
     desc 'Add a new tenant setting'
     task :upsert, [:uid, :key, :value] => :environment do |_t, args|
-      uid = args[:uid]
+      uid = args[:uid] || ''
       key = args[:key]
       value = args[:value]
 
@@ -164,7 +164,7 @@ namespace :tenant do
 
     desc 'Destroy a setting'
     task :destroy, [:uid, :key] => :environment do |_t, args|
-      uid = args[:uid]
+      uid = args[:uid] || ''
       key = args[:key]
 
       if key.blank?
@@ -193,7 +193,7 @@ namespace :tenant do
   namespace :metadata do
     desc 'Show metadata for a tenant. If no id is specified, metadata for all tenants will be shown'
     task :show, [:uid] => :environment do |_t, args|
-      uid = args[:uid]
+      uid = args[:uid] || ''
 
       if uid.present?
         tenant = TaskHelpers.tenant_by('uid', uid)
