@@ -64,7 +64,7 @@ ENV PORT=${PORT:-3000}
 EXPOSE ${PORT}
 
 # Precompile assets
-RUN SECRET_KEY_BASE=1 RAILS_ENV=${RAILS_ENV:-production} bundle exec rake assets:precompile --trace
+RUN SECRET_KEY_BASE=1 RAILS_ENV=${RAILS_ENV:-production} RELATIVE_URL_ROOT=${RELATIVE_URL_ROOT:-lti} bundle exec rake assets:precompile --trace
 
 # Run startup command
 CMD ["scripts/start.sh"]
