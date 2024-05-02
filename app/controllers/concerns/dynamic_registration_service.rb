@@ -28,12 +28,9 @@ module DynamicRegistrationService
   end
 
   def client_registration_request_body(key_token)
-    params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
-    return if params[:app] == 'default' || params[:custom_broker_app] == 'default'
-
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
-    tool = Rails.configuration.default_tool
+    tool = params[:app] || Rails.configuration.default_tool
 
     {
       "application_type": 'web',
@@ -43,9 +40,9 @@ module DynamicRegistrationService
       "redirect_uris":
           [openid_launch_url(protocol: 'https'),
            deep_link_request_launch_url(protocol: 'https'),],
-      "client_name": t("apps.#{tool}.title"),
+      "client_name": params[:app_name] || t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
-      "logo_uri": secure_url(lti_app_icon_url(params[:app])),
+      "logo_uri": params[:app_icon_url] || secure_url(lti_app_icon_url(tool)),
       # "policy_uri": 'https://client.example.org/privacy',
       # "policy_uri#ja": 'https://client.example.org/privacy?lang=ja',
       # "tos_uri": 'https://client.example.org/tos',
@@ -55,7 +52,7 @@ module DynamicRegistrationService
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
-        "description": t("apps.#{tool}.description"),
+        "description": params[:app_description] || t("apps.#{tool}.description"),
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
         "claims": %w[iss sub name given_name family_name email],

@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 							<div class="tool-logo-background">
 								<%= image_tag(lti_app_icon_url(app[:app_name]), alt: "Icon", size: "35", class: "img-fluid") %>
 							</div>
-							<h5 class="card-title mt-3"><%= app[:app_name] %></h5>
+							<h5 class="card-title mt-3"><%= app[:app_name].capitalize %></h5>
 							
 							<!-- Info icon -->
 							<a class="info-icon mt-3" 
