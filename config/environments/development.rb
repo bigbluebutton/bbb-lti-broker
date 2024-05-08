@@ -102,4 +102,13 @@ Rails.application.configure do
 
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
+
+  # Disable dynamic asset compilation
+  config.assets.compile = true
+
+  # Enable serving static files from the `/public` directory
+  config.public_file_server.enabled = true
+
+  # Use digests for assets URLs
+  config.assets.digest = true
 end

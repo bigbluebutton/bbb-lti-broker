@@ -14,8 +14,8 @@ tmp
 /db/**/*.sqlite3-journal
 /db/production
 /db/production-postgres
-public/assets
-public/b
+/public/assets
+/public/lti
 coverage/
 .rvmrc
 vendor/bundle

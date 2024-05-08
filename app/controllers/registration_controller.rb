@@ -171,9 +171,9 @@ class RegistrationController < ApplicationController
     # validate_issuer(jwt_body)
 
     # 3.5.2 Client Registration Request
-    key_id = new_rsa_keypair
+    key_pair = new_rsa_keypair
     header = client_registration_request_header(params[:registration_token])
-    body = client_registration_request_body(key_id)
+    body = client_registration_request_body(key_pair.token)
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -191,7 +191,8 @@ class RegistrationController < ApplicationController
       key_set_url: openid_configuration['jwks_uri'],
       auth_token_url: openid_configuration['token_endpoint'],
       auth_login_url: openid_configuration['authorization_endpoint'],
-      rsa_key_pair_id: key_id,
+      rsa_key_pair_id: key_pair.id,
+      rsa_key_pair_token: key_pair.token,
       registration_token: params[:registration_token],
     }
 
