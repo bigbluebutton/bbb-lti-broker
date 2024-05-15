@@ -27,22 +27,22 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body(key_token)
+  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url)
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
-    tool = params[:app] || Rails.configuration.default_tool
+    tool = app || Rails.configuration.default_tool
 
     {
       "application_type": 'web',
       "response_types": ['id_token'],
-      "grant_types": %w[implict client_credentials],
+      "grant_types": %w[implicit client_credentials],
       "initiate_login_uri": openid_login_url(protocol: 'https'),
       "redirect_uris":
           [openid_launch_url(protocol: 'https'),
            deep_link_request_launch_url(protocol: 'https'),],
-      "client_name": params[:app_name] || t("apps.#{tool}.title"),
+      "client_name": app_name || t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
-      "logo_uri": params[:app_icon_url] || secure_url(lti_app_icon_url(tool)),
+      "logo_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
       # "policy_uri": 'https://client.example.org/privacy',
       # "policy_uri#ja": 'https://client.example.org/privacy?lang=ja',
       # "tos_uri": 'https://client.example.org/tos',
@@ -52,42 +52,38 @@ module DynamicRegistrationService
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
-        "description": params[:app_description] || t("apps.#{tool}.description"),
+        "description": app_desciption || t("apps.#{tool}.description"),
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
-        "claims": %w[iss sub name given_name family_name email],
+        "claims": %w[iss sub name given_name family_name email nickname picture locale],
         "messages": [
           {
             "type": 'LtiDeepLinkingRequest',
             "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
             "label": 'Add a tool',
+            "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
+            "custom_parameters": {
+              "context_id": '$Context.id',
+            },
+            "placements": ['course_navigation'],
+            "https://canvas.instructure.com/lti/course_navigation/default_enabled": 'true',
+            "https://canvas.instructure.com/lti/privacy_level": 'public',
           },
         ],
       },
     }
   end
 
-  def dynamic_registration_resource(url, title, custom_params = {})
-    {
-      'type' => 'ltiResourceLink',
-      'title' => title,
-      'url' => url,
-      'presentation' => {
-        'documentTarget' => 'window',
-      },
-      'custom' => custom_params,
-    }
-  end
-
-  def validate_registration_initiation_request
+  def validate_registration_initiation_request(token)
     # openid_configuration: the endpoint to the open id configuration to be used for this registration, encoded as per [RFC3986] Section 3.4.
     raise CustomError, :openid_configuration_not_found unless params.key?('openid_configuration')
+
     # registration_token (optional): the registration access token. If present, it must be used as the access token by the tool when making
     #                                the registration request to the registration endpoint exposed in the openid configuration.
-    raise CustomError, :registration_token_not_found unless params.key?('registration_token')
+    # raise CustomError, :registration_token_not_found unless params.key?('registration_token')
 
     begin
-      jwt_parts = validate_jwt_format
+      jwt_parts = validate_jwt_format(token)
       jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
       jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
@@ -119,8 +115,8 @@ module DynamicRegistrationService
 
   private
 
-  def validate_jwt_format
-    jwt_parts = params[:registration_token].split('.')
+  def validate_jwt_format(token)
+    jwt_parts = token.split('.')
     raise CustomError, :invalid_id_token unless jwt_parts.length == 3
 
     jwt_parts
