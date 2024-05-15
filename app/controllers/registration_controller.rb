@@ -138,7 +138,7 @@ class RegistrationController < ApplicationController
   def process_registration_initiation_request
     # 3.3 Step 1: Registration Initiation Request
     begin
-      jwt = validate_registration_initiation_request
+      jwt = validate_registration_initiation_request(registration_token)
       @jwt_header = jwt[:header]
       @jwt_body = jwt[:body]
     rescue StandardError => e
@@ -178,7 +178,9 @@ class RegistrationController < ApplicationController
     # 3.5.2 Client Registration Request
     key_pair = new_rsa_keypair
     header = client_registration_request_header(registration_token)
-    body = client_registration_request_body(key_pair.token)
+    logger.debug("header\n#{header}")
+    body = client_registration_request_body(key_pair.token, params[:app], params[:app_name], params[:app_description], params[:app_icon])
+    logger.debug("body\n#{body}")
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -188,6 +190,7 @@ class RegistrationController < ApplicationController
 
     response = http.request(request)
     response = JSON.parse(response.body)
+    logger.debug("response\n#{response}")
 
     # 3.6 Client Registration Response
     reg = {
@@ -200,6 +203,7 @@ class RegistrationController < ApplicationController
       rsa_key_pair_token: key_pair.token,
       registration_token: registration_token,
     }
+    logger.debug(reg.to_json)
 
     tool_attributes = {
       shared_secret: response['client_id'],
@@ -223,7 +227,7 @@ class RegistrationController < ApplicationController
     rescue StandardError => e
       # 3.6.2 Client Registration Error Response
       @error_message = "Error in registrtion when persisting: #{e}"
-      logger.debug("ERROR: #{@error_message}")
+      logger.debug("Error: #{@error_message}")
       raise CustomError, :registration_persitence_failed
     end
 
