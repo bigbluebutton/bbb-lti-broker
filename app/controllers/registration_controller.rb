@@ -147,22 +147,27 @@ class RegistrationController < ApplicationController
     end
 
     # 3.4 Step 2: Discovery and openid Configuration
-    openid_configuration = discover_openid_configuration(params['openid_configuration'])
+    openid_configuration = discover_openid_configuration(params[:openid_configuration])
     logger.debug(openid_configuration.to_yaml)
 
-    tenant_uid = ''
+    tenant = RailsLti2Provider::Tenant.find_by(uid: '')
+    if tenant.nil?
+      @error_message = "Tenant with uid = '#{tenant.uid}' does not exist"
+      raise CustomError, :tenant_not_found
+    end
+
     # scope can be @jwt_body['scope'] == 'reg' or @jwt_body['scope'] == 'reg-update'
     if @jwt_body['scope'] == 'reg-update' # update
       tool = RailsLti2Provider::Tool.where(uuid: openid_configuration['issuer']).where.not(tenant_id: 1).first
-      tenant_uid = tool.tenant.uid unless tool.nil? # it is linked
-    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant_uid) # new
-      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant_uid}'"
+      unless tool.nil?
+        tenant = tool.tenant
+        # old keys are removed
+        key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
+        RsaKeyPair.delete(key_pair_id)
+      end
+    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant) # new
+      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'"
       raise CustomError, :tool_duplicated
-    end
-    tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
-    if tenant.nil?
-      @error_message = "Tenant with uid = '#{tenant_uid}' does not exist"
-      raise CustomError, :tenant_not_found
     end
 
     # 3.5 Step 3: Client Registration
@@ -172,7 +177,7 @@ class RegistrationController < ApplicationController
 
     # 3.5.2 Client Registration Request
     key_pair = new_rsa_keypair
-    header = client_registration_request_header(params[:registration_token])
+    header = client_registration_request_header(registration_token)
     body = client_registration_request_body(key_pair.token)
     body = body.to_json
 
@@ -193,36 +198,47 @@ class RegistrationController < ApplicationController
       auth_login_url: openid_configuration['authorization_endpoint'],
       rsa_key_pair_id: key_pair.id,
       rsa_key_pair_token: key_pair.token,
-      registration_token: params[:registration_token],
+      registration_token: registration_token,
+    }
+
+    tool_attributes = {
+      shared_secret: response['client_id'],
+      tool_settings: reg.to_json,
+      lti_version: '1.3.0',
+      status: 'enabled',
     }
 
     begin
-      @tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
-
-      # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
-      if @jwt_body['scope'] == 'reg-update'
-        key_pair_id = JSON.parse(@tool.tool_settings)['rsa_key_pair_id']
-        key_pairs = RsaKeyPair.find(key_pair_id)
-        key_pairs.destroy
+      @tool = RailsLti2Provider::Tool.find_by(uuid: openid_configuration['issuer'], tenant: tenant)
+      if @tool
+        @tool.update(tool_attributes)
+      else
+        @tool = RailsLti2Provider::Tool.create(tool_attributes.merge(uuid: openid_configuration['issuer'], tenant: tenant))
+        if @tool.persisted?
+          logger.debug("Tool #{@tool.id} created...")
+        else
+          logger.debug("Tool creation failed: #{@tool.errors.full_messages.join(', ')}")
+        end
       end
-
-      # new keys are set
-      @tool.shared_secret = response['client_id']
-      @tool.tool_settings = reg.to_json.to_s
-      @tool.lti_version = '1.3.0'
-      @tool.status = 'enabled'
-      @tool.save
     rescue StandardError => e
       # 3.6.2 Client Registration Error Response
       @error_message = "Error in registrtion when persisting: #{e}"
+      logger.debug("ERROR: #{@error_message}")
       raise CustomError, :registration_persitence_failed
     end
 
     # 3.6.1 Successful Registration
-    logger.debug(@tool.to_json)
+    logger.debug("Successfully registered #{@tool.to_json}")
   end
 
   def discover_openid_configuration(url)
     JSON.parse(URI.parse(url).read)
+  end
+
+  def registration_token
+    return params[:registration_token] if params[:registration_token].present?
+
+    query_params = CGI.parse(URI.parse(params['openid_configuration']).query)
+    query_params['registration_token'].first
   end
 end
