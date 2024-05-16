@@ -6,8 +6,8 @@ namespace :tool do
   include Rails.application.routes.url_helpers
   default_url_options[:host] = ENV['URL_HOST']
 
-  desc 'Add new Tool configuration [issuer,client_id,keyset_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
-  task :new, %i[issuer client_id key_set_url auth_token_url auth_login_url tenant_uid] => :environment do |_t, args|
+  desc 'Add new Tool configuration [issuer,client_id,deployment_id,key_set_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
+  task :new, %i[issuer client_id deployment_id key_set_url auth_token_url auth_login_url tenant_uid] => :environment do |_t, args|
     Rake::Task['environment'].invoke
     ActiveRecord::Base.connection
 
@@ -33,6 +33,14 @@ namespace :tool do
     end
     abort('The Client ID must be valid.') if client_id.blank?
 
+    # Deployment ID.
+    deployment_id = args[:deployment_id]
+    if deployment_id.blank?
+      $stdout.puts('What is the Deployment ID?')
+      deployment_id = $stdin.gets.strip
+    end
+    abort('The Deployment ID must be valid.') if deployment_id.blank?
+
     # Public Keyset URL.
     key_set_url = args[:key_set_url]
     if key_set_url.blank?
@@ -40,6 +48,8 @@ namespace :tool do
       key_set_url = $stdin.gets.strip
     end
     abort('The Keyset URL must be valid.') if key_set_url.blank?
+    openid_configuration = JSON.parse(URI.parse(key_set_url).read)
+    kid = openid_configuration['keys'][0]['kid']
 
     # Access Token URL.
     auth_token_url = args[:auth_token_url]
@@ -87,11 +97,11 @@ namespace :tool do
     )
 
     jwt_payload = {
-      sub: tool.id,
+      sub: deployment_id,
       iat: Time.new.to_i - 5,
       exp: Time.new.to_i + 60,
     }
-    jwt_headers = { kid: 'bbefc9cd2787941f8644' }
+    jwt_headers = { kid: kid }
     registration_token = JWT.encode(jwt_payload, private_key, 'RS256', jwt_headers)
     tool_settings = JSON.parse(tool.tool_settings)
     tool_settings['registration_token'] = registration_token

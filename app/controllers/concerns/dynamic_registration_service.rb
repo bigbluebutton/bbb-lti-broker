@@ -69,6 +69,17 @@ module DynamicRegistrationService
             "https://canvas.instructure.com/lti/course_navigation/default_enabled": 'true',
             "https://canvas.instructure.com/lti/privacy_level": 'public',
           },
+          {
+            "type": 'LtiResourceLinkRequest',
+            "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
+            "label": "My #{tool.capitalize}",
+            "custom_parameters": {
+              "context_id": '$Context.id',
+            },
+            "placements": ['course_navigation'],
+            "roles": [],
+            "target_link_uri": 'http://tool.com/launch?placement=course_navigation',
+          },
         ],
       },
     }
