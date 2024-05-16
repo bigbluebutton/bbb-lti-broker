@@ -150,6 +150,10 @@ class MessageController < ApplicationController
 
   # first touch point from platform (moodle, canvas, etc) when using LTI 1.3
   def openid_launch_request
+    # MONKEY-PATCH: to bypass authenitity_token used by Canvas or any other RoR consumer
+    # remove the authenticyty_tocken if passes as it interfiers with these applications
+    params.delete('authenticity_token')
+
     ## The launch for LTI 1.3 sets params[:app] and redirectos to the corresponding app. The default tool is assigned if the parameter is not included.
     params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
     return if params[:app] == 'default' || params[:custom_broker_app] == 'default'
