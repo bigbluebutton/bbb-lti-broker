@@ -49,6 +49,8 @@ namespace :tool do
     end
     abort('The Keyset URL must be valid.') if key_set_url.blank?
     openid_configuration = JSON.parse(URI.parse(key_set_url).read)
+    # kid is shared across all keys and is used to identify the key being used.
+    # it is taken from the open_id_configuration fetched from the key_set_url.
     kid = openid_configuration['keys'][0]['kid']
 
     # Access Token URL.
