@@ -43,10 +43,10 @@ module DynamicRegistrationService
       "client_name": app_name || t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
       "logo_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
-      "policy_uri": rails.configuration.deployment_settings['policy_uri'],
-      "tos_uri": rails.configuration.deployment_settings['tos_uri'],
+      "policy_uri": Rails.configuration.deployment_settings['policy_uri'],
+      "tos_uri": Rails.configuration.deployment_settings['tos_uri'],
       "token_endpoint_auth_method": 'private_key_jwt',
-      "contacts": [rails.configuration.deployment_settings['contact_email']],
+      "contacts": [Rails.configuration.deployment_settings['contact_email']],
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
