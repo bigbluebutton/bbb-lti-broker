@@ -43,12 +43,10 @@ module DynamicRegistrationService
       "client_name": app_name || t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
       "logo_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
-      # "policy_uri": 'https://client.example.org/privacy',
-      # "policy_uri#ja": 'https://client.example.org/privacy?lang=ja',
-      # "tos_uri": 'https://client.example.org/tos',
-      # "tos_uri#ja": 'https://client.example.org/tos?lang=ja',
+      "policy_uri": rails.configuration.deployment_settings['policy_uri'],
+      "tos_uri": rails.configuration.deployment_settings['tos_uri'],
       "token_endpoint_auth_method": 'private_key_jwt',
-      # "contacts": ['ve7jtb@example.org', 'mary@example.org'],
+      "contacts": [rails.configuration.deployment_settings['contact_email']],
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
@@ -56,8 +54,6 @@ module DynamicRegistrationService
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
         "claims": %w[iss sub name given_name family_name email nickname picture locale],
-        # "https://canvas.instructure.com/lti/privacy_level": 'public',
-        # "https://canvas.instructure.com/lti/visibility": 'public',
         "messages": [
           # {
           #   "type": 'LtiDeepLinkingRequest',
