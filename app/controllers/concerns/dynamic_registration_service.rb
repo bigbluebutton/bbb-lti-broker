@@ -56,19 +56,19 @@ module DynamicRegistrationService
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
         "claims": %w[iss sub name given_name family_name email nickname picture locale],
+        # "https://canvas.instructure.com/lti/privacy_level": 'public',
+        # "https://canvas.instructure.com/lti/visibility": 'public',
         "messages": [
-          {
-            "type": 'LtiDeepLinkingRequest',
-            "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
-            "label": 'Add a tool',
-            "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
-            "custom_parameters": {
-              "context_id": '$Context.id',
-            },
-            "placements": ['course_navigation'],
-            "https://canvas.instructure.com/lti/course_navigation/default_enabled": 'true',
-            "https://canvas.instructure.com/lti/privacy_level": 'public',
-          },
+          # {
+          #   "type": 'LtiDeepLinkingRequest',
+          #   "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
+          #   "label": 'Add a tool',
+          #   "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
+          #   "custom_parameters": {
+          #     "context_id": '$Context.id',
+          #   },
+          #   "placements": %w[course_navigation link_selection],
+          # },
           {
             "type": 'LtiResourceLinkRequest',
             "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
@@ -76,9 +76,10 @@ module DynamicRegistrationService
             "custom_parameters": {
               "context_id": '$Context.id',
             },
-            "placements": ['course_navigation'],
+            "placements": %w[course_navigation link_selection account_navigation],
             "roles": [],
-            "target_link_uri": 'http://tool.com/launch?placement=course_navigation',
+            # "target_link_uri": 'http://tool.com/launch?placement=course_navigation',
+            "target_link_uri": openid_launch_url(protocol: 'https'),
           },
         ],
       },
