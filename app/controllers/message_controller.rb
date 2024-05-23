@@ -57,7 +57,7 @@ class MessageController < ApplicationController
              when :disabled_key
                'The key is disabled'
              else
-               'Unknown Error'
+               format_error_message(ex.error)
              end
     @error = "Authentication failed with: #{output}"
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
@@ -277,5 +277,9 @@ class MessageController < ApplicationController
     return URI.parse(params[elements[1]]).host if elements[0] == 'fqdn'
 
     ''
+  end
+
+  def format_error_message(str)
+    str.gsub('_', ' ').split.map(&:capitalize).join(' ')
   end
 end

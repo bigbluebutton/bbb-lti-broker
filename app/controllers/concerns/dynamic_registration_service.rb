@@ -55,28 +55,30 @@ module DynamicRegistrationService
         "custom_parameters": {},
         "claims": %w[iss sub name given_name family_name email nickname picture locale],
         "messages": [
+          {
+            "type": 'LtiDeepLinkingRequest',
+            "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
+            "label": 'Add a tool',
+            "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
+            "custom_parameters": {
+              "context_id": '$Context.id',
+            },
+            # parameters supported by canvas only
+            "placements": %w[link_selection],
+            "roles": [],
+          },
           # {
-          #   "type": 'LtiDeepLinkingRequest',
-          #   "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
-          #   "label": 'Add a tool',
+          #   "type": 'LtiResourceLinkRequest',
+          #   "target_link_uri": openid_launch_url(protocol: 'https'),
+          #   "label": "My #{tool.capitalize}",
           #   "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
           #   "custom_parameters": {
           #     "context_id": '$Context.id',
           #   },
-          #   "placements": %w[course_navigation link_selection],
+          #   # parameters supported by canvas only
+          #   "placements": %w[link_selection course_navigation account_navigation],
+          #   "roles": [],
           # },
-          {
-            "type": 'LtiResourceLinkRequest',
-            "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
-            "label": "My #{tool.capitalize}",
-            "custom_parameters": {
-              "context_id": '$Context.id',
-            },
-            "placements": %w[course_navigation link_selection account_navigation],
-            "roles": [],
-            # "target_link_uri": 'http://tool.com/launch?placement=course_navigation',
-            "target_link_uri": openid_launch_url(protocol: 'https'),
-          },
         ],
       },
     }
