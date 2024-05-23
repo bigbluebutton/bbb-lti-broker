@@ -151,7 +151,7 @@ class MessageController < ApplicationController
   # first touch point from platform (moodle, canvas, etc) when using LTI 1.3
   def openid_launch_request
     # MONKEY-PATCH: to bypass authenitity_token used by Canvas or any other RoR consumer
-    # remove the authenticyty_tocken if passes as it interfiers with these applications
+    # remove the authenticyty_token if passes as it interfiers with these applications
     params.delete('authenticity_token')
 
     ## The launch for LTI 1.3 sets params[:app] and redirectos to the corresponding app. The default tool is assigned if the parameter is not included.
@@ -189,7 +189,7 @@ class MessageController < ApplicationController
 
       options = {}
       options['client_id'] =  @jwt_body['aud']
-      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss'], options), @jwt_header, @jwt_body, [resource])
+      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss'], options), @jwt_body, [resource])
 
       @apps << { app_name: app, deep_link_jwt_message: deep_link_jwt_message }
     end
