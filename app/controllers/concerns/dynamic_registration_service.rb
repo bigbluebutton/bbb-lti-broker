@@ -67,6 +67,8 @@ module DynamicRegistrationService
             "placements": %w[link_selection],
             "roles": [],
           },
+          # TODO: There could be a case where the tool consumer does not support deep linking. In that case, we should include an option for
+          # delivering a message of type LtiResourceLinkRequest instead. This also applies if the broker only has one tool registered.
           # {
           #   "type": 'LtiResourceLinkRequest',
           #   "target_link_uri": openid_launch_url(protocol: 'https'),
