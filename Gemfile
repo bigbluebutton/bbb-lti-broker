@@ -84,7 +84,7 @@ end
 
 group :test do
   gem 'minitest-stub_any_instance'
-  gem 'webmock'
+  gem 'webmock', '>= 3.23.1'
 end
 
 group :production do
