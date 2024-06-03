@@ -98,3 +98,7 @@ gem 'tzinfo-data'
 gem 'coveralls_reborn', require: false
 
 gem 'rdoc', require: false
+
+# These libraries will be removed from the default set of gems included with Ruby 3.4.0.
+gem 'bigdecimal', require: false
+gem 'mutex_m', require: false
