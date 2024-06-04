@@ -179,7 +179,7 @@ class RegistrationController < ApplicationController
     key_pair = new_rsa_keypair
     header = client_registration_request_header(registration_token)
     logger.debug("registration_token header\n#{header}")
-    body = client_registration_request_body(key_pair.token, params[:app], params[:app_name], params[:app_description], params[:app_icon])
+    body = client_registration_request_body(key_pair.token, params[:app], params[:app_name], params[:app_description], params[:app_icon], params[:message_types])
     logger.debug("registration_token body\n#{body}")
     body = body.to_json
 

@@ -27,10 +27,14 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url)
+  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, message_types = 'LtiDeepLinkingRequest')
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
     tool = app || Rails.configuration.default_tool
+
+    messages = message_types.split(',').map do |message_type|
+      client_registration_request_body_message_type(message_type, tool, app_icon_url)
+    end
 
     {
       "application_type": 'web',
@@ -54,35 +58,36 @@ module DynamicRegistrationService
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
         "claims": %w[iss sub name given_name family_name email nickname picture locale],
-        "messages": [
-          {
-            "type": 'LtiDeepLinkingRequest',
-            "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
-            "label": 'Add a tool',
-            "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
-            "custom_parameters": {
-              "context_id": '$Context.id',
-            },
-            # parameters supported by canvas only
-            "placements": %w[link_selection],
-            "roles": [],
-          },
-          # TODO: There could be a case where the tool consumer does not support deep linking. In that case, we should include an option for
-          # delivering a message of type LtiResourceLinkRequest instead. This also applies if the broker only has one tool registered.
-          # {
-          #   "type": 'LtiResourceLinkRequest',
-          #   "target_link_uri": openid_launch_url(protocol: 'https'),
-          #   "label": "My #{tool.capitalize}",
-          #   "icon_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
-          #   "custom_parameters": {
-          #     "context_id": '$Context.id',
-          #   },
-          #   # parameters supported by canvas only
-          #   "placements": %w[link_selection course_navigation account_navigation],
-          #   "roles": [],
-          # },
-        ],
+        "messages": messages,
       },
+    }
+  end
+
+  def client_registration_request_body_message_type(message_type, tool, icon_uri = nil)
+    if message_type == 'LtiResourceLinkRequest'
+      target_link_uri = openid_launch_url(protocol: 'https')
+      placements = %w[link_selection course_navigation account_navigation]
+      label = t("apps.#{tool}.title")
+    elsif message_type == 'LtiDeepLinkingRequest'
+      target_link_uri = deep_link_request_launch_url(protocol: 'https')
+      placements = %w[link_selection]
+      label = 'B3 Tool'
+    else
+      raise CustomError, :invalid_message_type
+    end
+
+    # the actual object to be returned.
+    {
+      "type": message_type,
+      "target_link_uri": target_link_uri,
+      "label": label,
+      "icon_uri": icon_uri || secure_url(lti_app_icon_url(tool)),
+      "custom_parameters": {
+        "context_id": '$Context.id',
+      },
+      # parameters supported by canvas only
+      "placements": placements,
+      "roles": [],
     }
   end
 
