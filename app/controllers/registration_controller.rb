@@ -74,20 +74,19 @@ class RegistrationController < ApplicationController
 
     # lookup for the kid
     tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%\"rsa_key_pair_id\":#{rsa_key_pair.id}%").first
-    logger.debug("#{rsa_key_pair.id}\n#{tool.to_json}\n")
+    logger.debug("rsa_key_pair.id= #{rsa_key_pair.id}\ntool= #{tool.to_json}\n")
     if tool.nil?
       logger.debug("Error pub_keyset\n Tool with rsa_key_pair_id=#{rsa_key_pair.id} was not found")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
     tool_settings = JSON.parse(tool.tool_settings)
-    registration_token = tool_settings['registration_token']
-    if registration_token.nil?
+    if tool_settings['registration_token'].nil?
       logger.debug("Error pub_keyset\n The 'registration_token' was not found. This tool was registered manually.")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
 
-    jwt_parts = registration_token.split('.')
-    jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
+    reg_parts = tool_settings['registration_token'].split('.')
+    reg_header = JSON.parse(Base64.urlsafe_decode64(reg_parts[0]))
 
     # prepare the pub_keyset
     json_pub_keyset = {}
@@ -96,7 +95,7 @@ class RegistrationController < ApplicationController
         kty: 'RSA',
         e: Base64.urlsafe_encode64(public_key.e.to_s(2)).delete('='), # Exponent
         n: Base64.urlsafe_encode64(public_key.n.to_s(2)).delete('='), # Modulus
-        kid: jwt_header['kid'],
+        kid: reg_header['kid'],
         alg: 'RS256',
         use: 'sig',
       },
@@ -138,6 +137,7 @@ class RegistrationController < ApplicationController
   def process_registration_initiation_request
     # 3.3 Step 1: Registration Initiation Request
     begin
+      registration_token = select_registration_token
       jwt = validate_registration_initiation_request(registration_token)
       @jwt_header = jwt[:header]
       @jwt_body = jwt[:body]
@@ -178,9 +178,9 @@ class RegistrationController < ApplicationController
     # 3.5.2 Client Registration Request
     key_pair = new_rsa_keypair
     header = client_registration_request_header(registration_token)
-    logger.debug("header\n#{header}")
+    logger.debug("registration_token header\n#{header}")
     body = client_registration_request_body(key_pair.token, params[:app], params[:app_name], params[:app_description], params[:app_icon])
-    logger.debug("body\n#{body}")
+    logger.debug("registration_token body\n#{body}")
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -203,7 +203,7 @@ class RegistrationController < ApplicationController
       rsa_key_pair_token: key_pair.token,
       registration_token: registration_token,
     }
-    logger.debug(reg.to_json)
+    logger.debug("reg to be attached to the tool\n#{reg}")
 
     tool_attributes = {
       shared_secret: response['client_id'],
@@ -239,9 +239,13 @@ class RegistrationController < ApplicationController
     JSON.parse(URI.parse(url).read)
   end
 
-  def registration_token
-    return params[:registration_token] if params[:registration_token].present?
+  def select_registration_token
+    if params[:registration_token].present?
+      logger.debug('param registration_token included...')
+      return params[:registration_token]
+    end
 
+    logger.debug('param registration_token NOT included taken from openid_configuration...')
     query_params = CGI.parse(URI.parse(params['openid_configuration']).query)
     query_params['registration_token'].first
   end
