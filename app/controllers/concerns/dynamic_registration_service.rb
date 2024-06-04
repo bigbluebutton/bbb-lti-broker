@@ -27,13 +27,13 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, message_types = 'LtiDeepLinkingRequest')
+  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, app_label, message_types = 'LtiDeepLinkingRequest')
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
     tool = app || Rails.configuration.default_tool
 
     messages = message_types.split(',').map do |message_type|
-      client_registration_request_body_message_type(message_type, tool, app_icon_url)
+      client_registration_request_body_message_type(message_type, tool, app_label, app_icon_url)
     end
 
     {
@@ -63,15 +63,13 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body_message_type(message_type, tool, icon_uri = nil)
+  def client_registration_request_body_message_type(message_type, tool, label, icon_uri = nil)
     if message_type == 'LtiResourceLinkRequest'
       target_link_uri = openid_launch_url(protocol: 'https')
       placements = %w[link_selection course_navigation account_navigation]
-      label = t("apps.#{tool}.title")
     elsif message_type == 'LtiDeepLinkingRequest'
       target_link_uri = deep_link_request_launch_url(protocol: 'https')
       placements = %w[link_selection]
-      label = 'B3 Tool'
     else
       raise CustomError, :invalid_message_type
     end
@@ -80,7 +78,7 @@ module DynamicRegistrationService
     {
       "type": message_type,
       "target_link_uri": target_link_uri,
-      "label": label,
+      "label": label || t("apps.#{tool}.title"),
       "icon_uri": icon_uri || secure_url(lti_app_icon_url(tool)),
       "custom_parameters": {
         "context_id": '$Context.id',
