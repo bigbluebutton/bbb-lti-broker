@@ -40,4 +40,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
 <% end %>
 
+<!-- Add the button to send post message to the parent window -->
+<button id="close-button">Close</button>
+
 <%= render "layouts/footer_iframe" %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var closeButton = document.getElementById("close-button");
+
+    if (closeButton) {
+      closeButton.addEventListener("click", function() {
+        window.parent.postMessage({subject: 'org.imsglobal.lti.close'}, '*');
+      });
+    }
+  });
+</script>

@@ -17,6 +17,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 module DynamicRegistrationService
+  include ExceptionHandler
   include ActiveSupport::Concern
 
   def client_registration_request_header(token)
@@ -27,73 +28,87 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body(key_token)
+  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, app_label, message_types)
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
-    tool = params[:app] || Rails.configuration.default_tool
+    tool = app || Rails.configuration.default_tool
+
+    filtered_message_types = filter_valid_message_types(message_types)
+    messages = filtered_message_types.map do |message_type|
+      client_registration_request_body_message_type(message_type, tool, app_label, app_icon_url)
+    end
 
     {
       "application_type": 'web',
       "response_types": ['id_token'],
-      "grant_types": %w[implict client_credentials],
+      "grant_types": %w[implicit client_credentials],
       "initiate_login_uri": openid_login_url(protocol: 'https'),
       "redirect_uris":
           [openid_launch_url(protocol: 'https'),
            deep_link_request_launch_url(protocol: 'https'),],
-      "client_name": params[:app_name] || t("apps.#{tool}.title"),
+      "client_name": app_name || t("apps.#{tool}.title"),
       "jwks_uri": jwks_uri,
-      "logo_uri": params[:app_icon_url] || secure_url(lti_app_icon_url(tool)),
-      # "policy_uri": 'https://client.example.org/privacy',
-      # "policy_uri#ja": 'https://client.example.org/privacy?lang=ja',
-      # "tos_uri": 'https://client.example.org/tos',
-      # "tos_uri#ja": 'https://client.example.org/tos?lang=ja',
+      "logo_uri": app_icon_url || secure_url(lti_app_icon_url(tool)),
+      "policy_uri": Rails.configuration.deployment_settings['policy_uri'],
+      "tos_uri": Rails.configuration.deployment_settings['tos_uri'],
       "token_endpoint_auth_method": 'private_key_jwt',
-      # "contacts": ['ve7jtb@example.org', 'mary@example.org'],
+      "contacts": [Rails.configuration.deployment_settings['contact_email']],
       "scope": 'https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
       "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
-        "description": params[:app_description] || t("apps.#{tool}.description"),
+        "description": app_desciption || t("apps.#{tool}.description"),
         "target_link_uri": openid_launch_url(protocol: 'https'),
         "custom_parameters": {},
-        "claims": %w[iss sub name given_name family_name email],
-        "messages": [
-          {
-            "type": 'LtiDeepLinkingRequest',
-            "target_link_uri": deep_link_request_launch_url(protocol: 'https'),
-            "label": 'Add a tool',
-          },
-        ],
+        "claims": %w[iss sub name given_name family_name email nickname picture locale],
+        "messages": messages,
       },
     }
   end
 
-  def dynamic_registration_resource(url, title, custom_params = {})
+  def client_registration_request_body_message_type(message_type, tool, label, icon_uri = nil)
+    if message_type == 'LtiResourceLinkRequest'
+      target_link_uri = openid_launch_url(protocol: 'https')
+      placements = %w[link_selection course_navigation account_navigation]
+    elsif message_type == 'LtiDeepLinkingRequest'
+      target_link_uri = deep_link_request_launch_url(protocol: 'https')
+      placements = %w[link_selection]
+    else
+      raise CustomError, :invalid_message_type
+    end
+
+    # the actual object to be returned.
     {
-      'type' => 'ltiResourceLink',
-      'title' => title,
-      'url' => url,
-      'presentation' => {
-        'documentTarget' => 'window',
+      "type": message_type,
+      "target_link_uri": target_link_uri,
+      "label": label || t("apps.#{tool}.title"),
+      "icon_uri": icon_uri || secure_url(lti_app_icon_url(tool)),
+      "custom_parameters": {
+        "context_id": '$Context.id',
       },
-      'custom' => custom_params,
+      # parameters supported by canvas only
+      "placements": placements,
+      "roles": [],
     }
   end
 
-  def validate_registration_initiation_request
+  def validate_registration_initiation_request(token)
     # openid_configuration: the endpoint to the open id configuration to be used for this registration, encoded as per [RFC3986] Section 3.4.
     raise CustomError, :openid_configuration_not_found unless params.key?('openid_configuration')
+
     # registration_token (optional): the registration access token. If present, it must be used as the access token by the tool when making
     #                                the registration request to the registration endpoint exposed in the openid configuration.
-    raise CustomError, :registration_token_not_found unless params.key?('registration_token')
+    # raise CustomError, :registration_token_not_found unless params.key?('registration_token')
 
     begin
-      jwt_parts = validate_jwt_format
+      jwt_parts = validate_jwt_format(token)
       jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
       jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
-      logger.debug("jwt.header:\n#{jwt_header.inspect}")
-      logger.debug("jwt.body:\n#{jwt_body.inspect}")
-    rescue StandardError
+      logger.debug("JWT Header:\n#{JSON.pretty_generate(jwt_header)}")
+      logger.debug("JWT Body:\n#{JSON.pretty_generate(jwt_body)}")
+    rescue StandardError => e
+      logger.error("Error occurred during JWT validation: #{e.message}")
+      logger.error(e.backtrace.join("\n"))
       raise CustomError, :jwt_error
     end
 
@@ -119,10 +134,15 @@ module DynamicRegistrationService
 
   private
 
-  def validate_jwt_format
-    jwt_parts = params[:registration_token].split('.')
-    raise CustomError, :invalid_id_token unless jwt_parts.length == 3
+  def filter_valid_message_types(message_types_str, default: 'LtiDeepLinkingRequest')
+    valid_types = %w[LtiDeepLinkingRequest LtiResourceLinkRequest]
+    message_types_str = (message_types_str || '').strip
 
-    jwt_parts
+    return [default] if message_types_str.empty?
+
+    message_types = message_types_str.split(',').map(&:strip)
+    valid_message_types = message_types.select { |type| valid_types.include?(type) }
+
+    valid_message_types.empty? ? [default] : valid_message_types
   end
 end

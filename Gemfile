@@ -45,7 +45,7 @@ gem 'doorkeeper', '~> 5.6.9'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
-gem 'react-rails', '>= 3.2.0'
+gem 'react-rails', '>= 3.2.1'
 
 gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.9'
 
@@ -72,8 +72,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.54', require: false
-  gem 'rubocop-rails', '~> 2.24', '>= 2.24.0', require: false
+  gem 'rubocop', '~> 1.63', '>= 1.63.0', require: false
+  gem 'rubocop-rails', '~> 2.25', '>= 2.25.0', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.1'
@@ -98,3 +98,7 @@ gem 'tzinfo-data'
 gem 'coveralls_reborn', require: false
 
 gem 'rdoc', require: false
+
+# These libraries will be removed from the default set of gems included with Ruby 3.4.0.
+gem 'bigdecimal', require: false
+gem 'mutex_m', require: false
