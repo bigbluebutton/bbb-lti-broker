@@ -31,8 +31,8 @@ module PlatformValidator
   end
 
   def lti_registration_params(iss, options = {})
-    reg = lti_registration(iss, options)
-    JSON.parse(reg.tool_settings)
+    registration = lti_registration(iss, options)
+    JSON.parse(registration.tool_settings)
   end
 
   def lti_registration(iss, options = {})

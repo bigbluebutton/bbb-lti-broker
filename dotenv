@@ -74,3 +74,10 @@ REDIS_PREFIX=bbb-lti-broker
 #
 # Default: param-resource_link_id,param-oauth_consumer_key
 # HANDLER_LEGACY_PATTERNS='param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
+
+## Define settings for the deployment.
+# These settings are used to provide information about the deployment to the consumers and are used across tenants.
+# DEPLOYMENT_NAME=          # The name of the deployment.
+# DEPLOYMENT_POLICY_URI=    # The uri to the policy of the deployment.
+# DEPLOYMENT_TOS_URI=       # The uri to the terms of service of the deployment.
+# DEPLOYMENT_CONTACT_EMAIL= # The email to contact the administrator or support of the deployment.
