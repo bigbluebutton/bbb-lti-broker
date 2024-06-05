@@ -104,9 +104,11 @@ module DynamicRegistrationService
       jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
       jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
-      logger.debug("jwt.header:\n#{jwt_header.inspect}")
-      logger.debug("jwt.body:\n#{jwt_body.inspect}")
-    rescue StandardError
+      logger.debug("JWT Header:\n#{JSON.pretty_generate(jwt_header)}")
+      logger.debug("JWT Body:\n#{JSON.pretty_generate(jwt_body)}")
+    rescue StandardError => e
+      logger.error("Error occurred during JWT validation: #{e.message}")
+      logger.error(e.backtrace.join("\n"))
       raise CustomError, :jwt_error
     end
 
@@ -131,13 +133,6 @@ module DynamicRegistrationService
   end
 
   private
-
-  def validate_jwt_format(token)
-    jwt_parts = token.split('.')
-    raise CustomError, :invalid_id_token unless jwt_parts.length == 3
-
-    jwt_parts
-  end
 
   def filter_valid_message_types(message_types_str, default: 'LtiDeepLinkingRequest')
     valid_types = %w[LtiDeepLinkingRequest LtiResourceLinkRequest]

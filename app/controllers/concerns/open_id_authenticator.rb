@@ -25,7 +25,7 @@ module OpenIdAuthenticator
   def verify_openid_launch
     validate_openid_message_state unless params.key?('registration_token')
 
-    jwt_parts = validate_jwt_format
+    jwt_parts = validate_jwt_format(params[:id_token])
     jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
     jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
@@ -57,8 +57,8 @@ module OpenIdAuthenticator
     raise CustomError, :missing_id_token unless params.key?('id_token')
   end
 
-  def validate_jwt_format
-    jwt_parts = params[:id_token].split('.')
+  def validate_jwt_format(token)
+    jwt_parts = token.split('.')
     raise CustomError, :invalid_id_token unless jwt_parts.length == 3
 
     jwt_parts
