@@ -17,6 +17,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 module DynamicRegistrationService
+  include ExceptionHandler
   include ActiveSupport::Concern
 
   def client_registration_request_header(token)
@@ -32,7 +33,8 @@ module DynamicRegistrationService
 
     tool = app || Rails.configuration.default_tool
 
-    messages = filter_valid_message_types(message_types).split(',').map do |message_type|
+    filtered_message_types = filter_valid_message_types(message_types)
+    messages = filtered_message_types.map do |message_type|
       client_registration_request_body_message_type(message_type, tool, app_label, app_icon_url)
     end
 
@@ -139,8 +141,11 @@ module DynamicRegistrationService
 
   def filter_valid_message_types(message_types_str, default: 'LtiDeepLinkingRequest')
     valid_types = %w[LtiDeepLinkingRequest LtiResourceLinkRequest]
-    message_types = message_types_str.split(',').map(&:strip)
+    message_types_str = (message_types_str || '').strip
 
+    return [default] if message_types_str.empty?
+
+    message_types = message_types_str.split(',').map(&:strip)
     valid_message_types = message_types.select { |type| valid_types.include?(type) }
 
     valid_message_types.empty? ? [default] : valid_message_types

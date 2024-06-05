@@ -20,13 +20,13 @@
 require 'oauth/request_proxy/action_controller_request'
 
 class RegistrationController < ApplicationController
-  include RailsLti2Provider::ControllerHelpers
-  include ExceptionHandler
-  include OpenIdAuthenticator
   include AppsValidator
-  include LtiHelper
-  include PlatformValidator
   include DynamicRegistrationService
+  include ExceptionHandler
+  include LtiHelper
+  include OpenIdAuthenticator
+  include PlatformValidator
+  include RailsLti2Provider::ControllerHelpers
 
   before_action :print_parameters if Rails.configuration.developer_mode_enabled
   # skip rail default verify auth token - we use our own strategies
@@ -37,24 +37,7 @@ class RegistrationController < ApplicationController
   @error_message = ''
   @error_suggestion = ''
 
-  rescue_from ExceptionHandler::CustomError do |ex|
-    @error = case ex.error
-             when :tenant_not_found, :tool_duplicated
-               { code: '406',
-                 key: t('error.http._406.code'),
-                 message: @error_message,
-                 suggestion: @error_suggestion || '',
-                 status: '406', }
-             else
-               { code: '520',
-                 key: t('error.http._520.code'),
-                 message: t('error.http._520.message'),
-                 suggestion: t('error.http._520.suggestion'),
-                 status: '520', }
-             end
-    logger.error("Registration error:\n#{@error.to_yaml}")
-    render 'errors/index'
-  end
+  rescue_from ExceptionHandler::CustomError, with: :handle_custom_error
 
   def dynamic
     # 3.7 Step 4: Registration Completed and Activation
@@ -154,6 +137,11 @@ class RegistrationController < ApplicationController
 
   # verify lti 1.3 dynamic registration request
   def process_registration_initiation_request
+    # 3.3 Step 0: Request Verification
+    verify_activation_code
+    tenant = find_tenant_by_activation_code
+    check_activation_code_expiration(tenant)
+
     # 3.3 Step 1: Registration Initiation Request
     begin
       registration_token = select_registration_token
@@ -168,12 +156,6 @@ class RegistrationController < ApplicationController
     # 3.4 Step 2: Discovery and openid Configuration
     openid_configuration = discover_openid_configuration(params[:openid_configuration])
     logger.debug(openid_configuration.to_yaml)
-
-    tenant = RailsLti2Provider::Tenant.find_by(uid: '')
-    if tenant.nil?
-      @error_message = "Tenant with uid = '#{tenant.uid}' does not exist"
-      raise CustomError, :tenant_not_found
-    end
 
     # scope can be @jwt_body['scope'] == 'reg' or @jwt_body['scope'] == 'reg-update'
     if @jwt_body['scope'] == 'reg-update' # update
@@ -197,9 +179,9 @@ class RegistrationController < ApplicationController
     # 3.5.2 Client Registration Request
     key_pair = new_rsa_keypair
     header = client_registration_request_header(registration_token)
-    logger.debug("registration_token header\n#{header}")
+    logger.debug("registration_token header\n#{JSON.pretty_generate(header)}")
     body = client_registration_request_body(key_pair.token, params[:app], params[:app_name], params[:app_description], params[:app_icon], params[:app_label], params[:message_types])
-    logger.debug("registration_token body\n#{body}")
+    logger.debug("registration_token body\n#{JSON.pretty_generate(body)}")
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -267,5 +249,77 @@ class RegistrationController < ApplicationController
     logger.debug('param registration_token NOT included taken from openid_configuration...')
     query_params = CGI.parse(URI.parse(params['openid_configuration']).query)
     query_params['registration_token'].first
+  end
+
+  def verify_activation_code
+    return if params.key?(:activation_code)
+
+    @error_message = 'activation_code parameter is required'
+    raise CustomError, :activation_code_not_found
+  end
+
+  def find_tenant_by_activation_code
+    tenant = RailsLti2Provider::Tenant.where("metadata ->> 'activation_code' = ?", params['activation_code']).first
+    if tenant.nil?
+      @error_message = "Tenant with activation_code = '#{params['activation_code']}' does not exist"
+      raise CustomError, :tenant_not_found
+    end
+
+    tenant
+  end
+
+  def check_activation_code_expiration(tenant)
+    activation_code_expire = tenant.metadata['activation_code_expire']
+    return unless activation_code_expire.nil? || Time.zone.parse(activation_code_expire) <= Time.current
+
+    @error_message = 'Activation code has expired'
+    raise CustomError, :activation_code_expired
+  end
+
+  # Error handling
+  ERROR_MAP = {
+    tenant_not_found: '406',
+    tool_duplicated: '406',
+    activation_code_not_found: '406',
+    activation_code_expired: '406',
+    registration_verification_failed: '406',
+    registration_persistence_failed: '406',
+    invalid_message_type: '406',
+    invalid_id_token: '406',
+  }.freeze
+
+  def handle_custom_error(exception)
+    error_details = error_details_for(exception)
+    log_error_details(exception, error_details)
+
+    @error = error_details
+    render('errors/index')
+  end
+
+  def error_details_for(exception)
+    status = ERROR_MAP[exception.error] || '520'
+
+    {
+      code: status,
+      key: t("error.http._#{status}.code"),
+      message: error_message_for(exception.error, status),
+      suggestion: error_suggestion_for(exception.error, status),
+      status: status,
+    }
+  end
+
+  def error_message_for(_, status)
+    return @error_message if @error_message.present?
+
+    t("error.http._#{status}.message")
+  end
+
+  def error_suggestion_for(_, status)
+    @error_suggestion || t("error.http._#{status}.suggestion")
+  end
+
+  def log_error_details(exception, error_details)
+    logger.error("Registration error: #{exception.error}:#{exception.message}")
+    logger.error("Error details: #{error_details.to_yaml}")
   end
 end
