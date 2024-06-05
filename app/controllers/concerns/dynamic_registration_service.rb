@@ -27,12 +27,12 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, app_label, message_types = 'LtiDeepLinkingRequest')
+  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, app_label, message_types)
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
     tool = app || Rails.configuration.default_tool
 
-    messages = message_types.split(',').map do |message_type|
+    messages = filter_valid_message_types(message_types).split(',').map do |message_type|
       client_registration_request_body_message_type(message_type, tool, app_label, app_icon_url)
     end
 
@@ -135,5 +135,14 @@ module DynamicRegistrationService
     raise CustomError, :invalid_id_token unless jwt_parts.length == 3
 
     jwt_parts
+  end
+
+  def filter_valid_message_types(message_types_str, default: 'LtiDeepLinkingRequest')
+    valid_types = %w[LtiDeepLinkingRequest LtiResourceLinkRequest]
+    message_types = message_types_str.split(',').map(&:strip)
+
+    valid_message_types = message_types.select { |type| valid_types.include?(type) }
+
+    valid_message_types.empty? ? [default] : valid_message_types
   end
 end

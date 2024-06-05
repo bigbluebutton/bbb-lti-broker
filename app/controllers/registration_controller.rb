@@ -61,6 +61,25 @@ class RegistrationController < ApplicationController
     #   Once the registration is completed, successfully or not, the tool should notify the platform by sending an HTML5 Web Message
     #   [webmessaging] indicating the window may be closed. Depending on whether the platform opened the registration in an IFrame or
     #   a new tab, either window.parent or window.opener should be called.
+    #
+    #   The request received by the endpoint should include the following format:
+    #
+    #      /RELATIVE_URL_ROOT/tool/registration?app_name=APP_NAME&app_description=APP_DESCRIPTION&app_icon=APP_ICON&app_label=APP_LABEL&message_types=MESSAGE_TYPES&activation_code=ACTIVATION_CODE
+    #
+    #   All the parameters are optional, except for activation_code. The platform will use the activation_code to link the tool to the tenant.
+    #   APP_NAME, APP_DESCRIPTION, APP_ICON, APP_LABEL are used to provide additional information about the tool to the platform.
+    #   MESSAGE_TYPES parameter is a comma-separated list of message types that the tool supports.
+    #
+    #   The platform may use this information to display the tool in a catalog or to provide additional information to the user.
+    #
+    #   APP_NAME: The name of the tool (to be used for the Registration).
+    #   APP_DESCRIPTION: A description of the tool.
+    #   APP_ICON: A URL to an icon representing the tool.
+    #   APP_LABEL: A label to be displayed to the user on each context.
+    #   MESSAGE_TYPES: A comma-separated list of message types that the tool supports. The only messages supported are
+    #   LtiDeepLinkingRequest (default) and LtiResourceLinkRequest.
+    #   ACTIVATION_CODE: The activation code that was provided to the tool during the registration initiation request.
+    #   The platform will use this code to link the tool to the tenant.
   end
 
   def pub_keyset
