@@ -48,5 +48,11 @@ module BbbLtiBroker
     config.handler_legacy_patterns = ENV['HANDLER_LEGACY_PATTERNS'] || 'param-resource_link_id,param-oauth_consumer_key'
 
     config.default_tool = ENV['DEFAULT_LTI_TOOL'] || 'default'
+
+    config.deployment_settings = {
+      policy_uri: ENV['DEPLOYMENT_POLICY_URI'] || '',
+      tos_uri: ENV['DEPLOYMENT_TOS_URI'] || '',
+      contact_email: ENV['DEPLOYMENT_CONTACT_EMAIL'] || '',
+    }
   end
 end

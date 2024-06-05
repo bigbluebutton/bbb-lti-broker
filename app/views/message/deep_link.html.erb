@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 
 	<div class="deeplink-container">
 			<% @apps.each_with_index do |app, index| %>
-				<%= form_tag(@deep_link_return_url, class: "card-link-form") do %>
+				<%= form_tag(deep_link_callback_url, class: "card-link-form") do %>
 					<div class="card tool-card clickable">
 						<div class="card-body text-center">
 							<div class="tool-logo-background">
@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 						</div>
 					</div>
 					<%= hidden_field_tag 'JWT', app[:deep_link_jwt_message] %>
+					<%= hidden_field_tag 'deep_link_return_url', @deep_link_return_url %>
 				<% end %>
 			<% end %>
 	</div>
