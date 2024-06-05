@@ -20,13 +20,13 @@
 require 'oauth/request_proxy/action_controller_request'
 
 class RegistrationController < ApplicationController
-  include RailsLti2Provider::ControllerHelpers
-  include ExceptionHandler
-  include OpenIdAuthenticator
   include AppsValidator
-  include LtiHelper
-  include PlatformValidator
   include DynamicRegistrationService
+  include ExceptionHandler
+  include LtiHelper
+  include OpenIdAuthenticator
+  include PlatformValidator
+  include RailsLti2Provider::ControllerHelpers
 
   before_action :print_parameters if Rails.configuration.developer_mode_enabled
   # skip rail default verify auth token - we use our own strategies
@@ -37,30 +37,32 @@ class RegistrationController < ApplicationController
   @error_message = ''
   @error_suggestion = ''
 
-  rescue_from ExceptionHandler::CustomError do |ex|
-    @error = case ex.error
-             when :tenant_not_found, :tool_duplicated
-               { code: '406',
-                 key: t('error.http._406.code'),
-                 message: @error_message,
-                 suggestion: @error_suggestion || '',
-                 status: '406', }
-             else
-               { code: '520',
-                 key: t('error.http._520.code'),
-                 message: t('error.http._520.message'),
-                 suggestion: t('error.http._520.suggestion'),
-                 status: '520', }
-             end
-    logger.error("Registration error:\n#{@error.to_yaml}")
-    render 'errors/index'
-  end
+  rescue_from ExceptionHandler::CustomError, with: :handle_custom_error
 
   def dynamic
     # 3.7 Step 4: Registration Completed and Activation
     #   Once the registration is completed, successfully or not, the tool should notify the platform by sending an HTML5 Web Message
     #   [webmessaging] indicating the window may be closed. Depending on whether the platform opened the registration in an IFrame or
     #   a new tab, either window.parent or window.opener should be called.
+    #
+    #   The request received by the endpoint should include the following format:
+    #
+    #      /RELATIVE_URL_ROOT/tool/registration?app_name=APP_NAME&app_description=APP_DESCRIPTION&app_icon=APP_ICON&app_label=APP_LABEL&message_types=MESSAGE_TYPES&activation_code=ACTIVATION_CODE
+    #
+    #   All the parameters are optional, except for activation_code. The platform will use the activation_code to link the tool to the tenant.
+    #   APP_NAME, APP_DESCRIPTION, APP_ICON, APP_LABEL are used to provide additional information about the tool to the platform.
+    #   MESSAGE_TYPES parameter is a comma-separated list of message types that the tool supports.
+    #
+    #   The platform may use this information to display the tool in a catalog or to provide additional information to the user.
+    #
+    #   APP_NAME: The name of the tool (to be used for the Registration).
+    #   APP_DESCRIPTION: A description of the tool.
+    #   APP_ICON: A URL to an icon representing the tool.
+    #   APP_LABEL: A label to be displayed to the user on each context.
+    #   MESSAGE_TYPES: A comma-separated list of message types that the tool supports. The only messages supported are
+    #   LtiDeepLinkingRequest (default) and LtiResourceLinkRequest.
+    #   ACTIVATION_CODE: The activation code that was provided to the tool during the registration initiation request.
+    #   The platform will use this code to link the tool to the tenant.
   end
 
   def pub_keyset
@@ -74,20 +76,19 @@ class RegistrationController < ApplicationController
 
     # lookup for the kid
     tool = RailsLti2Provider::Tool.where('tool_settings LIKE ?', "%\"rsa_key_pair_id\":#{rsa_key_pair.id}%").first
-    logger.debug("#{rsa_key_pair.id}\n#{tool.to_json}\n")
+    logger.debug("rsa_key_pair.id= #{rsa_key_pair.id}\ntool= #{tool.to_json}\n")
     if tool.nil?
       logger.debug("Error pub_keyset\n Tool with rsa_key_pair_id=#{rsa_key_pair.id} was not found")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
     tool_settings = JSON.parse(tool.tool_settings)
-    registration_token = tool_settings['registration_token']
-    if registration_token.nil?
+    if tool_settings['registration_token'].nil?
       logger.debug("Error pub_keyset\n The 'registration_token' was not found. This tool was registered manually.")
       render(json: JSON.pretty_generate({ error: { code: 404, message: 'not found' } }), status: :not_found) && return
     end
 
-    jwt_parts = registration_token.split('.')
-    jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
+    reg_parts = tool_settings['registration_token'].split('.')
+    reg_header = JSON.parse(Base64.urlsafe_decode64(reg_parts[0]))
 
     # prepare the pub_keyset
     json_pub_keyset = {}
@@ -96,7 +97,7 @@ class RegistrationController < ApplicationController
         kty: 'RSA',
         e: Base64.urlsafe_encode64(public_key.e.to_s(2)).delete('='), # Exponent
         n: Base64.urlsafe_encode64(public_key.n.to_s(2)).delete('='), # Modulus
-        kid: jwt_header['kid'],
+        kid: reg_header['kid'],
         alg: 'RS256',
         use: 'sig',
       },
@@ -136,9 +137,15 @@ class RegistrationController < ApplicationController
 
   # verify lti 1.3 dynamic registration request
   def process_registration_initiation_request
+    # 3.3 Step 0: Request Verification
+    verify_activation_code
+    tenant = find_tenant_by_activation_code
+    check_activation_code_expiration(tenant)
+
     # 3.3 Step 1: Registration Initiation Request
     begin
-      jwt = validate_registration_initiation_request
+      registration_token = select_registration_token
+      jwt = validate_registration_initiation_request(registration_token)
       @jwt_header = jwt[:header]
       @jwt_body = jwt[:body]
     rescue StandardError => e
@@ -147,22 +154,21 @@ class RegistrationController < ApplicationController
     end
 
     # 3.4 Step 2: Discovery and openid Configuration
-    openid_configuration = discover_openid_configuration(params['openid_configuration'])
+    openid_configuration = discover_openid_configuration(params[:openid_configuration])
     logger.debug(openid_configuration.to_yaml)
 
-    tenant_uid = ''
     # scope can be @jwt_body['scope'] == 'reg' or @jwt_body['scope'] == 'reg-update'
     if @jwt_body['scope'] == 'reg-update' # update
       tool = RailsLti2Provider::Tool.where(uuid: openid_configuration['issuer']).where.not(tenant_id: 1).first
-      tenant_uid = tool.tenant.uid unless tool.nil? # it is linked
-    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant_uid) # new
-      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant_uid}'"
+      unless tool.nil?
+        tenant = tool.tenant
+        # old keys are removed
+        key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
+        RsaKeyPair.delete(key_pair_id)
+      end
+    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant) # new
+      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'"
       raise CustomError, :tool_duplicated
-    end
-    tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
-    if tenant.nil?
-      @error_message = "Tenant with uid = '#{tenant_uid}' does not exist"
-      raise CustomError, :tenant_not_found
     end
 
     # 3.5 Step 3: Client Registration
@@ -172,8 +178,10 @@ class RegistrationController < ApplicationController
 
     # 3.5.2 Client Registration Request
     key_pair = new_rsa_keypair
-    header = client_registration_request_header(params[:registration_token])
-    body = client_registration_request_body(key_pair.token)
+    header = client_registration_request_header(registration_token)
+    logger.debug("registration_token header\n#{JSON.pretty_generate(header)}")
+    body = client_registration_request_body(key_pair.token, params[:app], params[:app_name], params[:app_description], params[:app_icon], params[:app_label], params[:message_types])
+    logger.debug("registration_token body\n#{JSON.pretty_generate(body)}")
     body = body.to_json
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -183,6 +191,7 @@ class RegistrationController < ApplicationController
 
     response = http.request(request)
     response = JSON.parse(response.body)
+    logger.debug("response\n#{response}")
 
     # 3.6 Client Registration Response
     reg = {
@@ -193,36 +202,124 @@ class RegistrationController < ApplicationController
       auth_login_url: openid_configuration['authorization_endpoint'],
       rsa_key_pair_id: key_pair.id,
       rsa_key_pair_token: key_pair.token,
-      registration_token: params[:registration_token],
+      registration_token: registration_token,
+    }
+    logger.debug("reg to be attached to the tool\n#{reg}")
+
+    tool_attributes = {
+      shared_secret: response['client_id'],
+      tool_settings: reg.to_json,
+      lti_version: '1.3.0',
+      status: 'enabled',
     }
 
     begin
-      @tool = RailsLti2Provider::Tool.find_or_create_by(uuid: openid_configuration['issuer'], tenant: tenant)
-
-      # old keys are removed when @jwt_body['scope'] == 'reg-update' after registration succeded
-      if @jwt_body['scope'] == 'reg-update'
-        key_pair_id = JSON.parse(@tool.tool_settings)['rsa_key_pair_id']
-        key_pairs = RsaKeyPair.find(key_pair_id)
-        key_pairs.destroy
+      @tool = RailsLti2Provider::Tool.find_by(uuid: openid_configuration['issuer'], tenant: tenant)
+      if @tool
+        @tool.update(tool_attributes)
+      else
+        @tool = RailsLti2Provider::Tool.create(tool_attributes.merge(uuid: openid_configuration['issuer'], tenant: tenant))
+        if @tool.persisted?
+          logger.debug("Tool #{@tool.id} created...")
+        else
+          logger.debug("Tool creation failed: #{@tool.errors.full_messages.join(', ')}")
+        end
       end
-
-      # new keys are set
-      @tool.shared_secret = response['client_id']
-      @tool.tool_settings = reg.to_json.to_s
-      @tool.lti_version = '1.3.0'
-      @tool.status = 'enabled'
-      @tool.save
     rescue StandardError => e
       # 3.6.2 Client Registration Error Response
       @error_message = "Error in registrtion when persisting: #{e}"
+      logger.debug("Error: #{@error_message}")
       raise CustomError, :registration_persitence_failed
     end
 
     # 3.6.1 Successful Registration
-    logger.debug(@tool.to_json)
+    logger.debug("Successfully registered #{@tool.to_json}")
   end
 
   def discover_openid_configuration(url)
     JSON.parse(URI.parse(url).read)
+  end
+
+  def select_registration_token
+    if params[:registration_token].present?
+      logger.debug('param registration_token included...')
+      return params[:registration_token]
+    end
+
+    logger.debug('param registration_token NOT included taken from openid_configuration...')
+    query_params = CGI.parse(URI.parse(params['openid_configuration']).query)
+    query_params['registration_token'].first
+  end
+
+  def verify_activation_code
+    return if params.key?(:activation_code)
+
+    @error_message = 'activation_code parameter is required'
+    raise CustomError, :activation_code_not_found
+  end
+
+  def find_tenant_by_activation_code
+    tenant = RailsLti2Provider::Tenant.where("metadata ->> 'activation_code' = ?", params['activation_code']).first
+    if tenant.nil?
+      @error_message = "Tenant with activation_code = '#{params['activation_code']}' does not exist"
+      raise CustomError, :tenant_not_found
+    end
+
+    tenant
+  end
+
+  def check_activation_code_expiration(tenant)
+    activation_code_expire = tenant.metadata['activation_code_expire']
+    return unless activation_code_expire.nil? || Time.zone.parse(activation_code_expire) <= Time.current
+
+    @error_message = 'Activation code has expired'
+    raise CustomError, :activation_code_expired
+  end
+
+  # Error handling
+  ERROR_MAP = {
+    tenant_not_found: '406',
+    tool_duplicated: '406',
+    activation_code_not_found: '406',
+    activation_code_expired: '406',
+    registration_verification_failed: '406',
+    registration_persistence_failed: '406',
+    invalid_message_type: '406',
+    invalid_id_token: '406',
+  }.freeze
+
+  def handle_custom_error(exception)
+    error_details = error_details_for(exception)
+    log_error_details(exception, error_details)
+
+    @error = error_details
+    render('errors/index')
+  end
+
+  def error_details_for(exception)
+    status = ERROR_MAP[exception.error] || '520'
+
+    {
+      code: status,
+      key: t("error.http._#{status}.code"),
+      message: error_message_for(exception.error, status),
+      suggestion: error_suggestion_for(exception.error, status),
+      status: status,
+    }
+  end
+
+  def error_message_for(_, status)
+    return @error_message if @error_message.present?
+
+    t("error.http._#{status}.message")
+  end
+
+  def error_suggestion_for(_, status)
+    @error_suggestion || t("error.http._#{status}.suggestion")
+  end
+
+  def log_error_details(exception, error_details)
+    logger.error("Registration error: #{exception.error}:#{exception.message}")
+    logger.error("Error details: #{error_details.to_yaml}")
   end
 end

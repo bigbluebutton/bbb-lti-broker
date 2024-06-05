@@ -6,8 +6,8 @@ namespace :tool do
   include Rails.application.routes.url_helpers
   default_url_options[:host] = ENV['URL_HOST']
 
-  desc 'Add new Tool configuration [issuer,client_id,keyset_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
-  task :new, %i[issuer client_id key_set_url auth_token_url auth_login_url tenant_uid] => :environment do |_t, args|
+  desc 'Add new Tool configuration [issuer,client_id,deployment_id,key_set_url,auth_token_url,auth_login_url,tenant_uid] (URLs should be enclosed by quotes)'
+  task :new, %i[issuer client_id deployment_id key_set_url auth_token_url auth_login_url tenant_uid] => :environment do |_t, args|
     Rake::Task['environment'].invoke
     ActiveRecord::Base.connection
 
@@ -33,6 +33,14 @@ namespace :tool do
     end
     abort('The Client ID must be valid.') if client_id.blank?
 
+    # Deployment ID.
+    deployment_id = args[:deployment_id]
+    if deployment_id.blank?
+      $stdout.puts('What is the Deployment ID?')
+      deployment_id = $stdin.gets.strip
+    end
+    abort('The Deployment ID must be valid.') if deployment_id.blank?
+
     # Public Keyset URL.
     key_set_url = args[:key_set_url]
     if key_set_url.blank?
@@ -40,6 +48,10 @@ namespace :tool do
       key_set_url = $stdin.gets.strip
     end
     abort('The Keyset URL must be valid.') if key_set_url.blank?
+    openid_configuration = JSON.parse(URI.parse(key_set_url).read)
+    # kid is shared across all keys and is used to identify the key being used.
+    # it is taken from the open_id_configuration fetched from the key_set_url.
+    kid = openid_configuration['keys'][0]['kid']
 
     # Access Token URL.
     auth_token_url = args[:auth_token_url]
@@ -82,17 +94,23 @@ namespace :tool do
       shared_secret: client_id,
       tool_settings: tool_settings.to_json,
       lti_version: '1.3.0',
-      tenant: tenant
+      tenant: tenant,
+      status: 'enabled'
     )
 
-    $stdout.puts("Tool:\n#{tool.to_json}")
-    $stdout.puts("\n")
-    $stdout.puts("Private Key:\n#{private_key}")
-    $stdout.puts("\n")
-    $stdout.puts("Public Key:\n#{public_key}")
-    $stdout.puts("\n")
-    $stdout.puts("Public Key URL:\n#{registration_pub_keyset_url(protocol: 'https', key_token: key_pair_token)}")
-    $stdout.puts("\n")
+    jwt_payload = {
+      sub: deployment_id,
+      iat: Time.new.to_i - 5,
+      exp: Time.new.to_i + 60,
+    }
+    jwt_headers = { kid: kid }
+    registration_token = JWT.encode(jwt_payload, private_key, 'RS256', jwt_headers)
+    tool_settings = JSON.parse(tool.tool_settings)
+    tool_settings['registration_token'] = registration_token
+    tool.update(tool_settings: tool_settings.to_json)
+
+    Rake::Task['tool:settings:show'].invoke(tool.id)
+    Rake::Task['tool:keys:show'].invoke(tool.id)
   rescue StandardError => e
     puts(e.backtrace)
     exit(1)
@@ -230,7 +248,7 @@ namespace :tool do
       exit(1)
     end
 
-    desc 'Update a tool by ID with Key and Value [id,key,value]'
+    desc 'Update settings for tool by ID with Key and Value [id,key,value]'
     task :update, [:id, :key, :value] => :environment do |_t, args|
       # ID.
       id = args[:id]
@@ -271,6 +289,40 @@ namespace :tool do
       puts(e.backtrace)
       exit(1)
     end
+
+    desc 'Destroy settings for tool by ID with Key [id,key]'
+    task :destroy, [:id, :key, :value] => :environment do |_t, args|
+      # ID.
+      id = args[:id]
+      if id.blank?
+        $stdout.puts('What is the ID?')
+        id = $stdin.gets.strip
+      end
+      abort('The ID cannot be blank.') if id.blank?
+
+      # Key.
+      key = args[:key]
+      if key.blank?
+        $stdout.puts('What is the Key?')
+        key = $stdin.gets.strip
+      end
+      abort('The Key cannot be blank.') if key.blank?
+
+      $stdout.puts("tool:settings:destroy[#{id},#{key}]")
+
+      tool = RailsLti2Provider::Tool.find(id)
+      abort("The tool with id = #{id} does not exist") if tool.blank?
+
+      tool_settings = JSON.parse(tool.tool_settings)
+
+      tool_settings.delete(key)
+      tool.update(tool_settings: tool_settings.to_json)
+
+      Rake::Task['tool:settings:show'].invoke(id)
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
   end
 
   desc 'Show settings for tool by ID [id].'
@@ -296,8 +348,6 @@ namespace :tool do
       abort("The key_pair_token for #{id} does not exist") if key_pair_token.blank?
 
       keys = RsaKeyPair.find_by(token: key_pair_token)
-
-      puts(tool.to_json)
 
       $stdout.puts("\n")
       $stdout.puts("Private Key:\n#{keys.private_key}")

@@ -25,7 +25,7 @@ module OpenIdAuthenticator
   def verify_openid_launch
     validate_openid_message_state unless params.key?('registration_token')
 
-    jwt_parts = validate_jwt_format
+    jwt_parts = validate_jwt_format(params[:id_token])
     jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
     jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
@@ -37,8 +37,8 @@ module OpenIdAuthenticator
     # validate registration (deployment)
     reg = validate_registration(jwt_body)
     logger.debug("reg:\n#{reg.inspect}")
-    validate_jwt_signature(reg, jwt_header)
-    validate_openid_message(jwt_body)
+    logger.debug('jwt_signature is valid...') if validate_jwt_signature(reg, jwt_header)
+    logger.debug('openid_message is valid...') if validate_openid_message(jwt_body)
 
     clean_up_openid_launch
     params.merge!(extract_old_param_format(jwt_body))
@@ -57,8 +57,8 @@ module OpenIdAuthenticator
     raise CustomError, :missing_id_token unless params.key?('id_token')
   end
 
-  def validate_jwt_format
-    jwt_parts = params[:id_token].split('.')
+  def validate_jwt_format(token)
+    jwt_parts = token.split('.')
     raise CustomError, :invalid_id_token unless jwt_parts.length == 3
 
     jwt_parts
@@ -84,9 +84,12 @@ module OpenIdAuthenticator
 
   def validate_jwt_signature(reg, jwt_header)
     public_key_set = JSON.parse(URI.parse(reg['key_set_url']).read)
+    logger.debug("public_key_set:\n#{public_key_set.inspect}")
     jwk_json = public_key_set['keys'].find do |key|
       key['kid'] == jwt_header['kid']
     end
+    raise CustomError, :invalid_signature_jwk_not_found if jwk_json.nil?
+
     jwt = JSON::JWK.new(jwk_json)
 
     # throws error if jwt is not valid
@@ -95,6 +98,9 @@ module OpenIdAuthenticator
 
   def validate_openid_message(jwt_body)
     raise CustomError, :invalid_message_type if jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'].empty?
+    raise CustomError, :invalid_message_type unless %w[LtiResourceLinkRequest LtiDeepLinkingRequest].include?(jwt_body['https://purl.imsglobal.org/spec/lti/claim/message_type'])
+
+    true
   end
 
   def clean_up_openid_launch
@@ -207,7 +213,7 @@ module OpenIdAuthenticator
       context_type: jwt_body['https://purl.imsglobal.org/spec/lti/claim/context']['type'].join(','),
       lis_course_section_sourcedid: jwt_body['https://purl.imsglobal.org/spec/lti/claim/lis']['course_section_sourcedid'],
       launch_presentation_locale: jwt_body['https://purl.imsglobal.org/spec/lti/claim/launch_presentation']['locale'],
-      ext_lms: jwt_body['https://purl.imsglobal.org/spec/lti/claim/ext']['lms'],
+      # ext_lms: jwt_body['https://purl.imsglobal.org/spec/lti/claim/ext']['lms'],
       tool_consumer_info_product_family_code: jwt_body['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['family_code'],
       tool_consumer_info_version: jwt_body['https://purl.imsglobal.org/spec/lti/claim/tool_platform']['version'],
       lti_version: jwt_body['https://purl.imsglobal.org/spec/lti/claim/version'],

@@ -237,6 +237,7 @@ GEM
     minitest-stub_any_instance (1.0.3)
     multi_json (1.15.0)
     multipart-post (2.4.1)
+    mutex_m (0.2.0)
     net-imap (0.4.10)
       date
       net-protocol
@@ -433,6 +434,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-session_store (>= 2.1.0)
   addressable (~> 2.7)
+  bigdecimal
   bootstrap (~> 4.6.0)
   bundler (>= 2.1.4)
   byebug
@@ -451,6 +453,7 @@ DEPENDENCIES
   lodash-rails
   lograge (~> 0.14.0)
   minitest-stub_any_instance
+  mutex_m
   oauth (~> 0.5.1)
   oauthenticator (~> 1.4, >= 1.4.1)
   pg (>= 0.4.4)

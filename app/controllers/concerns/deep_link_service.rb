@@ -38,7 +38,7 @@ module DeepLinkService
     }
   end
 
-  def deep_link_jwt_response(registration, jwt_header, jwt_body, resources)
+  def deep_link_jwt_response(registration, jwt_body, resources)
     message = {
       'iss' => registration['client_id'],
       'aud' => [registration['issuer']],
@@ -60,6 +60,8 @@ module DeepLinkService
 
     priv_key = OpenSSL::PKey::RSA.new(priv)
 
-    JWT.encode(message, priv_key, 'RS256', kid: jwt_header['kid'])
+    reg_header = JSON.parse(Base64.urlsafe_decode64(registration['registration_token'].split('.')[0]))
+
+    JWT.encode(message, priv_key, 'RS256', kid: reg_header['kid'])
   end
 end

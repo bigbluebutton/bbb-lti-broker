@@ -57,7 +57,7 @@ class MessageController < ApplicationController
              when :disabled_key
                'The key is disabled'
              else
-               'Unknown Error'
+               format_error_message(ex.error)
              end
     @error = "Authentication failed with: #{output}"
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
@@ -150,6 +150,10 @@ class MessageController < ApplicationController
 
   # first touch point from platform (moodle, canvas, etc) when using LTI 1.3
   def openid_launch_request
+    # MONKEY-PATCH: to bypass authenitity_token used by Canvas or any other RoR consumer
+    # remove the authenticity_token if passes as it interfiers with these applications
+    params.delete('authenticity_token')
+
     ## The launch for LTI 1.3 sets params[:app] and redirectos to the corresponding app. The default tool is assigned if the parameter is not included.
     params[:app] ||= params[:custom_broker_app] || Rails.configuration.default_tool
     return if params[:app] == 'default' || params[:custom_broker_app] == 'default'
@@ -185,7 +189,7 @@ class MessageController < ApplicationController
 
       options = {}
       options['client_id'] =  @jwt_body['aud']
-      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss'], options), @jwt_header, @jwt_body, [resource])
+      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss'], options), @jwt_body, [resource])
 
       @apps << { app_name: app, deep_link_jwt_message: deep_link_jwt_message }
     end
@@ -217,13 +221,31 @@ class MessageController < ApplicationController
     end
 
     @jwt_header = jwt[:header]
+    logger.debug("JWT Header: #{@jwt_header}")
     @jwt_body = jwt[:body]
+    logger.debug("JWT Body: #{@jwt_body}")
 
     tool = lti_registration(@jwt_body['iss'])
+    # Cleanups the lti_launches table from old launches.
     tool.lti_launches.where('created_at < ?', 1.day.ago).delete_all
     nonce = @jwt_body['nonce']
     message = @jwt_body.merge(@jwt_header)
     @lti_launch = tool.lti_launches.create(nonce: nonce, message: message)
+
+    #############################
+    # Monkey patch for Canvas: validate kid in registration, if not present, add the one in the jwt header.
+    registration = JSON.parse(tool.tool_settings)
+    logger.debug("Registration: #{registration}")
+    reg_parts = registration['registration_token'].split('.')
+    reg_header = JSON.parse(Base64.urlsafe_decode64(reg_parts[0]))
+    unless reg_header.key?('kid')
+      logger.debug('It does not have a kid. Adding the one from the jwt header.')
+      reg_header['kid'] = @jwt_header['kid']
+      registration['registration_token'] = "#{Base64.urlsafe_encode64(reg_header.to_json)}.#{reg_parts[1]}.#{reg_parts[2]}"
+      tool.update(tool_settings: registration.to_json)
+    end
+    # End of monkey patch.
+    #############################
 
     @message = IMS::LTI::Models::Messages::Message.generate(params)
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
@@ -273,5 +295,9 @@ class MessageController < ApplicationController
     return URI.parse(params[elements[1]]).host if elements[0] == 'fqdn'
 
     ''
+  end
+
+  def format_error_message(str)
+    str.gsub('_', ' ').split.map(&:capitalize).join(' ')
   end
 end
