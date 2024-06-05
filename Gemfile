@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1'
+gem 'rails', '~> 6.1', '>= 6.1.7.8'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -56,7 +56,7 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store', '>= 2.1.0'
 
 # frontend
-gem 'bootstrap', '~> 4.6.0'
+gem 'bootstrap', '~> 5.0.0'
 gem 'font-awesome-sass', '~> 6.4.0'
 gem 'popper_js', '>= 1.16'
 
