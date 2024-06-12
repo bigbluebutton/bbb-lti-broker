@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1'
+gem 'rails', '~> 6.1', '>= 6.1.7.8'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -41,11 +41,11 @@ gem 'redis', '~> 4.2'
 gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
-gem 'doorkeeper', '~> 5.6.9'
+gem 'doorkeeper', '~> 5.7.0'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
-gem 'react-rails', '>= 3.2.0'
+gem 'react-rails', '>= 3.2.1'
 
 gem 'rails_lti2_provider', git: 'https://github.com/blindsidenetworks/rails_lti2_provider.git', tag: '0.1.9'
 
@@ -56,7 +56,7 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store', '>= 2.1.0'
 
 # frontend
-gem 'bootstrap', '~> 4.6.0'
+gem 'bootstrap', '~> 5.0.0'
 gem 'font-awesome-sass', '~> 6.4.0'
 gem 'popper_js', '>= 1.16'
 
@@ -72,8 +72,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.54', require: false
-  gem 'rubocop-rails', '~> 2.24', '>= 2.24.0', require: false
+  gem 'rubocop', '~> 1.63', '>= 1.63.0', require: false
+  gem 'rubocop-rails', '~> 2.25', '>= 2.25.0', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'
   gem 'web-console', '>= 4.2.1'
@@ -84,7 +84,7 @@ end
 
 group :test do
   gem 'minitest-stub_any_instance'
-  gem 'webmock'
+  gem 'webmock', '>= 3.23.1'
 end
 
 group :production do
@@ -98,3 +98,7 @@ gem 'tzinfo-data'
 gem 'coveralls_reborn', require: false
 
 gem 'rdoc', require: false
+
+# These libraries will be removed from the default set of gems included with Ruby 3.4.0.
+gem 'bigdecimal', require: false
+gem 'mutex_m', require: false
