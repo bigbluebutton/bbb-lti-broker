@@ -109,13 +109,12 @@ module BbbLtiBroker
     # custom_override_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
     #
     def custom_overrides(message)
-      override_custom_params = safe_override_custom_params
       custom_params = message['custom_params'].to_h
       custom_params.each do |custom_param_name, value|
         next unless custom_param_name.start_with?('custom_override_')
 
         param_name = custom_param_name.delete_prefix('custom_override_')
-        next unless override_custom_params.include?(param_name)
+        next unless safe_custom_override_params.include?(param_name)
 
         pattern = value.split(':')
         message[param_name] = pattern[1] if pattern[0] == 'static'
@@ -163,7 +162,7 @@ module BbbLtiBroker
     end
 
     # parameters that are safe for custom overriding.
-    def safe_override_custom_params
+    def safe_custom_override_params
       # TODO: Only safe params should be allowed to be overriden, there are two approaches for this.
       # 1) set them through a tenant setting
       # 2) set the overriding rules through tenant settings (safest)
