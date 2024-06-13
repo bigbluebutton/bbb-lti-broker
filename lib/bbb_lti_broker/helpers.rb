@@ -93,19 +93,31 @@ module BbbLtiBroker
     # Core parameters may have to be overriden in order to make the applications behave differently
     # for that, the LTI link in the tool consumer would need to include a custom parameter in the form:
     #
-    # custom_resource_link_id=static:"some value" -> resource_link_id="some value"
-    # custom_resource_link_id=param:contenxt_id   -> resource_link_id=<value obtained from context_id>
-    # custom_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
+    # custom_override_resource_link_id=static:"some value" -> resource_link_id="some value"
+    # custom_override_resource_link_id=param:contenxt_id   -> resource_link_id=<value obtained from context_id>
+    # custom_override_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
     #
     def custom_overrides(message)
       custom_params = message['custom_params'].to_h
-      custom_params.each do |key, value|
-        custom_param = key.delete_prefix('custom_')
+      custom_params.each do |custom_param_name, value|
+        next unless custom_param_name.start_with?('custom_override_')
+
+        param_name = custom_param_name.delete_prefix('custom_override_')
+        next unless safe_custom_override_params.include?(param_name)
+
         pattern = value.split(':')
-        message[custom_param] = pattern[1] if pattern[0] == 'static'
-        message[custom_param] = message[pattern[1]] if pattern[0] == 'param'
+        message[param_name] = pattern[1] if pattern[0] == 'static'
+        message[param_name] = message['custom_params'][pattern[1]] if pattern[0] == 'param'
       end
       message
+    end
+
+    # parameters that are safe for custom overriding.
+    def safe_custom_override_params
+      # TODO: Only safe params should be allowed to be overriden, there are two approaches for this.
+      # 1) set them through a tenant setting
+      # 2) set the overriding rules through tenant settings (safest)
+      ['user_image']
     end
   end
 end
