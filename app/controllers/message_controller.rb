@@ -262,6 +262,7 @@ class MessageController < ApplicationController
   # rules are needed.
   #   - param-xxx, it is a literal value of parameter xxx.
   #   - fqdn-yyy parses the host obtained from processing the value of parameter yyy as a URL.
+  #   - text-zzz is a literal value zzz.
   #   - | is a fallback in case the value found from the first pattern is empty.
   #
   #   E.g.
@@ -288,10 +289,13 @@ class MessageController < ApplicationController
   def seed_param(pattern)
     elements = pattern.split('-')
 
-    if elements[0] == 'param'
+    case elements[0]
+    when 'param'
       return params[elements[1]]
-    elsif elements[0] == 'fqdn'
+    when 'fqdn'
       return URI.parse(params[elements[1]]).host unless params[elements[1]].nil?
+    when 'text'
+      return elements[1]
     end
 
     ''
