@@ -131,7 +131,8 @@ class MessageController < ApplicationController
     # Inject the handler_legacy to the lti_launch.
     lti_launch = RailsLti2Provider::LtiLaunch.find_by(nonce: params[:oauth_nonce])
     post_params = lti_launch.message.post_params
-    post_params['custom_handler_legacy'] = handler_legacy
+
+    post_params['custom_handler_legacy'] = handler_legacy(handler_legacy_patterns(params['tenant']))
     lti_message = IMS::LTI::Models::Messages::Message.generate(post_params)
     lti_launch.update(message: lti_message.post_params)
 
@@ -261,26 +262,22 @@ class MessageController < ApplicationController
   # rules are needed.
   #   - param-xxx, it is a literal value of parameter xxx.
   #   - fqdn-yyy parses the host obtained from processing the value of parameter yyy as a URL.
+  #   - text-zzz is a literal value zzz.
   #   - | is a fallback in case the value found from the first pattern is empty.
   #
   #   E.g.
   #     konekti: 'param-tool_consumer_instance_guid|fqdn-ext_tc_profile_url,param-context_id,param-resource_link_id'
   #     bbb-lti 'param-resource_link_id,param-oauth_consumer_key' (default)
   #
-  def handler_legacy
+  def handler_legacy(patterns)
     # Hardcoded patterns to support Konekti launches.
-    patterns = Rails.configuration.handler_legacy_patterns
     seed_string = ''
     patterns.split(',').each do |pattern|
       seed = ''
-      if pattern.include?('|')
-        fallbacks = pattern.split('|')
-        fallbacks.each do |fallback|
-          seed = seed_param(fallback)
-          break unless seed.empty?
-        end
-      else
-        seed = seed_param(pattern)
+      fallbacks = pattern.split('|')
+      fallbacks.each do |fallback|
+        seed = seed_param(fallback)
+        break unless seed.empty?
       end
       seed_string += seed
     end
@@ -291,13 +288,27 @@ class MessageController < ApplicationController
   # E.g. param-resource_link_id
   def seed_param(pattern)
     elements = pattern.split('-')
-    return params[elements[1]] if elements[0] == 'param'
-    return URI.parse(params[elements[1]]).host if elements[0] == 'fqdn'
+
+    case elements[0]
+    when 'param'
+      return params[elements[1]]
+    when 'fqdn'
+      return URI.parse(params[elements[1]]).host unless params[elements[1]].nil?
+    when 'text'
+      return elements[1]
+    end
 
     ''
   end
 
   def format_error_message(str)
     str.gsub('_', ' ').split.map(&:capitalize).join(' ')
+  end
+
+  def handler_legacy_patterns(tenant_uid)
+    tenant = RailsLti2Provider::Tenant.find_by(uid: tenant_uid)
+    return Rails.configuration.handler_legacy_patterns if tenant.nil? || tenant.settings['handler_legacy_patterns'].blank?
+
+    tenant.settings['handler_legacy_patterns']
   end
 end
