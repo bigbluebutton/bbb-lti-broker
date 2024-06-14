@@ -296,9 +296,78 @@ namespace :tenant do
   task :activation_code, [:uid] => :environment do |_t, args|
     Rake::Task['tenant:activation_code:show'].invoke(args[:uid])
   end
+
+  namespace :ext_params do
+    ext_params_key = 'ext_params'
+
+    desc 'Add an extra parameter to be passed to BBB on join or create'
+    task :upsert, [:uid, :action, :source, :target] => :environment do |_t, args|
+      # the key is the name of the param coming from the LMS, the value is the name of the param to be sent to BBB
+      uid = args[:uid] || ''
+      action = args[:action].downcase
+      key = args[:source]
+      value = args[:target]
+
+      unless action.present? && %w[join create].include?(action)
+        puts('Error: please specify whether the params should be passed on join or create')
+        exit(1)
+      end
+
+      unless key.present? && value.present?
+        puts('Error: you must specify a key and value for the extra parameter')
+        exit(1)
+      end
+
+      tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
+      if tenant.nil?
+        puts("Tenant '#{uid}' does not exist.")
+        exit(1)
+      end
+
+      tenant.settings[ext_params_key] ||= { 'join' => {}, 'create' => {} }
+      tenant.settings[ext_params_key][action][key] = value
+      tenant.save!
+
+      puts("The extra parameter #{key}=#{value} was added to tenant #{uid}")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+
+    desc 'Delete an extra parameter mapping'
+    task :destroy, [:uid, :action, :source] => :environment do |_t, args|
+      uid = args[:uid] || ''
+      action = args[:action].downcase
+      key = args[:source]
+
+      unless action.present? && %w[join create].include?(action)
+        puts('Error: please specify whether the params is passed on join or create')
+        exit(1)
+      end
+
+      if key.blank?
+        puts('Error: you must specify the key you want to be deleted')
+        exit(1)
+      end
+
+      tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
+      if tenant.nil?
+        puts("Tenant '#{uid}' does not exist.")
+        exit(1)
+      end
+
+      tenant.settings[ext_params_key][action].delete(key)
+      tenant.save!
+
+      puts("Successfully deleted extra parameter #{key} for tenant #{uid}")
+    rescue StandardError => e
+      puts(e.backtrace)
+      exit(1)
+    end
+  end
 end
 
-desc 'Tenant taks'
+desc 'Tenant task'
 task tenant: :environment do |_t|
   Rake::Task['tenant:show'].invoke
 rescue StandardError => e
