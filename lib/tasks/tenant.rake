@@ -301,12 +301,12 @@ namespace :tenant do
     ext_params_key = 'ext_params'
 
     desc 'Add an extra parameter to be passed to BBB on join or create'
-    task :upsert, [:uid, :action, :key, :value] => :environment do |_t, args|
+    task :upsert, [:uid, :action, :source, :target] => :environment do |_t, args|
       # the key is the name of the param coming from the LMS, the value is the name of the param to be sent to BBB
       uid = args[:uid] || ''
       action = args[:action].downcase
-      key = args[:key]
-      value = args[:value]
+      key = args[:source]
+      value = args[:target]
 
       unless action.present? && %w[join create].include?(action)
         puts('Error: please specify whether the params should be passed on join or create')
@@ -335,10 +335,10 @@ namespace :tenant do
     end
 
     desc 'Delete an extra parameter mapping'
-    task :destroy, [:uid, :action, :key] => :environment do |_t, args|
+    task :destroy, [:uid, :action, :source] => :environment do |_t, args|
       uid = args[:uid] || ''
       action = args[:action].downcase
-      key = args[:key]
+      key = args[:source]
 
       unless action.present? && %w[join create].include?(action)
         puts('Error: please specify whether the params is passed on join or create')
