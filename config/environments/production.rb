@@ -113,7 +113,7 @@ Rails.application.configure do
   $stdout.sync = true
   logger = ActiveSupport::Logger.new($stdout)
 
-  if ENV['RAILS_LOG_REMOTE_NAME'] && ENV['RAILS_LOG_REMOTE_PORT']
+  if ENV['RAILS_LOG_REMOTE_NAME'].present? && ENV['RAILS_LOG_REMOTE_PORT'].present?
     require 'remote_syslog_logger'
     logger_program = ENV['RAILS_LOG_REMOTE_TAG'] || "bbb-lti-broker-#{ENV['RAILS_ENV']}"
     logger = RemoteSyslogLogger.new(ENV['RAILS_LOG_REMOTE_NAME'],

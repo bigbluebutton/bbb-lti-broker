@@ -28,7 +28,7 @@ module DynamicRegistrationService
     }
   end
 
-  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, app_label, message_types)
+  def client_registration_request_body(key_token, app, app_name, app_desciption, app_icon_url, app_label, message_types, custom_params)
     jwks_uri = registration_pub_keyset_url(key_token: key_token)
 
     tool = app || Rails.configuration.default_tool
@@ -58,7 +58,7 @@ module DynamicRegistrationService
         "domain": URI.parse(openid_launch_url(protocol: 'https')).host,
         "description": app_desciption || t("apps.#{tool}.description"),
         "target_link_uri": openid_launch_url(protocol: 'https'),
-        "custom_parameters": {},
+        "custom_parameters": parse_custom_params(custom_params),
         "claims": %w[iss sub name given_name family_name email nickname picture locale],
         "messages": messages,
       },
@@ -82,9 +82,7 @@ module DynamicRegistrationService
       "target_link_uri": target_link_uri,
       "label": label || t("apps.#{tool}.title"),
       "icon_uri": icon_uri || secure_url(lti_app_icon_url(tool)),
-      "custom_parameters": {
-        "context_id": '$Context.id',
-      },
+      "custom_parameters": {},
       # parameters supported by canvas only
       "placements": placements,
       "roles": [],
@@ -144,5 +142,31 @@ module DynamicRegistrationService
     valid_message_types = message_types.select { |type| valid_types.include?(type) }
 
     valid_message_types.empty? ? [default] : valid_message_types
+  end
+
+  def parse_custom_params(input_string)
+    key_value_pairs = input_string.split(',')
+
+    result = {}
+
+    key_value_pairs.each do |pair|
+      # Skip the pair if it does not contain a colon
+      next unless pair.presence && pair.include?(':')
+
+      # Split the pair by colon to get the key and value
+      key, value = pair.split(':')
+
+      # Validate that both key and value are present
+      next if key.nil? || value.nil? || key.strip.empty? || value.strip.empty?
+
+      # Strip any leading or trailing whitespace from key and value
+      key.strip!
+      value.strip!
+
+      # Add the valid key-value pair to the result hash
+      result[key] = value
+    end
+
+    result
   end
 end
