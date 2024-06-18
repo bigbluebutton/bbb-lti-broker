@@ -151,7 +151,7 @@ module DynamicRegistrationService
 
     key_value_pairs.each do |pair|
       # Skip the pair if it does not contain a colon
-      next unless pair.presence? && pair.include?(':')
+      next unless pair.presence && pair.include?(':')
 
       # Split the pair by colon to get the key and value
       key, value = pair.split(':')
