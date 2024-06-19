@@ -27,7 +27,8 @@ module PlatformValidator
 
   # LTI 1.3
   def lti_registration_exists?(iss, options = {})
-    RailsLti2Provider::Tool.find_by_issuer(iss, options).present?
+    registration = lti_registration(iss, options)
+    registration.present?
   end
 
   def lti_registration_params(iss, options = {})
