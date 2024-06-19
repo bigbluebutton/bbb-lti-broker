@@ -120,7 +120,8 @@ module BbbLtiBroker
     # custom_override_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
     #
     def custom_overrides(message)
-      message.each do |custom_param_name, value|
+      custom_params = message['custom_params'].to_h
+      custom_params.each do |custom_param_name, value|
         next unless custom_param_name.start_with?('custom_override_')
 
         param_name = custom_param_name.delete_prefix('custom_override_')
