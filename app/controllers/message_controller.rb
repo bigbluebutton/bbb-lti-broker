@@ -226,12 +226,11 @@ class MessageController < ApplicationController
     @jwt_body = jwt[:body]
     logger.debug("JWT Body: #{@jwt_body}")
 
-    tool = lti_registration(@jwt_body['iss'])
+    tool = RailsLti2Provider::Tool.find_by(uuid: @jwt_body['iss'], shared_secret: @jwt_body['aud'])
     # Cleanups the lti_launches table from old launches.
     tool.lti_launches.where('created_at < ?', 1.day.ago).delete_all
-    nonce = @jwt_body['nonce']
-    message = @jwt_body.merge(@jwt_header)
-    @lti_launch = tool.lti_launches.create(nonce: nonce, message: message)
+    # Create a new lti_launch.
+    @lti_launch = tool.lti_launches.create(nonce: @jwt_body['nonce'], message: @jwt_body.merge(@jwt_header))
 
     #############################
     # Monkey patch for Canvas: validate kid in registration, if not present, add the one in the jwt header.

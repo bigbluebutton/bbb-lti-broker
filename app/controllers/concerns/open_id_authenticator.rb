@@ -68,10 +68,7 @@ module OpenIdAuthenticator
   def validate_registration(jwt_body)
     issuer = jwt_body['iss']
 
-    options = {}
-    options['client_id'] = jwt_body['aud']
-
-    registration = RailsLti2Provider::Tool.find_by_issuer(issuer, options)
+    registration = RailsLti2Provider::Tool.find_by_issuer(issuer, { 'client_id' => jwt_body['aud'] })
 
     raise CustomError, :not_registered if registration.nil?
     raise CustomError, :disabled if registration.disabled?
