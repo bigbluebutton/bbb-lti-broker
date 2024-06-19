@@ -77,7 +77,7 @@ module BbbLtiBroker
           message["custom_#{key}"] = value
         end
         # for following a standard format used by our own apps.
-        message['custom_params'] = custom_params
+        message['custom_params'] = keys_with_prefix(custom_params, 'custom_')
 
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
         # for following the format used by LTI 1.1 apps.
@@ -85,7 +85,7 @@ module BbbLtiBroker
           message["ext_#{key}"] = value
         end
         # for following a standard format used by our own apps.
-        message['ext_params'] = ext_params
+        message['ext_params'] = keys_with_prefix(ext_params, 'ext_')
       end
 
       curated_message = custom_overrides(message)
@@ -185,5 +185,16 @@ module BbbLtiBroker
       # 2) set the overriding rules through tenant settings (safest)
       ['user_image']
     end
+  end
+
+  def keys_with_prefix(keys, prefix)
+    prefixed_keys = {}
+
+    keys.each do |key, value|
+      prefixed_key = key.start_with?('custom_') ? key : "#{prefix}#{key}"
+      prefixed_keys[prefixed_key] = value
+    end
+
+    prefixed_keys
   end
 end
