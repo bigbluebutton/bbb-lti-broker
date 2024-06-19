@@ -60,6 +60,7 @@ module BbbLtiBroker
     #
     def standarized_message(message_json)
       message = JSON.parse(message_json)
+
       # Consider for conversion all 1.3 launches, which even though , b) launches that did not come in common format
       if message['user_id'].blank?
         migration_map.each do |param, claim|
@@ -71,10 +72,20 @@ module BbbLtiBroker
         end
 
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
-        message['custom_params'] = custom_params
+        # for following the format used by LTI 1.1 apps.
+        custom_params.each do |key, value|
+          message["custom_#{key}"] = value
+        end
+        # for following a standard format used by our own apps.
+        message['custom_params'] = keys_with_prefix(custom_params, 'custom_')
 
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
-        message['ext_params'] = ext_params
+        # for following the format used by LTI 1.1 apps.
+        ext_params.each do |key, value|
+          message["ext_#{key}"] = value
+        end
+        # for following a standard format used by our own apps.
+        message['ext_params'] = keys_with_prefix(ext_params, 'ext_')
       end
 
       curated_message = custom_overrides(message)
@@ -117,8 +128,14 @@ module BbbLtiBroker
         next unless safe_custom_override_params.include?(param_name)
 
         pattern = value.split(':')
-        message[param_name] = pattern[1] if pattern[0] == 'static'
-        message[param_name] = message['custom_params'][pattern[1]] if pattern[0] == 'param'
+
+        case pattern[0]
+        when 'static'
+          message[param_name] = pattern[1]
+          next
+        when 'param'
+          message[param_name] = message[pattern[1]]
+        end
       end
       message
     end
@@ -168,5 +185,16 @@ module BbbLtiBroker
       # 2) set the overriding rules through tenant settings (safest)
       ['user_image']
     end
+  end
+
+  def keys_with_prefix(keys, prefix)
+    prefixed_keys = {}
+
+    keys.each do |key, value|
+      prefixed_key = key.start_with?('custom_') ? key : "#{prefix}#{key}"
+      prefixed_keys[prefixed_key] = value
+    end
+
+    prefixed_keys
   end
 end
