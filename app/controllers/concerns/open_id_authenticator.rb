@@ -29,9 +29,6 @@ module OpenIdAuthenticator
     jwt_header = JSON.parse(Base64.urlsafe_decode64(jwt_parts[0]))
     jwt_body = JSON.parse(Base64.urlsafe_decode64(jwt_parts[1]))
 
-    logger.debug("jwt.header:\n#{jwt_header.inspect}")
-    logger.debug("jwt.body:\n#{jwt_body.inspect}")
-
     validate_nonce(jwt_body)
 
     # validate registration (deployment)
