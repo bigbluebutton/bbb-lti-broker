@@ -121,8 +121,8 @@ module BbbLtiBroker
         next unless safe_custom_override_params.include?(param_name)
 
         pattern = value.split(':')
-        message[param_name] = pattern[1] if pattern[0] == 'static'
-        message[param_name] = message['custom_params'][pattern[1]] if pattern[0] == 'param'
+        message[param_name] = pattern[1] if pattern[0] == 'static' && next
+        message[param_name] = message[pattern[1]] if pattern[0] == 'param'
       end
       message
     end
