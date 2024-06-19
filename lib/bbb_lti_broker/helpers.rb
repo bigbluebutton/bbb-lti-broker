@@ -73,11 +73,13 @@ module BbbLtiBroker
 
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
         custom_params.each do |key, value|
+          message['custom_params'] = custom_params
           message["custom_#{key}"] = value
         end
 
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
         ext_params.each do |key, value|
+          message['ext_params'] = ext_params
           message["ext_#{key}"] = value
         end
       end
@@ -122,7 +124,7 @@ module BbbLtiBroker
 
         pattern = value.split(':')
         message[param_name] = pattern[1] if pattern[0] == 'static'
-        message[param_name] = message['custom_params'][pattern[1]] if pattern[0] == 'param'
+        message[param_name] = message[pattern[1]] if pattern[0] == 'param'
       end
       message
     end
