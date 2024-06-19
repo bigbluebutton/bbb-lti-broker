@@ -72,16 +72,20 @@ module BbbLtiBroker
         end
 
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
+        # for following the format used by LTI 1.1 apps.
         custom_params.each do |key, value|
-          message['custom_params'] = custom_params
           message["custom_#{key}"] = value
         end
+        # for following a standard format used by our own apps.
+        message['custom_params'] = custom_params
 
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
+        # for following the format used by LTI 1.1 apps.
         ext_params.each do |key, value|
-          message['ext_params'] = ext_params
           message["ext_#{key}"] = value
         end
+        # for following a standard format used by our own apps.
+        message['ext_params'] = ext_params
       end
 
       curated_message = custom_overrides(message)
@@ -123,8 +127,14 @@ module BbbLtiBroker
         next unless safe_custom_override_params.include?(param_name)
 
         pattern = value.split(':')
-        message[param_name] = pattern[1] if pattern[0] == 'static'
-        message[param_name] = message[pattern[1]] if pattern[0] == 'param'
+
+        case pattern[0]
+        when 'static'
+          message[param_name] = pattern[1]
+          next
+        when 'param'
+          message[param_name] = message[pattern[1]]
+        end
       end
       message
     end
