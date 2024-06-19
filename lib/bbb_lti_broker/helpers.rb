@@ -60,7 +60,6 @@ module BbbLtiBroker
     #
     def standarized_message(message_json)
       message = JSON.parse(message_json)
-
       # Consider for conversion all 1.3 launches, which even though , b) launches that did not come in common format
       if message['user_id'].blank?
         migration_map.each do |param, claim|
@@ -72,14 +71,10 @@ module BbbLtiBroker
         end
 
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
-        custom_params.each do |key, value|
-          message["custom_#{key}"] = value
-        end
+        message['custom_params'] = custom_params
 
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
-        ext_params.each do |key, value|
-          message["ext_#{key}"] = value
-        end
+        message['ext_params'] = ext_params
       end
 
       curated_message = custom_overrides(message)
@@ -114,15 +109,16 @@ module BbbLtiBroker
     # custom_override_resource_link_id="another value"     -> resource_link_id=<no overriding is made>
     #
     def custom_overrides(message)
-      message.each do |custom_param_name, value|
+      custom_params = message['custom_params'].to_h
+      custom_params.each do |custom_param_name, value|
         next unless custom_param_name.start_with?('custom_override_')
 
         param_name = custom_param_name.delete_prefix('custom_override_')
         next unless safe_custom_override_params.include?(param_name)
 
         pattern = value.split(':')
-        message[param_name] = pattern[1] if pattern[0] == 'static' && next
-        message[param_name] = message[pattern[1]] if pattern[0] == 'param'
+        message[param_name] = pattern[1] if pattern[0] == 'static'
+        message[param_name] = message['custom_params'][pattern[1]] if pattern[0] == 'param'
       end
       message
     end
