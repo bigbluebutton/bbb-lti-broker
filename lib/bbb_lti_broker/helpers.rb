@@ -60,8 +60,8 @@ module BbbLtiBroker
     #
     def standarized_message(message_json)
       message = JSON.parse(message_json)
-
-      # Consider for conversion all 1.3 launches, which even though , b) launches that did not come in common format
+      custom_params = message['custom_params'] || {}
+      ext_params = message['ext_params'] || {}
       if message['user_id'].blank?
         migration_map.each do |param, claim|
           claims = claim.split('#')
@@ -73,16 +73,16 @@ module BbbLtiBroker
 
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
-      else
-        custom_params = message['custom_params'] || {}
-        ext_params = message['ext_params'] || {}
+
       end
 
       custom_params_prefixed = keys_with_prefix(custom_params, 'custom_')
       ext_params_prefixed = keys_with_prefix(ext_params, 'ext_')
-      # for following the format used by LTI 1.1 apps.
+
+      # backward compatible with format used by LTI 1.1 apps.
       message.merge!(custom_params_prefixed)
       message.merge!(ext_params_prefixed)
+
       # for following a standard format used by our own apps.
       message['custom_params'] = custom_params_prefixed
       message['ext_params'] = ext_params_prefixed
