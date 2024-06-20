@@ -186,14 +186,12 @@ module BbbLtiBroker
     end
 
     def keys_with_prefix(keys, prefix)
-      logger.debug("Keys: #{keys}")
       prefixed_keys = {}
 
       keys.each do |key, value|
         prefixed_key = key.start_with?(prefix) ? key : "#{prefix}#{key}"
         prefixed_keys[prefixed_key] = value
       end
-      logger.debug("Prefixed keys: #{prefixed_keys}")
 
       prefixed_keys
     end
