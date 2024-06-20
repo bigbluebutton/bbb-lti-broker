@@ -72,28 +72,23 @@ module BbbLtiBroker
         end
 
         custom_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/custom'] || {}
-        custom_params.each do |key, value|
-          # for following the format used by LTI 1.1 apps.
-          message["custom_#{key}"] = value
-          # for following a standard format used by our own apps.
-          prefixed_key = key.start_with?('custom_') ? key : "custom_#{key}"
-          message['custom_params'][prefixed_key] = value
-        end
-        # message['custom_params'] = keys_with_prefix(custom_params, 'custom_')
-
         ext_params = message['unknown_params']['https://purl.imsglobal.org/spec/lti/claim/ext'] || {}
-        ext_params.each do |key, value|
-          # for following the format used by LTI 1.1 apps.
-          message["ext_#{key}"] = value
-          # for following a standard format used by our own apps.
-          prefixed_key = key.start_with?('ext_') ? key : "ext_#{key}"
-          message['ext_params'][prefixed_key] = value
-        end
-        # message['ext_params'] = keys_with_prefix(ext_params, 'ext_')
+      else
+        custom_params = message['custom_params'] || {}
+        ext_params = message['ext_params'] || {}
       end
 
-      curated_message = custom_overrides(message)
-      curated_message.to_json
+      custom_params_prefixed = keys_with_prefix(custom_params, 'custom_')
+      ext_params_prefixed = keys_with_prefix(ext_params, 'ext_')
+      # for following the format used by LTI 1.1 apps.
+      message.merge!(custom_params_prefixed)
+      message.merge!(ext_params_prefixed)
+      # for following a standard format used by our own apps.
+      message['custom_params'] = custom_params_prefixed
+      message['ext_params'] = ext_params_prefixed
+
+      message_with_custom_overrides = custom_overrides(message)
+      message_with_custom_overrides.to_json
     end
 
     def user_params(tc_instance_guid, params)
@@ -188,6 +183,19 @@ module BbbLtiBroker
       # 1) set them through a tenant setting
       # 2) set the overriding rules through tenant settings (safest)
       ['user_image']
+    end
+
+    def keys_with_prefix(keys, prefix)
+      logger.debug("Keys: #{keys}")
+      prefixed_keys = {}
+
+      keys.each do |key, value|
+        prefixed_key = key.start_with?(prefix) ? key : "#{prefix}#{key}"
+        prefixed_keys[prefixed_key] = value
+      end
+      logger.debug("Prefixed keys: #{prefixed_keys}")
+
+      prefixed_keys
     end
   end
 end
