@@ -33,8 +33,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>. %>
 								tabindex="0" 
 								role="button"
 								data-bs-toggle="popover"
+								data-bs-placement="top"
 								title="<%= app[:app_name].capitalize %>" 
-								data-content="<%= t("apps.#{app[:app_name]}.description", default: t("apps.notfound.description")) %>">
+								data-bs-content="<%= t("apps.#{app[:app_name]}.description", default: t("apps.notfound.description")) %>">
 									<i class="fas fa-info-circle"></i>
 							</a>
 						</div>
