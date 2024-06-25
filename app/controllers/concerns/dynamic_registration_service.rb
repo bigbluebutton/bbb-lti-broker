@@ -145,6 +145,8 @@ module DynamicRegistrationService
   end
 
   def parse_custom_params(input_string)
+    return {} if input_string.nil?
+
     key_value_pairs = input_string.split(',')
 
     result = {}

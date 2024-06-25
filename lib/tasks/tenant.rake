@@ -190,6 +190,14 @@ namespace :tenant do
     end
   end
 
+  desc 'Tenant Settings task'
+  task settings: :environment do |_t|
+    Rake::Task['tenant:settings:show'].invoke
+  rescue StandardError => e
+    puts(e.backtrace)
+    exit(1)
+  end
+
   namespace :metadata do
     desc 'Show metadata for a tenant. If no id is specified, metadata for all tenants will be shown'
     task :show, [:uid] => :environment do |_t, args|
