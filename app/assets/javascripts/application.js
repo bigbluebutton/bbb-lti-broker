@@ -39,9 +39,10 @@
 
 // initialize all bootstrap popovers on a page
 $(document).ready(function(){
-	$('[data-bs-toggle="popover"]').popover({
-		trigger: 'focus'
-	});
+	var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+	popoverTriggerList.map(function (popoverTriggerEl) {
+		return new bootstrap.Popover(popoverTriggerEl)
+	})
 
 	 // Prevent form submission when clicking on the popover trigger (info icon)
 	 $('.info-icon').click(function(event){
