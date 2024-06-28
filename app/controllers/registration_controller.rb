@@ -148,7 +148,7 @@ class RegistrationController < ApplicationController
       @jwt_header = jwt[:header]
       @jwt_body = jwt[:body]
     rescue StandardError => e
-      @error_message = "Error in registrtion initiation request verification: #{e}"
+      @error_message = "Error in registration initiation request verification: #{e}"
       raise CustomError, :registration_verification_failed
     end
 
@@ -224,7 +224,7 @@ class RegistrationController < ApplicationController
       end
     rescue StandardError => e
       # 3.6.2 Client Registration Error Response
-      @error_message = "Error in registrtion when persisting: #{e}"
+      @error_message = "Error in registration when persisting: #{e}"
       logger.debug("Error: #{@error_message}")
       raise CustomError, :registration_persitence_failed
     end
