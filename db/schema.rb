@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_15_203259) do
+ActiveRecord::Schema.define(version: 2024_06_27_170310) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -97,9 +97,11 @@ ActiveRecord::Schema.define(version: 2024_04_15_203259) do
     t.integer "tenant_id"
     t.datetime "expired_at"
     t.integer "status", default: 0, null: false
-    t.index ["id", "tenant_id"], name: "index_tool_id_tenant_id", unique: true
-    t.index ["tenant_id", "uuid"], name: "index_tenant_id_uuid", unique: true
-    t.index ["tenant_id"], name: "index_tenant_id"
+    t.index ["id"], name: "index_id"
+    t.index ["uuid", "shared_secret"], name: "index_uuid_and_shared_secret_lti_1_3", unique: true, where: "((lti_version)::text = '1.3.0'::text)"
+    t.index ["uuid", "shared_secret"], name: "index_uuid_shared_secret"
+    t.index ["uuid"], name: "index_uuid"
+    t.index ["uuid"], name: "index_uuid_lti_1_1", unique: true, where: "((lti_version)::text = 'LTI-1p0'::text)"
   end
 
   create_table "rsa_key_pairs", force: :cascade do |t|

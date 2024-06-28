@@ -62,7 +62,7 @@ class MessageController < ApplicationController
     @error = "Authentication failed with: #{output}"
     @message = IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
-                                                                                consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
+                                                                                consumer_secret: consumer_secret(@message.oauth_consumer_key), callback: 'about:blank')
     logger.debug("ERROR: #{@error}")
     if request.request_parameters.key?('launch_presentation_return_url')
       launch_presentation_return_url = "#{request.request_parameters['launch_presentation_return_url']}&lti_errormsg=#{@error}"
@@ -188,9 +188,8 @@ class MessageController < ApplicationController
     apps.each do |app|
       resource = deep_link_resource(openid_launch_url, "My #{app.singularize}", '', secure_url(lti_app_icon_url(app)), { 'broker_app': app })
 
-      options = {}
-      options['client_id'] =  @jwt_body['aud']
-      deep_link_jwt_message = deep_link_jwt_response(lti_registration_params(@jwt_body['iss'], options), @jwt_body, [resource])
+      lti_registration = RailsLti2Provider::Tool.find_by_issuer(@jwt_body['iss'], { client_id: @jwt_body['aud'] })
+      deep_link_jwt_message = deep_link_jwt_response(JSON.parse(lti_registration.tool_settings), @jwt_body, [resource])
 
       @apps << { app_name: app, deep_link_jwt_message: deep_link_jwt_message }
     end
@@ -206,7 +205,7 @@ class MessageController < ApplicationController
     @message = @lti_launch&.message || IMS::LTI::Models::Messages::Message.generate(request.request_parameters)
     tc_instance_guid = tool_consumer_instance_guid(request.referer, params)
     @header = SimpleOAuth::Header.new(:post, request.url, @message.post_params, consumer_key: @message.oauth_consumer_key,
-                                                                                consumer_secret: lti_secret(@message.oauth_consumer_key), callback: 'about:blank')
+                                                                                consumer_secret: consumer_secret(@message.oauth_consumer_key), callback: 'about:blank')
     @current_user = User.find_or_create_by(context: tc_instance_guid, uid: params['user_id']) do |user|
       user.update(user_params(tc_instance_guid, params))
     end
@@ -226,7 +225,7 @@ class MessageController < ApplicationController
     @jwt_body = jwt[:body]
     logger.debug("JWT Body: #{@jwt_body}")
 
-    tool = RailsLti2Provider::Tool.find_by(uuid: @jwt_body['iss'], shared_secret: @jwt_body['aud'])
+    tool = RailsLti2Provider::Tool.find_by_issuer(@jwt_body['iss'], { client_id: @jwt_body['aud'] })
     # Cleanups the lti_launches table from old launches.
     tool.lti_launches.where('created_at < ?', 1.day.ago).delete_all
     # Create a new lti_launch.
@@ -309,5 +308,11 @@ class MessageController < ApplicationController
     return Rails.configuration.handler_legacy_patterns if tenant.nil? || tenant.settings['handler_legacy_patterns'].blank?
 
     tenant.settings['handler_legacy_patterns']
+  end
+
+  # Get the the shared secret for the consumer key under the assumption that the consumer key is the UUID of the tool and it is unique.
+  def consumer_secret(consumer_key)
+    tool = RailsLti2Provider::Tool.find_by_uuid(consumer_key)
+    tool&.shared_secret
   end
 end

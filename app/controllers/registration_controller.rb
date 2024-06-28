@@ -166,9 +166,6 @@ class RegistrationController < ApplicationController
         key_pair_id = JSON.parse(tool.tool_settings)['rsa_key_pair_id']
         RsaKeyPair.delete(key_pair_id)
       end
-    elsif RailsLti2Provider::Tool.exists?(uuid: openid_configuration['issuer'], tenant: tenant) # new
-      @error_message = "Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'"
-      raise CustomError, :tool_duplicated
     end
 
     # 3.5 Step 3: Client Registration
@@ -215,7 +212,7 @@ class RegistrationController < ApplicationController
     }
 
     begin
-      @tool = RailsLti2Provider::Tool.find_by(uuid: openid_configuration['issuer'], tenant: tenant)
+      @tool = RailsLti2Provider::Tool.find_by_issuer(reg['issuer'], { client_id: reg['client_id'] })
       if @tool
         @tool.update(tool_attributes)
       else

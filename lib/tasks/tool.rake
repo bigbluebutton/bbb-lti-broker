@@ -19,12 +19,6 @@ namespace :tool do
     end
     abort('The Issuer must be valid.') if issuer.blank?
 
-    # Validate the tenant as it is a point of failure and if not valid, there is no point on continuing.
-    tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
-    tenant = RailsLti2Provider::Tenant.first if tenant.nil?
-    abort('Tenant not found. Tenant UID must be valid or Deafult Tenant must exist.') if tenant.nil?
-    abort("Issuer or Platform ID has already been registered for tenant '#{tenant.uid}'.") if RailsLti2Provider::Tool.exists?(uuid: issuer, tenant: tenant)
-
     # Client ID.
     client_id = args[:client_id]
     if client_id.blank?
@@ -32,6 +26,13 @@ namespace :tool do
       client_id = $stdin.gets.strip
     end
     abort('The Client ID must be valid.') if client_id.blank?
+    # Validate if the tool already exists.
+    abort("The tool with issuer = #{issuer} and client_id = #{client_id} already exists.") if RailsLti2Provider::Tool.find_by_issuer(issuer, { client_id: client_id }).present?
+
+    # Validate the tenant as it is a point of failure and if not valid, there is no point on continuing.
+    tenant = RailsLti2Provider::Tenant.find_by(uid: args[:tenant_uid]) if args[:tenant_uid].present?
+    tenant = RailsLti2Provider::Tenant.first if tenant.nil?
+    abort('Tenant not found. Tenant UID must be valid or Deafult Tenant must exist.') if tenant.nil?
 
     # Deployment ID.
     deployment_id = args[:deployment_id]
