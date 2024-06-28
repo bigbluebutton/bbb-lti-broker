@@ -27,7 +27,6 @@ class MessageController < ApplicationController
   include OpenIdAuthenticator
   include AppsValidator
   include LtiHelper
-  include PlatformValidator
   include DeepLinkService
 
   before_action :print_parameters if Rails.configuration.developer_mode_enabled
