@@ -26,6 +26,16 @@ class AuthController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :validate_oidc_login
 
+  rescue_from ExceptionHandler::CustomError do |ex|
+    @error =  { code: '520',
+                key: t('error.http._520.code'),
+                message: t('error.http._520.message'),
+                suggestion: t('error.http._520.suggestion'),
+                status: '520', }
+    logger.debug("ExceptionHandler::CustomError #{ex.error}")
+    render 'errors/index'
+  end
+
   # first touch point for lti 1.3
   # ensures platform is registered
   def login
@@ -67,12 +77,11 @@ class AuthController < ApplicationController
     raise CustomError, :could_not_find_login_hint unless params.key?('login_hint')
     raise CustomError, :could_not_find_client_id unless params.key?('client_id')
 
-    lti_registration = RailsLti2Provider::Tool.find_by_issuer(iss, { client_id: params[:client_id] })
+    lti_registration = RailsLti2Provider::Tool.find_by_issuer(params['iss'], { client_id: params['client_id'] })
 
     if lti_registration.blank?
-      render(file: Rails.root.join('public/500.html'), layout: false, status: :not_found)
-      logger.error('ERROR: The app is not currently registered within the lti broker.')
-      return
+      logger.error("ERROR: Could not find a registration for issuer '#{params['iss']}' and client_id '#{params['client_id']}'.")
+      raise CustomError, :could_not_find_registration
     end
 
     @registration = JSON.parse(lti_registration.tool_settings)
