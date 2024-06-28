@@ -242,7 +242,7 @@ namespace :tenant do
 
   namespace :activation_code do
     desc 'New activation_code for a tenant'
-    task :new, [:uid] => :environment do |_t, args|
+    task :new, [:uid, :hours] => :environment do |_t, args|
       # Key.
       uid = args[:uid]
       if uid.blank?
@@ -250,6 +250,9 @@ namespace :tenant do
         uid = $stdin.gets.strip
       end
       abort('The UID cannot be blank.') if uid.blank?
+
+      # Hours to expire.
+      hours = args[:hours] || 1
 
       tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
       if tenant.nil?
@@ -259,7 +262,7 @@ namespace :tenant do
 
       # Add the activation_code
       tenant.metadata['activation_code'] = Digest::MD5.hexdigest(SecureRandom.uuid)
-      tenant.metadata['activation_code_expire'] = 1.hour.from_now
+      tenant.metadata['activation_code_expire'] = hours.hour.from_now
       tenant.save!
       puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
     end
