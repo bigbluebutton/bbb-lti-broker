@@ -252,7 +252,7 @@ namespace :tenant do
       abort('The UID cannot be blank.') if uid.blank?
 
       # Hours to expire.
-      hours = args[:hours] || 1
+      hours = Integer(args[:hours] || 1)
 
       tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
       if tenant.nil?
