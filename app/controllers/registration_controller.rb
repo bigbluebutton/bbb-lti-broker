@@ -25,7 +25,6 @@ class RegistrationController < ApplicationController
   include ExceptionHandler
   include LtiHelper
   include OpenIdAuthenticator
-  include PlatformValidator
   include RailsLti2Provider::ControllerHelpers
 
   before_action :print_parameters if Rails.configuration.developer_mode_enabled
