@@ -289,6 +289,31 @@ namespace :tenant do
       puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
     end
 
+    desc 'Extend activation_code expiration for a tenant'
+    task :extend, [:uid, :hours] => :environment do |_t, args|
+      # Key.
+      uid = args[:uid]
+      if uid.blank?
+        $stdout.puts('What is the UID for the tenant?')
+        uid = $stdin.gets.strip
+      end
+      abort('The UID cannot be blank.') if uid.blank?
+
+      # Hours to expire.
+      hours = Integer(args[:hours] || 1)
+
+      tenant = RailsLti2Provider::Tenant.find_by(uid: uid)
+      if tenant.nil?
+        puts("Tenant '#{args[:uuid]}' does not exist")
+        exit(1)
+      end
+
+      # Extend the activation_code expiration
+      tenant.metadata['activation_code_expire'] = hours.hour.from_now
+      tenant.save!
+      puts("Metadata for tenant #{tenant.uid}: \n #{tenant.metadata.to_yaml}") unless tenant.nil?
+    end
+
     desc 'Show activation_code for a tenant'
     task :show, [:uid] => :environment do |_t, args|
       # Key.
@@ -319,11 +344,6 @@ namespace :tenant do
       key = args[:source]
       value = args[:target]
 
-      unless action.present? && %w[join create].include?(action)
-        puts('Error: please specify whether the params should be passed on join or create')
-        exit(1)
-      end
-
       unless key.present? && value.present?
         puts('Error: you must specify a key and value for the extra parameter')
         exit(1)
@@ -335,7 +355,8 @@ namespace :tenant do
         exit(1)
       end
 
-      tenant.settings[ext_params_key] ||= { 'join' => {}, 'create' => {} }
+      tenant.settings[ext_params_key] ||= {}
+      tenant.settings[ext_params_key][action] ||= {}
       tenant.settings[ext_params_key][action][key] = value
       tenant.save!
 
@@ -351,11 +372,6 @@ namespace :tenant do
       action = args[:action].downcase
       key = args[:source]
 
-      unless action.present? && %w[join create].include?(action)
-        puts('Error: please specify whether the params is passed on join or create')
-        exit(1)
-      end
-
       if key.blank?
         puts('Error: you must specify the key you want to be deleted')
         exit(1)
@@ -368,6 +384,7 @@ namespace :tenant do
       end
 
       tenant.settings[ext_params_key][action].delete(key)
+      tenant.settings[ext_params_key].delete(action) if tenant.settings[ext_params_key][action].empty?
       tenant.save!
 
       puts("Successfully deleted extra parameter #{key} for tenant #{uid}")
