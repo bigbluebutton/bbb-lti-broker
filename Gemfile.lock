@@ -466,7 +466,7 @@ DEPENDENCIES
   oauthenticator (~> 1.4, >= 1.4.1)
   pg (>= 0.4.4)
   popper_js (>= 1.16)
-  puma (>= 6.4.2)
+  puma (>= 6.4.3)
   rails (~> 6.1, >= 6.1.7.8)
   rails_lti2_provider!
   rdoc
@@ -487,3 +487,6 @@ DEPENDENCIES
   tzinfo-data
   web-console (>= 4.2.1)
   webmock (>= 3.23.1)
+
+BUNDLED WITH
+   2.1.4
