@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1', '>= 6.1.7.8'
+gem 'rails', '~> 7.0', '>= 7.0.0'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -56,7 +56,7 @@ gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git'
 gem 'activerecord-session_store', '>= 2.1.0'
 
 # frontend
-gem 'bootstrap', '~> 5.0.0'
+gem 'bootstrap', '~> 5.3.2'
 gem 'font-awesome-sass', '~> 6.4.0'
 gem 'popper_js', '>= 1.16'
 
@@ -73,7 +73,7 @@ end
 
 group :development do
   gem 'rubocop', '~> 1.63', '>= 1.63.0', require: false
-  gem 'rubocop-rails', '~> 2.25', '>= 2.25.0', require: false
+  gem 'rubocop-rails', '~> 2.30', '>= 2.30.0', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.5'
   gem 'web-console', '>= 4.2.1'
