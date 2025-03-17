@@ -188,6 +188,35 @@ namespace :tenant do
       puts(e.backtrace)
       exit(1)
     end
+
+    desc 'Add settings to a tenant in bulk with a JSON file'
+    task :bulk_add, [:uid, :filepath] => :environment do |_t, args|
+      require 'json'
+
+      uid = args[:uid] || ''
+      filepath = args[:filepath]
+
+      tenant = TaskHelpers.tenant_by('uid', uid)
+
+      exit(1) unless tenant
+
+      puts('You must specify a path to a JSON file.') if filepath.nil?
+
+      puts("File not found: #{filepath}") unless File.exist?(filepath)
+
+      begin
+        json_settings = JSON.parse(File.read(filepath))
+      rescue JSON::ParserError => e
+        puts("Invalid JSON file: #{e.message}")
+        exit(1)
+      end
+
+      old_settings = tenant.settings || {}
+      new_settings = old_settings.deep_merge(json_settings)
+      tenant.update!(settings: new_settings)
+
+      puts("Successfully updated settings for #{uid} tenant. New settings: \n #{tenant.settings}")
+    end
   end
 
   desc 'Tenant Settings task'
