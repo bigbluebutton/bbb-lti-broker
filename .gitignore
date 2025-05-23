@@ -40,3 +40,7 @@ localhost.key
 /public/lti
 
 /coverage/*
+
+/node_modules/
+/vendor/bundle/
+/yarn.lock
