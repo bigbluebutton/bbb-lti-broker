@@ -10,7 +10,7 @@ gem 'rails', '~> 6.1', '>= 6.1.7.8'
 # Use postgres as the database for Active Record
 gem 'pg', '>= 0.4.4'
 # Use Puma as the app server
-gem 'puma', '>= 6.4.2'
+gem 'puma', '>= 6.4.3'
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6.0.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -72,7 +72,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rubocop', '~> 1.63', '>= 1.63.0', require: false
+  gem 'rubocop', '~> 1.66', '>= 1.66.0', require: false
   gem 'rubocop-rails', '~> 2.25', '>= 2.25.1', require: false
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.5'
