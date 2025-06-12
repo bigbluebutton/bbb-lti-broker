@@ -13,10 +13,8 @@ RUN apk add --no-cache \
     libxslt \
     libstdc++ \
     ruby \
-    ruby-irb \
     ruby-bigdecimal \
     ruby-bundler \
-    ruby-json \
     ruby-rake \
     ruby-dev \
     nodejs npm yarn \
@@ -26,7 +24,7 @@ RUN apk add --no-cache \
     imagemagick \
     shared-mime-info
 
-FROM base as builder
+FROM base AS builder
 RUN apk add --update --no-cache \
     build-base \
     libxml2-dev \
