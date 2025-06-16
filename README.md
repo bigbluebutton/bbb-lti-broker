@@ -108,7 +108,7 @@ The following are some useful and relevant rake commands for the LTI Broker:
 ## Link the LTI Broker to LMS
 
 ### Using LTI 1.0/1.1
-There is no need to register an LTI 1.0/1.1 tool with the broker. All that the the LTI Tool Consumer needs is the Broker Key and Secret. These can be set as environment variables.
+There is no need to register an LTI 1.0/1.1 tool with the broker. All that the LTI Tool Consumer needs is the Broker Key and Secret. These can be set as environment variables.
 There are certain fields the tool consumer will require. These fields (and example values) are:
 
 - Tool URL => ```http://HOSTNAME/lti/TOOL_NAME/messages/blti```
