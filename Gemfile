@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1', '>= 6.1.7.8'
+gem 'rails', '~> 6.1', '>= 6.1.7.10'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3'
 # Use postgres as the database for Active Record
@@ -41,7 +41,7 @@ gem 'redis', '~> 4.2'
 gem 'jwt', '~> 2.2.2'
 gem 'oauth', '~> 0.5.1'
 
-gem 'doorkeeper', '~> 5.7.0'
+gem 'doorkeeper', '~> 5.8.0'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
@@ -53,10 +53,10 @@ gem 'ims-lti', git: 'https://github.com/blindsidenetworks/ims-lti.git', tag: 'v2
 
 gem 'simple_oauth', git: 'https://github.com/blindsidenetworks/simple_oauth.git', tag: 'v0.3.1.1'
 
-gem 'activerecord-session_store', '>= 2.1.0'
+gem 'activerecord-session_store', '>= 2.2.0'
 
 # frontend
-gem 'bootstrap', '~> 5.0.0'
+gem 'bootstrap', '~> 5.1.0'
 gem 'font-awesome-sass', '~> 6.4.0'
 gem 'popper_js', '>= 1.16'
 
@@ -66,9 +66,9 @@ gem 'popper_js', '>= 1.16'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'dotenv-rails', '>= 3.1.1'
+  gem 'dotenv-rails', '>= 3.1.3'
   gem 'rspec'
-  gem 'rspec-rails', '>= 6.1.3'
+  gem 'rspec-rails', '>= 6.1.4'
 end
 
 group :development do
@@ -95,7 +95,7 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data'
 
-gem 'coveralls_reborn', require: false
+gem 'coveralls_reborn', '>= 0.29.0', require: false
 
 gem 'rdoc', require: false
 
