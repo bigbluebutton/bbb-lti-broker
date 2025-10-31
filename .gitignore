@@ -44,3 +44,5 @@ localhost.key
 /node_modules/
 /vendor/bundle/
 /yarn.lock
+
+.idea

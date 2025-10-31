@@ -99,6 +99,9 @@ gem 'coveralls_reborn', require: false
 
 gem 'rdoc', require: false
 
-# These libraries will be removed from the default set of gems included with Ruby 3.4.0.
+# These libraries will be removed from the default set of gems included with newer Ruby versions.
+gem 'benchmark', require: false
 gem 'bigdecimal', require: false
+gem 'logger', require: false
 gem 'mutex_m', require: false
+gem 'ostruct', require: false

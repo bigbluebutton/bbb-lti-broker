@@ -107,6 +107,7 @@ GEM
       babel-source (>= 4.0, < 6)
       execjs (~> 2.0)
     base64 (0.2.0)
+    benchmark (0.4.0)
     bigdecimal (3.1.8)
     bindata (2.5.0)
     bindex (0.8.1)
@@ -217,6 +218,7 @@ GEM
       rake (~> 13.0)
     lodash-rails (4.17.21)
       railties (>= 3.1)
+    logger (1.7.0)
     lograge (0.14.0)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -233,7 +235,6 @@ GEM
     marcel (1.0.4)
     method_source (1.1.0)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.9)
     minitest (5.25.5)
     minitest-stub_any_instance (1.0.3)
     mize (0.4.1)
@@ -251,9 +252,6 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.3)
-    nokogiri (1.18.8)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
     oauth (0.5.14)
@@ -262,6 +260,7 @@ GEM
       faraday (>= 0.9, < 3.0)
       json
       rack (>= 1.4, < 4.0)
+    ostruct (0.6.1)
     parallel (1.26.3)
     parser (3.3.5.1)
       ast (~> 2.4.1)
@@ -436,12 +435,12 @@ GEM
     zeitwerk (2.7.3)
 
 PLATFORMS
-  ruby
   x86_64-linux
 
 DEPENDENCIES
   activerecord-session_store (>= 2.1.0)
   addressable (~> 2.7)
+  benchmark
   bigdecimal
   bootstrap (~> 5.0.0)
   bundler (>= 2.1.4)
@@ -459,11 +458,13 @@ DEPENDENCIES
   jwt (~> 2.2.2)
   listen (~> 3.5)
   lodash-rails
+  logger
   lograge (~> 0.14.0)
   minitest-stub_any_instance
   mutex_m
   oauth (~> 0.5.1)
   oauthenticator (~> 1.4, >= 1.4.1)
+  ostruct
   pg (>= 0.4.4)
   popper_js (>= 1.16)
   puma (>= 6.4.3)
@@ -487,3 +488,6 @@ DEPENDENCIES
   tzinfo-data
   web-console (>= 4.2.1)
   webmock (>= 3.23.1)
+
+BUNDLED WITH
+   2.6.9
