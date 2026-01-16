@@ -27,7 +27,7 @@ namespace :apps do
     uid = args.[](:uid) || SecureRandom.hex(32)
     secret = args.[](:secret) || SecureRandom.hex(32)
 
-    redirect_uri = (args[:hostname]).to_s
+    redirect_uri = args[:hostname].to_s
     app = Doorkeeper::Application.create!(name: args[:name], uid: uid, secret: secret, \
                                           redirect_uri: redirect_uri, scopes: 'api')
     app1 = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }
@@ -55,7 +55,7 @@ namespace :apps do
     app.update!(uid: args[:uid]) if args.[](:uid)
     app.update!(secret: args[:secret]) if args.[](:secret)
 
-    redirect_uri = (args[:redirect_uris]).gsub(',', "\r\n")
+    redirect_uri = args[:redirect_uris].gsub(',', "\r\n")
     puts("redirect_uri:\n#{redirect_uri}")
     app.update!(redirect_uri: redirect_uri) if args.[](:redirect_uris)
     app_updated = app.attributes.select { |key, _value| %w[name uid secret redirect_uri].include?(key) }

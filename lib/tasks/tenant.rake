@@ -4,8 +4,8 @@ require 'bbb_lti_broker/helpers'
 require_relative 'task_helpers'
 
 namespace :tenant do
-  desc 'Add a new tenant - new[uid]'
-  task :new, [:uid] => :environment do |_t, args|
+  desc 'Add a new tenant - new[uid,region]'
+  task :new, %i[uid region] => :environment do |_t, args|
     unless args[:uid]
       puts('No uid provided')
       exit(1)
@@ -15,7 +15,7 @@ namespace :tenant do
       puts("Tenant '#{args[:uuid]}' already exists, it can not be added")
       exit(1)
     end
-    RailsLti2Provider::Tenant.create!(uid: args[:uid])
+    RailsLti2Provider::Tenant.create!(uid: args[:uid], region: args[:region])
     puts("Added '#{args[:uid]}' tenant")
   rescue StandardError => e
     puts(e.backtrace)
@@ -65,7 +65,7 @@ namespace :tenant do
     desc 'Show all tenants'
     task :all, [] => :environment do |_t|
       $stdout.puts('tenant:show:all')
-      tenants = RailsLti2Provider::Tenant.select(:id, :uid, :settings, :metadata).all
+      tenants = RailsLti2Provider::Tenant.select(:id, :uid, :region, :settings, :metadata).all
       tenants.each do |tenant|
         puts(tenant.to_json)
       end
@@ -94,7 +94,7 @@ namespace :tenant do
       end
       abort('The Value cannot be blank.') if value.blank?
 
-      tenant = RailsLti2Provider::Tenant.select(:id, :uid, :settings, :metadata).find_by(key.to_sym => value)
+      tenant = RailsLti2Provider::Tenant.select(:id, :uid, :region, :settings, :metadata).find_by(key.to_sym => value)
       abort("The tenant with #{key} = #{value} does not exist") if tenant.blank?
 
       puts(tenant.to_json)
@@ -114,7 +114,7 @@ namespace :tenant do
     end
 
     $stdout.puts('tenant:show[id]')
-    tenant = RailsLti2Provider::Tenant.select(:id, :uid, :settings, :metadata).find(id)
+    tenant = RailsLti2Provider::Tenant.select(:id, :uid, :region, :settings, :metadata).find(id)
     puts(tenant.to_json)
   rescue StandardError => e
     puts(e.backtrace)
