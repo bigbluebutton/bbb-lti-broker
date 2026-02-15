@@ -23,7 +23,7 @@ gem 'coffee-rails', '~> 5.0', '>= 5.0.0'
 gem 'http'
 
 gem 'addressable', '~> 2.7'
-gem 'faraday'
+gem 'faraday', '>= 2.14.1'
 gem 'oauthenticator', '~> 1.4', '>= 1.4.1'
 
 gem 'bundler', '>=2.1.4'
