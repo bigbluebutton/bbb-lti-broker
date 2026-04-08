@@ -22,7 +22,7 @@ gem 'coffee-rails', '~> 5.0', '>= 5.0.0'
 # gem 'therubyracer', platforms: :ruby
 gem 'http'
 
-gem 'addressable', '~> 2.7'
+gem 'addressable', '~> 2.9'
 gem 'faraday'
 gem 'oauthenticator', '~> 1.4', '>= 1.4.1'
 
