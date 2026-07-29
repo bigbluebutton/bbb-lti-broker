@@ -39,7 +39,7 @@ gem 'redis', '~> 4.2'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'jwt', '~> 2.2.2'
-gem 'oauth', '~> 0.5.1'
+gem 'oauth', '~> 1.1.6'
 
 gem 'doorkeeper', '~> 5.7.0'
 gem 'repost', '~> 0.3.8'
