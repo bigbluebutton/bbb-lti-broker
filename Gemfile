@@ -38,7 +38,7 @@ gem 'redis', '~> 4.2'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'jwt', '~> 2.2.2'
+gem 'jwt', '~> 2.10.3'
 gem 'oauth', '~> 1.1.6'
 
 gem 'doorkeeper', '~> 5.7.0'
