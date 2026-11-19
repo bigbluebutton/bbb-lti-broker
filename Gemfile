@@ -41,7 +41,7 @@ gem 'redis', '~> 4.2'
 gem 'jwt', '~> 2.10.3'
 gem 'oauth', '~> 1.1.6'
 
-gem 'doorkeeper', '~> 5.7.0'
+gem 'doorkeeper', '~> 5.9.1'
 gem 'repost', '~> 0.3.8'
 
 gem 'lodash-rails'
